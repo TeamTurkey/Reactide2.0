@@ -8,8 +8,8 @@ const simulator = require('./simulator');
 
 module.exports = () => {
   //ipcMain listeners
-  ipcMain.on('openSimulator', (event, root) => {
-    simulator(root);
+  ipcMain.on('openSimulator', (event) => {
+    simulator();
   });
 
   ipcMain.on('createItem', (event, dirPath, name, type) => {

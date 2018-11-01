@@ -4,7 +4,7 @@ const { dialog } = require('electron');
 const path = require('path');
 const copy = require('../../lib/copy-directory');
 const deleteDirectory = require('../../lib/delete-directory');
-
+const cra = require('../../lib/create-react-app');
 const menuTemplate = windowObj => [
   {
     label: 'Main',
@@ -24,12 +24,17 @@ const menuTemplate = windowObj => [
       {
         label: 'New Project',
         click: () => {
-          // warn user of unsaved changes before belo
+          // warn user of unsaved changes before below
           global.newProj = true;
           global.mainWindow.webContents.send('newProject');
-          deleteDirectory('./lib/new-project');
-          copy('./lib/new-project-template/new-project', './lib/');
-          global.mainWindow.webContents.send('openDir', path.join(__dirname, '../../lib/new-project'));
+          //deleteDirectory('./lib/new-project');
+          const save = dialog.showSaveDialog();
+          if (save) {
+            copy('./lib/new-project-template/new-project', save);
+          }
+          //Run cra with 'save' variable as destination path
+          cra(save);
+          // global.mainWindow.webContents.send('openDir', save);
         },
         accelerator: 'CommandOrControl+N'
       },
@@ -41,6 +46,7 @@ const menuTemplate = windowObj => [
           const rootDir = dialog.showOpenDialog(windowObj, {
             properties: ['openDirectory']
           });
+          console.log('Open dir message sending...');
           if (rootDir) {
             global.mainWindow.webContents.send('openDir', rootDir[0]);
           }
@@ -51,11 +57,12 @@ const menuTemplate = windowObj => [
       {
         label: 'Save',
         click: () => {
-          const save = dialog.showSaveDialog();
-          if (save) {
-            copy('./lib/temp/new-project', save[0]);
-          }
-          global.mainWindow.webContents.send('openDir', save[0]);
+          // const save = dialog.showSaveDialog();
+          // if (save) {
+          //   console.log(save[0]);
+          //   copy('./lib/new-project-template/new-project', save);
+          // }
+          global.mainWindow.webContents.send('saveFile');
         },
         accelerator: 'CommandOrControl+S'
       }

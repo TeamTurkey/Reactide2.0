@@ -9502,6 +9502,7 @@ label.tree_label:hover:before {
   right: 0px;
 >>>>>>> cfa5ae64... fixed styles
   cursor: pointer;
+  z-index: 100;
 }
 .create-menu {
   padding: 0px 10px 10px 10px;

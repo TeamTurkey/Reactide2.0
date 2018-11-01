@@ -58,11 +58,14 @@ export default class App extends React.Component {
     
     //reset tabs, should store state in local storage before doing this though
     ipcRenderer.on('openDir', (event, projPath) => {
+      console.log("listening for openDir");
       if (this.state.openedProjectPath !== projPath) {
         this.setState({ openTabs: [], activeTab: null, openedProjectPath: projPath, nextTabId: 0 });
       }
     });
     ipcRenderer.on('saveFile', (event, arg) => {
+      console.log("This is the args", arg)
+      console.log('This is the event', event);
       if (this.state.activeTab !== null) {
         this.saveTab();
       }
@@ -87,11 +90,13 @@ export default class App extends React.Component {
   //registers listeners for opening projects and new projects
   fileTreeInit() {
     ipcRenderer.on('openDir', (event, dirPath) => {
+      console.log('Opening Dir');
       if (dirPath !== this.state.rootDirPath) {
         this.setFileTree(dirPath);
       }
     });
     ipcRenderer.on('newProject', (event, arg) => {
+      console.log('Hello');
       if (this.state.watch) this.state.watch.close();
       this.setState({
         fileTree: null,
@@ -295,6 +300,8 @@ export default class App extends React.Component {
 
   //click handler for plus button on directories, 'opens' new file/dir menu by setting openMenuID state
   openCreateMenu(id, itemPath, type, event) {
+    console.log('Opening a create menu');
+    console.log(id, itemPath, type, event);
     event.stopPropagation();
     this.setState({
       openMenuId: id,
@@ -423,7 +430,7 @@ export default class App extends React.Component {
 
   //simulator click handler
   openSim() {
-    ipcRenderer.send('openSimulator');
+    ipcRenderer.send('openSimulator', 'helloworld');
   }
 
   //closes any open dialogs, handles clicks on anywhere besides the active open menu/form
