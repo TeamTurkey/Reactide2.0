@@ -45,8 +45,13 @@
     "react-addons-test-utils": "^15.4.2",
     "sinon": "^2.1.0",
     "spectron": "^3.6.2",
+<<<<<<< HEAD
+||||||| merged common ancestors
+    "webpack": "^4.23.0",
+=======
     "style-loader": "^0.23.1",
     "webpack": "^4.23.0",
+>>>>>>> 0d950c5dd09939b99ca984a3c9a2db5fc7376f5d
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.1.10",
     "worker-loader": "^2.0.0"
