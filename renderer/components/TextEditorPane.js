@@ -3,7 +3,7 @@ import TextEditor from './TextEditor';
 import TabContainer from './TabContainer';
 import PropTypes from 'prop-types';
 
-const TextEditorPane = ({ appState, addEditorInstance, setActiveTab, closeTab }) => {
+const TextEditorPane = ({ appState, addEditorInstance, setActiveTab, closeTab, onEditorValueChange }) => {
   const editorArr = [];
   // for (var i = 0; i < appState.openTabs.length; i++) {
   //   editorArr.push(
@@ -16,19 +16,17 @@ const TextEditorPane = ({ appState, addEditorInstance, setActiveTab, closeTab })
   //     />
   //   );
   // }
-  let activeIndex = 0;
-  for (let i = 0; i < appState.openTabs.length; i++) {
-    if (appState.openTabs[i].id === appState.activeTab) {
-      editorArr.push(
-        <TextEditor
-          path={appState.openTabs[activeIndex].path}
-          // onOpenPath={this.props.handleOpenFile}
-          // onValueChange={this.props.handleEditorValueChange}
-        />
-      );
-      break;
-    }
+
+  if (appState.openTabs.length > 0) {
+    console.log("in TextEditorPane:", appState.openTabs[appState.activeTab].path);
+    editorArr.push(
+      <TextEditor
+        path={appState.openTabs[appState.activeTab].path}
+        // onOpenPath={this.props.handleOpenFile}
+        onValueChange={onEditorValueChange}
+      />);
   }
+
   return (
     <ride-pane>
       <TabContainer appState={appState} setActiveTab={setActiveTab} closeTab={closeTab} />

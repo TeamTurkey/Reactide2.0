@@ -36,7 +36,9 @@ export default class App extends React.Component {
       renameFlag: false,
       fileChangeType: null,
       deletePromptOpen: false,
-      newName: ''
+      newName: '',
+      files: {},
+      currentFile: ''
     };
 
     this.fileTreeInit();
@@ -55,6 +57,8 @@ export default class App extends React.Component {
     this.findParentDir = this.findParentDir.bind(this);
     this.deletePromptHandler = this.deletePromptHandler.bind(this);
     this.renameHandler = this.renameHandler.bind(this);
+    this.handleOpenFile = this.handleOpenFile.bind(this);
+    this.handleEditorValueChange = this.handleEditorValueChange.bind(this);
     
     //reset tabs, should store state in local storage before doing this though
     ipcRenderer.on('openDir', (event, projPath) => {
@@ -384,18 +388,19 @@ export default class App extends React.Component {
     }
   }
 
-  //sets active tab
+  // //sets active tab
   setActiveTab(id) {
-    this.setState({ activeTab: id }, () => {
-      let editorNode = document.getElementById(id);
+    console.log("setActiveTabl", id);
+    this.setState({ activeTab: id }, () => {console.log(this.state.openTabs) }//, () => {
+      //let editorNode = document.getElementById(id);
 
       //for text editor window resizing
-      let parent = editorNode.parentElement;
-      editorNode.style.width = parent.clientWidth;
-      editorNode.firstElementChild.style.width = parent.clientWidth;
-      editorNode.firstElementChild.firstElementChild.style.width = parent.clientWidth;
-      editorNode.getElementsByClassName('monaco-scrollable-element')[0].style.width = parent.clientWidth - 46;
-    });
+      // let parent = editorNode.parentElement;
+      // editorNode.style.width = parent.clientWidth;
+      // editorNode.firstElementChild.style.width = parent.clientWidth;
+      // editorNode.firstElementChild.firstElementChild.style.width = parent.clientWidth;
+      // editorNode.getElementsByClassName('monaco-scrollable-element')[0].style.width = parent.clientWidth - 46;
+   /* }*/);
   }
 
   //double click handler for files
@@ -450,11 +455,13 @@ export default class App extends React.Component {
     });
   }
 
-  handleOpenPath(path) {
+  // for streatch feature
+  handleOpenFile(path) {
     this.setState({ currentFile: path });
   }
 
   handleEditorValueChange(value) {
+    console.log(value);
     this.setState(state => ({
       files: {
         ...state.files,
@@ -505,7 +512,7 @@ export default class App extends React.Component {
               closeTab={this.closeTab}
               openMenuId={this.state.openMenuId}
               onOpenFile={this.handleOpenFile}
-              onTextChange={this.handleEditorValueChange}
+              onEditorValueChange={this.handleEditorValueChange}
             />
 
             <ride-pane-resize-handle className="horizontal" />

@@ -8,7 +8,7 @@
 <body>
   <div id='root'></div>
   <script src='../dist/webpack-bundle.js'></script>
-  <script>
+  <!-- <script>
 		// Monaco uses a custom amd loader that over-rides node's require.
 		// Keep a reference to node's require so we can restore it after executing the amd loader file.
 		var nodeRequire = global.require;
@@ -19,7 +19,6 @@
 		var amdRequire = global.require;
 		global.require = nodeRequire;
 	</script>
-
 	<script>
 		// require node modules before loader.js comes in
 		var path = require('path');
@@ -48,16 +47,16 @@
         theme: "vs-dark",
 			});
 		});
-	</script>
+	</script> -->
 	<!-- <script src='./testScript.js'></script> by RY-->
   <script type='text/javascript'>
-    // if (process.env.NODE_ENV === 'development') {
-    //   var script = document.createElement('script');
-    //   script.src = 'http://localhost:8081/dist/bundle.js';
-    //   document.getElementsByTagName('body')[0].append(script);
-    // } else {
-    //   require('../dist/bundle.js');
-    // }
+    if (process.env.NODE_ENV === 'development') {
+      var script = document.createElement('script');
+      script.src = 'http://localhost:8081/dist/webpack-bundle.js';
+      document.getElementsByTagName('body')[0].append(script);
+    } else {
+      require('../dist/webpack-bundle.js');
+    }
   </script>
 </body>
 
