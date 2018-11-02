@@ -6,7 +6,7 @@ module.exports = {
   output: {
     path: path.join(__dirname, '/dist'),
     filename: 'webpack-bundle.js',
-    publicPath: '/dist/',
+    publicPath: '../dist/',
   },
   // Compile for Electron for main process.
   target: 'electron-main',
