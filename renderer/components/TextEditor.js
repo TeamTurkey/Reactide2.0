@@ -36,15 +36,14 @@ export default class TextEditor extends React.PureComponent {
     super(props);
     this.editor = null;
     this._linterWorker = null;
-    this.editorStates = new Map();
+    this.editorStates = new Map();    
   }
 
-  _updateMarkers(data) {
+  _updateMarkers(message) {
     window.requestAnimationFrame(() => {
       const model = this.editor.getModel();
-
-      if (model && model.getVersionId() === version) {
-        monaco.editor.setModelMarkers(model, 'eslint', data.markers);
+      if (model && model.getVersionId() === message.data.version) {
+        monaco.editor.setModelMarkers(model, 'eslint', message.data.markers);
       }
     });
   };
@@ -63,6 +62,7 @@ export default class TextEditor extends React.PureComponent {
   // Find or create a model if not exists, and then set model
   _initializeFile(path) {
     const fs = window.require('fs');
+
     const value = fs.readFileSync(path, { encoding: 'utf-8' });
     let model = monaco.editor
       .getModels()
@@ -110,11 +110,11 @@ export default class TextEditor extends React.PureComponent {
     this.editor.focus();
 
     // Subscribe to change in value so we can notify the parent
-    // this._subscription = model.onDidChangeContent(() => {
-    //   const value = model.getValue();
-    //   //this.props.onValueChange(value);
-    //   this._lintCode(value);
-    // });
+    this._subscription = model.onDidChangeContent(() => {
+      const value = model.getValue();
+      this.props.onValueChange(value);
+      this._lintCode(value);
+    });
   };
 
   _getLanguage(path) {
@@ -141,48 +141,48 @@ export default class TextEditor extends React.PureComponent {
   };
 
   componentDidMount() {
-    // let amdRequire = global.require('monaco-editor/min/vs/loader.js').require;
-    // const path = window.require('path');
-    // const fs = window.rerequire('fs');
-    //var file = fs.readFileSync(this.props.tab.path, { encoding: 'utf8' });
+    let amdRequire = global.require('monaco-editor/min/vs/loader.js').require;
+    const path = window.require('path');
+    const fs = window.require('fs');
+    var file = fs.readFileSync(this.props.path, { encoding: 'utf8' });
 
-    // function uriFromPath(_path) {
-    //   var pathName = path.resolve(_path).replace(/\\/g, '/');
-    //   if (pathName.length > 0 && pathName.charAt(0) !== '/') {
-    //     pathName = '/' + pathName;
-    //   }
-    //   return encodeURI('file://' + pathName);
-    // }
-    //
-    // amdRequire.config({
-    //   baseUrl: uriFromPath(path.resolve(__dirname, '../node_modules/monaco-editor/min'))
-    // });
-    // workaround monaco-css not understanding the environment
-    //self.module = undefined;
-    // workaround monaco-typescript not understanding the environment
-    //self.process.browser = true;
+    function uriFromPath(_path) {
+      var pathName = path.resolve(_path).replace(/\\/g, '/');
+      if (pathName.length > 0 && pathName.charAt(0) !== '/') {
+        pathName = '/' + pathName;
+      }
+      return encodeURI('file://' + pathName);
+    }
+    
+    amdRequire.config({
+      baseUrl: uriFromPath(path.resolve(__dirname, '../node_modules/monaco-editor/min')),
+    });
+    //workaround monaco-css not understanding the environment
+    self.module = undefined;
+    //workaround monaco-typescript not understanding the environment
+    self.process.browser = true;
     //const id = this.props.id;
-    //var editor; comment out by Ryan --> definition moved to constructor
+    var editor; //comment out by Ryan --> definition moved to constructor
 
-    // amdRequire(['vs/editor/editor.main'], () => {
-    //   editor = monaco.editor.create(document.getElementById(id), {
-    //     value: file,
-    //     language: 'javascript',
-    //     theme: 'vs-dark'
-    //   });
-    //   this.props.addEditorInstance(editor, id);
+    amdRequire(['vs/editor/editor.main'], () => {
+      editor = monaco.editor.create(document.getElementById(id), {
+        value: file,
+        language: 'javascript',
+        theme: 'vs-dark'
+      });
+      //this.props.addEditorInstance(editor, id);
 
-    //   window.addEventListener('resize', () => {
-    //     if (id === this.props.activeTab) {
-    //       let editorNode = document.getElementById(id);
-    //       let parent = editorNode.parentElement;
-    //       editorNode.style.width = parent.clientWidth;
-    //       editorNode.firstElementChild.style.width = parent.clientWidth;
-    //       editorNode.firstElementChild.firstElementChild.style.width = parent.clientWidth;
-    //       editorNode.getElementsByClassName('monaco-scrollable-element')[0].style.width = parent.clientWidth - 46;
-    //     }
-    //   });
-    // });
+      // window.addEventListener('resize', () => {
+      //   if (id === this.props.activeTab) {
+      //     let editorNode = document.getElementById(id);
+      //     let parent = editorNode.parentElement;
+      //     editorNode.style.width = parent.clientWidth;
+      //     editorNode.firstElementChild.style.width = parent.clientWidth;
+      //     editorNode.firstElementChild.firstElementChild.style.width = parent.clientWidth;
+      //     editorNode.getElementsByClassName('monaco-scrollable-element')[0].style.width = parent.clientWidth - 46;
+      //   }
+      // });
+    });
 
     this.editor = monaco.editor.create(document.getElementById('editor-container'),
       {
@@ -213,10 +213,10 @@ export default class TextEditor extends React.PureComponent {
     );
     // Intialize the linter
     this._linterWorker = new ESLintWorker();
-    this._linterWorker.addEventListener('message', (data) => { this._updateMarkers(data); });
+    this._linterWorker.addEventListener('message', (message) => { this._updateMarkers(message); });
 
 
-    //this._openFile(this.props.path);
+    this._openFile(this.props.path);
   }
 
   componentDidUpdate(prevProps) {

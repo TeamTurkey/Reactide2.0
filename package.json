@@ -8,7 +8,7 @@
     "start": "cross-env NODE_ENV=production electron .",
     "dev-start": "cross-env NODE_ENV=development electron .",
     "dev": "webpack-dev-server --inline --content-base ./renderer",
-    "webpack": "webpack --mode production"
+    "webpack": "webpack --mode development"
   },
   "author": "Mark Cruz, Jin Choi, Bita Djaghouri",
   "license": "ISC",
