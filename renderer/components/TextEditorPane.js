@@ -17,11 +17,13 @@ const TextEditorPane = ({ appState, addEditorInstance, setActiveTab, closeTab, o
   //   );
   // }
 
-  if (appState.openTabs.length > 0) {
-    console.log("in TextEditorPane:", appState.openTabs[appState.activeTab].path);
+  if (Object.keys(appState.openTabs).length > 0) {
+    //console.log('ACTIVE TAB IN TEXTEDITORPANE', appState.activeTab);
+    //console.log("in TextEditorPane:", appState.openTabs[appState.activeTab].path);
+    console.log(appState.previousPaths[appState.previousPaths.length-1]);
     editorArr.push(
       <TextEditor
-        path={appState.openTabs[appState.activeTab].path}
+        path={appState.previousPaths[appState.previousPaths.length-1]}
         // onOpenPath={this.props.handleOpenFile}
         onValueChange={onEditorValueChange}
       />);
