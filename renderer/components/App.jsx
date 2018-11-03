@@ -48,7 +48,6 @@ export default class App extends React.Component {
     this.setActiveTab = this.setActiveTab.bind(this);
     this.isFileOpened = this.isFileOpened.bind(this);
     this.saveTab = this.saveTab.bind(this);
-    this.addEditorInstance = this.addEditorInstance.bind(this);
     this.closeTab = this.closeTab.bind(this);
     this.openCreateMenu = this.openCreateMenu.bind(this);
     this.closeOpenDialogs = this.closeOpenDialogs.bind(this);
@@ -359,17 +358,17 @@ export default class App extends React.Component {
     this.setState({ openTabs: temp, activeTab: temp[0] ? temp[0].id : null });
   }
 
-  addEditorInstance(editor, id) {
-    const temp = this.state.openTabs;
-    let i = 0;
-    while (this.state.openTabs[i].id !== id) {
-      i++;
-    }
-    temp[i].editor = editor;
-    this.setState({
-      openTabs: temp
-    });
-  }
+  // addEditorInstance(editor, id) {
+  //   const temp = this.state.openTabs;
+  //   let i = 0;
+  //   while (this.state.openTabs[i].id !== id) {
+  //     i++;
+  //   }
+  //   temp[i].editor = editor;
+  //   this.setState({
+  //     openTabs: temp
+  //   });
+  // }
 
   //save handler
   saveTab() {
