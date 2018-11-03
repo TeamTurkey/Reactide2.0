@@ -57,11 +57,7 @@ const menuTemplate = windowObj => [
       {
         label: 'Save',
         click: () => {
-          // const save = dialog.showSaveDialog();
-          // if (save) {
-          //   console.log(save[0]);
-          //   copy('./lib/new-project-template/new-project', save);
-          // }
+          
           global.mainWindow.webContents.send('saveFile');
         },
         accelerator: 'CommandOrControl+S'

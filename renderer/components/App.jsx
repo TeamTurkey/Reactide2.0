@@ -13,11 +13,11 @@ const { File, Directory } = require('../../lib/item-schema');
 
 export default class App extends React.Component {
   constructor() {
+    console.log('CONSTRUCTING');
     super();
     this.state = {
-      nextTabId: 0,
-      openTabs: [],
-      activeTab: null,
+      openTabs: {},
+      previousPaths: [],
       openedProjectPath: '',
       openMenuId: null,
       createMenuInfo: {
@@ -37,8 +37,6 @@ export default class App extends React.Component {
       fileChangeType: null,
       deletePromptOpen: false,
       newName: '',
-      files: {},
-      currentFile: ''
     };
 
     this.fileTreeInit();
@@ -48,7 +46,6 @@ export default class App extends React.Component {
     this.setActiveTab = this.setActiveTab.bind(this);
     this.isFileOpened = this.isFileOpened.bind(this);
     this.saveTab = this.saveTab.bind(this);
-    this.addEditorInstance = this.addEditorInstance.bind(this);
     this.closeTab = this.closeTab.bind(this);
     this.openCreateMenu = this.openCreateMenu.bind(this);
     this.closeOpenDialogs = this.closeOpenDialogs.bind(this);
@@ -57,20 +54,19 @@ export default class App extends React.Component {
     this.findParentDir = this.findParentDir.bind(this);
     this.deletePromptHandler = this.deletePromptHandler.bind(this);
     this.renameHandler = this.renameHandler.bind(this);
-    this.handleOpenFile = this.handleOpenFile.bind(this);
+    //this.handleOpenFile = this.handleOpenFile.bind(this);
     this.handleEditorValueChange = this.handleEditorValueChange.bind(this);
     
     //reset tabs, should store state in local storage before doing this though
+  }
+  componentDidMount() {
     ipcRenderer.on('openDir', (event, projPath) => {
-      console.log("listening for openDir");
       if (this.state.openedProjectPath !== projPath) {
-        this.setState({ openTabs: [], activeTab: null, openedProjectPath: projPath, nextTabId: 0 });
+        this.setState({ openTabs: {}, openedProjectPath: projPath});
       }
     });
     ipcRenderer.on('saveFile', (event, arg) => {
-      console.log("This is the args", arg)
-      console.log('This is the event', event);
-      if (this.state.activeTab !== null) {
+      if (this.state.previousPaths[this.state.previousPaths.length-1] !== null) {
         this.saveTab();
       }
     });
@@ -94,13 +90,11 @@ export default class App extends React.Component {
   //registers listeners for opening projects and new projects
   fileTreeInit() {
     ipcRenderer.on('openDir', (event, dirPath) => {
-      console.log('Opening Dir');
       if (dirPath !== this.state.rootDirPath) {
         this.setFileTree(dirPath);
       }
     });
     ipcRenderer.on('newProject', (event, arg) => {
-      console.log('Hello');
       if (this.state.watch) this.state.watch.close();
       this.setState({
         fileTree: null,
@@ -304,7 +298,6 @@ export default class App extends React.Component {
 
   //click handler for plus button on directories, 'opens' new file/dir menu by setting openMenuID state
   openCreateMenu(id, itemPath, type, event) {
-    console.log('Opening a create menu');
     console.log(id, itemPath, type, event);
     event.stopPropagation();
     this.setState({
@@ -354,72 +347,51 @@ export default class App extends React.Component {
   }
 
   //tab close handler
-  closeTab(id, event) {
-    const temp = this.state.openTabs;
-    for (var i = 0; i < temp.length; i++) {
-      if (temp[i].id === id) {
-        temp.splice(i, 1);
+  closeTab(path, event) {
+    const copyOpenTabs = Object.assign({},this.state.openTabs);
+    const history = this.state.previousPaths.slice().filter((elem) => {
+      return elem !== path;
+    });
+    for (let key in copyOpenTabs) {
+      if (key === path) {
+        delete copyOpenTabs[key];
         break;
       }
     }
     event.stopPropagation();
-    this.setState({ openTabs: temp, activeTab: temp[0] ? temp[0].id : null });
-  }
-
-  addEditorInstance(editor, id) {
-    const temp = this.state.openTabs;
-    let i = 0;
-    while (this.state.openTabs[i].id !== id) {
-      i++;
-    }
-    temp[i].editor = editor;
-    this.setState({
-      openTabs: temp
-    });
+    this.setState({ openTabs: copyOpenTabs, previousPaths: history });
   }
 
   //save handler
   saveTab() {
-    for (var i = 0; i < this.state.openTabs.length; i++) {
-      if (this.state.openTabs[i].id === this.state.activeTab) {
-        fs.writeFileSync(this.state.openTabs[i].path, this.state.openTabs[i].editor.getValue(), { encoding: 'utf8' });
-        break;
+        fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length-1], this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]].editorValue, { encoding: 'utf8' });
       }
-    }
-  }
-
   // //sets active tab
-  setActiveTab(id) {
-    console.log("setActiveTabl", id);
-    this.setState({ activeTab: id }, () => {console.log(this.state.openTabs) }//, () => {
-      //let editorNode = document.getElementById(id);
-
-      //for text editor window resizing
-      // let parent = editorNode.parentElement;
-      // editorNode.style.width = parent.clientWidth;
-      // editorNode.firstElementChild.style.width = parent.clientWidth;
-      // editorNode.firstElementChild.firstElementChild.style.width = parent.clientWidth;
-      // editorNode.getElementsByClassName('monaco-scrollable-element')[0].style.width = parent.clientWidth - 46;
-   /* }*/);
+  setActiveTab(path) {
+    let copyPreviousPaths = this.updateHistory(path);
+    this.setState({previousPaths: copyPreviousPaths})
+  }
+  updateHistory(path) {
+    let copyPreviousPaths = this.state.previousPaths;
+    copyPreviousPaths.push(path);
+    return copyPreviousPaths;
   }
 
   //double click handler for files
   dblClickHandler(file) {
-    let id = this.isFileOpened(file);
-    if (id === -1) {
-      const openTabs = this.state.openTabs;
-      id = this.state.nextTabId;
-      openTabs.push({
+    const history = this.updateHistory(file.path);
+
+    if (!(Object.keys(this.state.openTabs).includes(file.path))) {
+      const openTabs = Object.assign({},this.state.openTabs);
+      openTabs[file.path] = {
         path: file.path,
-        id,
         name: file.name,
         modified: false,
-        editor: null
-      });
-      this.setState({ openTabs, activeTab: id, nextTabId: id + 1 });
-      // store.dispatch()
+        editorValue: ''
+      };
+      this.setState({openTabs: openTabs, previousPaths: history});
     } else {
-      this.setState({ activeTab: id });
+      this.setState({previousPaths: history})
     }
   }
 
@@ -456,18 +428,16 @@ export default class App extends React.Component {
   }
 
   // for streatch feature
-  handleOpenFile(path) {
-    this.setState({ currentFile: path });
-  }
+  // handleOpenFile(path) {
+  //   this.setState({ currentFile: path });
+  // }
 
   handleEditorValueChange(value) {
-    console.log(value);
-    this.setState(state => ({
-      files: {
-        ...state.files,
-        [state.currentFile]: value
-      }
-    }));
+    const copyOpenTabs = Object.assign({}, this.state.openTabs)
+    const copyTabObject = Object.assign({}, this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]]);
+    copyTabObject.editorValue = value;
+    copyOpenTabs[this.state.previousPaths[this.state.previousPaths.length-1]] = copyTabObject;
+    this.setState({openTabs: copyOpenTabs}, () => this.saveTab());
   }
 
   render() {

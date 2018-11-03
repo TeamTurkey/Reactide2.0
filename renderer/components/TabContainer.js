@@ -8,15 +8,28 @@ const TabContainer = ({
   closeTab
 }) => {
   const tabs = [];
-    for (var i = 0; i < appState.openTabs.length; i++) {
+    // for (var i = 0; i < appState.openTabs.length; i++) {
+    //   tabs.push(
+    //     <Tab 
+    //       key={i} 
+    //       name={appState.openTabs[i].name} 
+    //       setActiveTab={setActiveTab} 
+    //       id={appState.openTabs[i].id} 
+    //       closeTab={closeTab}
+    //     />);
+    // }
+    for (let key in appState.openTabs) {
       tabs.push(
-        <Tab 
-          key={i} 
-          name={appState.openTabs[i].name} 
-          setActiveTab={setActiveTab} 
-          id={appState.openTabs[i].id} 
+        <Tab
+          key={key}
+          name={appState.openTabs[key].name}
+          setActiveTab = {setActiveTab}
+          path={key}
           closeTab={closeTab}
-        />);
+          />
+      );
+      console.log(tabs);
+      console.log('OPENTABS', appState.openTabs);
     }
     return (
       <ul className="list-inline tab-bar inset-panel tab-container">

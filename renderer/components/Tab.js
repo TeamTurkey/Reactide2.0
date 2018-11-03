@@ -1,20 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Tab = ({ name, setActiveTab, id, closeTab }) => {
+const Tab = ({ name, setActiveTab, path, closeTab }) => {
   return (
-    <li className="texteditor tab" onClick={() => { setActiveTab(id); }} >
+    <li className="texteditor tab" onClick={() => { setActiveTab(path); }} >
       <div className="title">{name}</div>
-      <div className="close-icon" onClick={() => { closeTab(id); }} />
+      <div className="close-icon" onClick={(event) => { closeTab(path, event); }} />
     </li>
   );
-};
-
-Tab.propTypes = {
-  name: PropTypes.string.isRequired,
-  setActiveTab: PropTypes.func.isRequired,
-  id: PropTypes.number.isRequired,
-  closeTab: PropTypes.func.isRequired
 };
 
 export default Tab;
