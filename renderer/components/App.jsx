@@ -60,6 +60,7 @@ export default class App extends React.Component {
     //reset tabs, should store state in local storage before doing this though
   }
   componentDidMount() {
+
     ipcRenderer.on('openDir', (event, projPath) => {
       if (this.state.openedProjectPath !== projPath) {
         this.setState({ openTabs: {}, openedProjectPath: projPath });
