@@ -28,8 +28,12 @@ const compilerOptions = {
   jsxFactory: 'React.createElement',
 };
 
+// Set compiler options to typescriptDefaults and javascriptDefaults
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
 monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions);
+
+monaco.editor.defineTheme('ayu-light', light);
+monaco.editor.defineTheme('ayu-dark', dark);
 
 export default class TextEditor extends React.PureComponent {
   constructor(props) {
@@ -39,6 +43,7 @@ export default class TextEditor extends React.PureComponent {
     this.editorStates = new Map();    
   }
 
+  // Render eslint message as marker in monaco
   _updateMarkers(message) {
     window.requestAnimationFrame(() => {
       const model = this.editor.getModel();
@@ -48,6 +53,7 @@ export default class TextEditor extends React.PureComponent {
     });
   };
 
+  // Pass code to eslint linterWorker for processing
   _lintCode(code) {
     const model = this.editor.getModel();
 
@@ -59,7 +65,7 @@ export default class TextEditor extends React.PureComponent {
     });
   };
 
-  // Find or create a model if not exists, and then set model
+  // Return existing model or create a new model if not exists
   _initializeFile(path) {
     const fs = window.require('fs');
 
@@ -81,6 +87,9 @@ export default class TextEditor extends React.PureComponent {
           },
         ]
       );
+      // Restore the editor state for the file
+      if (this.editorStates.get(path))
+        this.editor.restoreViewState(editorState);
     } else {
       model = monaco.editor.createModel(
         value,
@@ -96,15 +105,9 @@ export default class TextEditor extends React.PureComponent {
     return model;
   };
 
+  // Setup or restore monaco model for the opening file path 
   _openFile(path) {
     let model = this._initializeFile(path);
-
-    // Restore the editor state for the file
-    const editorState = this.editorStates.get(path);
-
-    if (editorState) {
-      this.editor.restoreViewState(editorState);
-    }
 
     // Bring browser focus to the editor text
     this.editor.focus();
@@ -117,6 +120,7 @@ export default class TextEditor extends React.PureComponent {
     });
   };
 
+  // Return language type as a string
   _getLanguage(path) {
     if (path.includes('.')) {
       switch (path.split('.').pop()) {
@@ -187,7 +191,7 @@ export default class TextEditor extends React.PureComponent {
     this.editor = monaco.editor.create(document.getElementById('editor-container'),
       {
         language: this._getLanguage(this.props.path),
-        theme: 'vs-dark',
+        theme: 'ayu-dark',
         automaticLayout: true
       },
       // {
@@ -214,7 +218,6 @@ export default class TextEditor extends React.PureComponent {
     // Intialize the linter
     this._linterWorker = new ESLintWorker();
     this._linterWorker.addEventListener('message', (message) => { this._updateMarkers(message); });
-
 
     this._openFile(this.props.path);
   }
