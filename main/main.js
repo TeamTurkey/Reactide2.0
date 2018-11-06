@@ -29,7 +29,7 @@ let win = null;
 app.on('ready', async () => {
   // initialize main window
   win = new BrowserWindow({
-    width: 1000,
+    width: 1200,
     height: 800,
     minWidth: 604,
     minHeight: 283,
