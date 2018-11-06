@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 
 const TextEditorPane = ({ appState, setActiveTab, closeTab, onEditorValueChange }) => {
   const editorArr = [];
-
   if (Object.keys(appState.openTabs).length > 0) {
     console.log(appState.previousPaths[appState.previousPaths.length-1]);
     editorArr.push(
