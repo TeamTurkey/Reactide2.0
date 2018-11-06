@@ -40,7 +40,7 @@ export default class TextEditor extends React.PureComponent {
     super(props);
     this.editor = null;
     this._linterWorker = null;
-    this.editorStates = new Map();    
+    this.editorStates = new Map();
   }
 
   // Render eslint message as marker in monaco
@@ -87,9 +87,6 @@ export default class TextEditor extends React.PureComponent {
           },
         ]
       );
-      // Restore the editor state for the file
-      if (this.editorStates.get(path))
-        this.editor.restoreViewState(editorState);
     } else {
       model = monaco.editor.createModel(
         value,
@@ -108,6 +105,13 @@ export default class TextEditor extends React.PureComponent {
   // Setup or restore monaco model for the opening file path 
   _openFile(path) {
     let model = this._initializeFile(path);
+
+    // Restore the editor state for the file
+    const editorState = this.editorStates.get(path);
+
+    if (editorState) {
+      this.editor.restoreViewState(editorState);
+    }
 
     // Bring browser focus to the editor text
     this.editor.focus();
@@ -156,7 +160,7 @@ export default class TextEditor extends React.PureComponent {
     //   }
     //   return encodeURI('file://' + pathName);
     // }
-    
+
     // amdRequire.config({
     //   baseUrl: uriFromPath(path.resolve(__dirname, '../node_modules/monaco-editor/min')),
     // });
