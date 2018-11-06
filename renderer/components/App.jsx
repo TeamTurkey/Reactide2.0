@@ -364,7 +364,7 @@ export default class App extends React.Component {
 
   //save handler
   saveTab() {
-        fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length-1], this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]].editorValue, { encoding: 'utf8' });
+    fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length-1], this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]].editorValue, { encoding: 'utf8' });
       }
   // //sets active tab
   setActiveTab(path) {
@@ -431,7 +431,7 @@ export default class App extends React.Component {
   // handleOpenFile(path) {
   //   this.setState({ currentFile: path });
   // }
-
+  //Change state whenever something is typed,
   handleEditorValueChange(value) {
     const copyOpenTabs = Object.assign({}, this.state.openTabs)
     const copyTabObject = Object.assign({}, this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]]);
