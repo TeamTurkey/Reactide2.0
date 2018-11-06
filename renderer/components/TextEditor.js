@@ -145,7 +145,6 @@ export default class TextEditor extends React.PureComponent {
   };
 
   componentDidMount() {
-    // let amdRequire = global.require('monaco-editor/min/vs/loader.js').require;
     const path = window.require('path');
     const fs = window.require('fs');
     var file = fs.readFileSync(this.props.path, { encoding: 'utf8' });
@@ -161,12 +160,14 @@ export default class TextEditor extends React.PureComponent {
     // amdRequire.config({
     //   baseUrl: uriFromPath(path.resolve(__dirname, '../node_modules/monaco-editor/min')),
     // });
+
     //workaround monaco-css not understanding the environment
     // self.module = undefined;
     //workaround monaco-typescript not understanding the environment
     //self.process.browser = true;
     //const id = this.props.id;
     //var editor; comment out by Ryan --> definition moved to constructor
+
 
     // amdRequire(['vs/editor/editor.main'], () => {
     //   editor = monaco.editor.create(document.getElementById(id), {

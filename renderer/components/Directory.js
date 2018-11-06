@@ -60,7 +60,7 @@ const Directory = ({
       <span className="icon icon-file-directory">
         {directory.name}
       </span>
-      <span className="plus-icon" onClick={openCreateMenu.bind(null, id, directory.path)}>+</span>
+      <span className="plus-icon" onClick={openCreateMenu.bind(null,id, directory.path, directory.type)}>+</span>
       {openMenuId === id ? <CreateMenu createMenuHandler={createMenuHandler} id={id} /> : <span />}
       {createMenuInfo.id === id ? <CreateForm createItem={createItem} /> : <span />}
     </div>)
