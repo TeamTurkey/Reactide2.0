@@ -56,17 +56,17 @@ export default class App extends React.Component {
     this.renameHandler = this.renameHandler.bind(this);
     //this.handleOpenFile = this.handleOpenFile.bind(this);
     this.handleEditorValueChange = this.handleEditorValueChange.bind(this);
-    
+
     //reset tabs, should store state in local storage before doing this though
   }
   componentDidMount() {
     ipcRenderer.on('openDir', (event, projPath) => {
       if (this.state.openedProjectPath !== projPath) {
-        this.setState({ openTabs: {}, openedProjectPath: projPath});
+        this.setState({ openTabs: {}, openedProjectPath: projPath });
       }
     });
     ipcRenderer.on('saveFile', (event, arg) => {
-      if (this.state.previousPaths[this.state.previousPaths.length-1] !== null) {
+      if (this.state.previousPaths[this.state.previousPaths.length - 1] !== null) {
         this.saveTab();
       }
     });
@@ -146,7 +146,7 @@ export default class App extends React.Component {
         this.setState({
           renameFlag: true
         });
-        document.body.onkeydown = () => {};
+        document.body.onkeydown = () => { };
       }
     };
     if (type === 'directory') {
@@ -313,7 +313,7 @@ export default class App extends React.Component {
   //handler for create menu
   createMenuHandler(id, type, event) {
     //unhook keypress listeners
-    document.body.onkeydown = () => {};
+    document.body.onkeydown = () => { };
 
     event.stopPropagation();
 
@@ -348,7 +348,7 @@ export default class App extends React.Component {
 
   //tab close handler
   closeTab(path, event) {
-    const copyOpenTabs = Object.assign({},this.state.openTabs);
+    const copyOpenTabs = Object.assign({}, this.state.openTabs);
     const history = this.state.previousPaths.slice().filter((elem) => {
       return elem !== path;
     });
@@ -364,12 +364,12 @@ export default class App extends React.Component {
 
   //save handler
   saveTab() {
-        fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length-1], this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]].editorValue, { encoding: 'utf8' });
-      }
+    fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length - 1], this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length - 1]].editorValue, { encoding: 'utf8' });
+  }
   // //sets active tab
   setActiveTab(path) {
     let copyPreviousPaths = this.updateHistory(path);
-    this.setState({previousPaths: copyPreviousPaths})
+    this.setState({ previousPaths: copyPreviousPaths })
   }
   updateHistory(path) {
     let copyPreviousPaths = this.state.previousPaths;
@@ -382,16 +382,16 @@ export default class App extends React.Component {
     const history = this.updateHistory(file.path);
 
     if (!(Object.keys(this.state.openTabs).includes(file.path))) {
-      const openTabs = Object.assign({},this.state.openTabs);
+      const openTabs = Object.assign({}, this.state.openTabs);
       openTabs[file.path] = {
         path: file.path,
         name: file.name,
         modified: false,
         editorValue: ''
       };
-      this.setState({openTabs: openTabs, previousPaths: history});
+      this.setState({ openTabs: openTabs, previousPaths: history });
     } else {
-      this.setState({previousPaths: history})
+      this.setState({ previousPaths: history })
     }
   }
 
@@ -415,7 +415,7 @@ export default class App extends React.Component {
     const selectedItem = this.state.selectedItem;
     selectedItem.focused = false;
 
-    document.body.onkeydown = () => {};
+    document.body.onkeydown = () => { };
     this.setState({
       openMenuId: null,
       createMenuInfo: {
@@ -434,10 +434,10 @@ export default class App extends React.Component {
 
   handleEditorValueChange(value) {
     const copyOpenTabs = Object.assign({}, this.state.openTabs)
-    const copyTabObject = Object.assign({}, this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]]);
+    const copyTabObject = Object.assign({}, this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length - 1]]);
     copyTabObject.editorValue = value;
-    copyOpenTabs[this.state.previousPaths[this.state.previousPaths.length-1]] = copyTabObject;
-    this.setState({openTabs: copyOpenTabs}, () => this.saveTab());
+    copyOpenTabs[this.state.previousPaths[this.state.previousPaths.length - 1]] = copyTabObject;
+    this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
 
   render() {
@@ -465,9 +465,9 @@ export default class App extends React.Component {
               />
               {this.state.deletePromptOpen
                 ? <DeletePrompt
-                    deletePromptHandler={this.deletePromptHandler}
-                    name={path.basename(this.state.selectedItem.path)}
-                  />
+                  deletePromptHandler={this.deletePromptHandler}
+                  name={path.basename(this.state.selectedItem.path)}
+                />
                 : <span />}
 
               <MockComponentTree />
