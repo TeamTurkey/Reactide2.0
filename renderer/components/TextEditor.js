@@ -2,9 +2,9 @@ import React from 'react';
 import ESLintWorker from './../workers/eslint.worker';
 import * as monaco from 'monaco-editor';
 import PropTypes from 'prop-types';
-//import { StaticServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices';
-import light from './../themes/light';
-import dark from './../themes/dark';
+//import { StaticServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices'; 
+// import light from './../themes/light';
+// import dark from './../themes/dark';
 
 //const codeEditorService = StaticServices.codeEditorService.get();
 
@@ -141,75 +141,16 @@ export default class TextEditor extends React.PureComponent {
   };
 
   componentDidMount() {
-    //let amdRequire = global.require('monaco-editor/min/vs/loader.js').require;
     const path = window.require('path');
     const fs = window.require('fs');
     var file = fs.readFileSync(this.props.path, { encoding: 'utf8' });
-
-    // function uriFromPath(_path) {
-    //   var pathName = path.resolve(_path).replace(/\\/g, '/');
-    //   if (pathName.length > 0 && pathName.charAt(0) !== '/') {
-    //     pathName = '/' + pathName;
-    //   }
-    //   return encodeURI('file://' + pathName);
-    // }
-    
-    // amdRequire.config({
-    //   baseUrl: uriFromPath(path.resolve(__dirname, '../node_modules/monaco-editor/min')),
-    // });
-    // //workaround monaco-css not understanding the environment
-    // self.module = undefined;
-    // //workaround monaco-typescript not understanding the environment
-    // self.process.browser = true;
-    // //const id = this.props.id;
-    // var editor; //comment out by Ryan --> definition moved to constructor
-
-    // amdRequire(['vs/editor/editor.main'], () => {
-    //   editor = monaco.editor.create(document.getElementById(id), {
-    //     value: file,
-    //     language: 'javascript',
-    //     theme: 'vs-dark'
-    //   });
-    //   //this.props.addEditorInstance(editor, id);
-
-    //   // window.addEventListener('resize', () => {
-    //   //   if (id === this.props.activeTab) {
-    //   //     let editorNode = document.getElementById(id);
-    //   //     let parent = editorNode.parentElement;
-    //   //     editorNode.style.width = parent.clientWidth;
-    //   //     editorNode.firstElementChild.style.width = parent.clientWidth;
-    //   //     editorNode.firstElementChild.firstElementChild.style.width = parent.clientWidth;
-    //   //     editorNode.getElementsByClassName('monaco-scrollable-element')[0].style.width = parent.clientWidth - 46;
-    //   //   }
-    //   // });
-    // });
-
+    // initialize editor
     this.editor = monaco.editor.create(document.getElementById('editor-container'),
       {
         language: this._getLanguage(this.props.path),
         theme: 'vs-dark',
         automaticLayout: true
       },
-      // {
-      //   codeEditorService: Object.assign(Object.create(codeEditorService),
-      //     {
-      //       openCodeEditor: async ({ resource, options }, editor) => {
-      //         // Open the file with this path
-      //         // This should set the model with the path and value
-      //         //this.props.onOpenPath(resource.path);
-
-      //         // Move cursor to the desired position
-      //         this.editor.setSelection(options.selection);
-
-      //         // Scroll the editor to bring the desired line into focus
-      //         this.editor.revealLine(options.selection.startLineNumber);
-
-      //         return Promise.resolve({
-      //           getControl: () => editor
-      //         });
-      //       }
-      //     })
-      // }
     );
     // Intialize the linter
     this._linterWorker = new ESLintWorker();

@@ -60,6 +60,7 @@ export default class App extends React.Component {
     //reset tabs, should store state in local storage before doing this though
   }
   componentDidMount() {
+
     ipcRenderer.on('openDir', (event, projPath) => {
       if (this.state.openedProjectPath !== projPath) {
         this.setState({ openTabs: {}, openedProjectPath: projPath});
@@ -364,7 +365,10 @@ export default class App extends React.Component {
 
   //save handler
   saveTab() {
-        fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length-1], this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]].editorValue, { encoding: 'utf8' });
+        fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length-1], 
+          this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length-1]].editorValue, 
+          { encoding: 'utf8' }
+        );
       }
   // //sets active tab
   setActiveTab(path) {
