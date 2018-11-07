@@ -12,7 +12,7 @@ const simulator = () => {
   const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
   console.log(projInfo);
 
-  //Dynamic simulation
+  //Simulation for CRA
   if (projInfo.devServerScript === 'start') {
     console.log('RUNNING NPM START');
     let child = exec(
@@ -32,8 +32,8 @@ const simulator = () => {
         child.toggleDevTools();
       }
     );
+  //Simulation for react-dev-server
   } else if (projInfo.devServerScript === 'run dev-server') {
-    console.log('Webpacking');
     let child = exec(
       'npm run dev-server',
       {
@@ -51,7 +51,6 @@ const simulator = () => {
       }
     );
   } else if (projInfo.htmlPath) {
-    console.log('hello world im in htmlpath');
     let child = new BrowserWindow({
       width: WIDTH,
       height: HEIGHT

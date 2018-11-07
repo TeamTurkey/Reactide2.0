@@ -204,7 +204,6 @@ export default class TextEditor extends React.PureComponent {
 
   render() {
     return (
-      // <div className="item-views" style={{ display: this.props.id == this.props.activeTab ? 'block' : 'none' }}>
       <div className="item-views">
         <div className="styleguide pane-item">
           <div id="editor-container" style={{ height: '100%', width: '100%' }} />

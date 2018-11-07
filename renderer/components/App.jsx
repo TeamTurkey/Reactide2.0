@@ -432,7 +432,7 @@ export default class App extends React.Component {
   // handleOpenFile(path) {
   //   this.setState({ currentFile: path });
   // }
-
+  //Change state whenever something is typed,
   handleEditorValueChange(value) {
     const copyOpenTabs = Object.assign({}, this.state.openTabs)
     const copyTabObject = Object.assign({}, this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length - 1]]);
