@@ -10,6 +10,9 @@ const { getTree } = require('../../lib/file-tree');
 const fs = require('fs');
 const path = require('path');
 const { File, Directory } = require('../../lib/item-schema');
+// const {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, importNamePath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabStateProps, getClassEntry} = require('../../importPath');
+const importPathFunctions = require('../../importPath');
+console.log('THIS IS WHAT IMPORTPATHFUNCTIONS IS', importPathFunctions);
 
 export default class App extends React.Component {
   constructor() {
@@ -37,6 +40,7 @@ export default class App extends React.Component {
       fileChangeType: null,
       deletePromptOpen: false,
       newName: '',
+      componentTreeObj: {}
     };
 
     this.fileTreeInit();
@@ -273,8 +277,14 @@ export default class App extends React.Component {
         watch
       });
     });
+    const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
+    let rootPath = path.dirname(projInfo.reactEntry);
+    let fileName = path.basename(projInfo.reactEntry);
+    const componentObj = importPathFunctions.constructComponentTree(fileName, rootPath);
+    this.setState({
+      componentTreeObj: componentObj
+    });
   }
-
   //returns index of file/dir in files or subdirectories array
   findItemIndex(filesOrDirs, name) {
     for (var i = 0; i < filesOrDirs.length; i++) {
@@ -471,7 +481,7 @@ export default class App extends React.Component {
                 />
                 : <span />}
 
-              <MockComponentTree />
+              <MockComponentTree componentTreeObj = {this.state.componentTreeObj} />
 
             </ride-pane>
             <ride-pane-resize-handle class="horizontal" />
