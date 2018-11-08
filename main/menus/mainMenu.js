@@ -5,6 +5,7 @@ const path = require('path');
 const copy = require('../../lib/copy-directory');
 const deleteDirectory = require('../../lib/delete-directory');
 const cra = require('../../lib/create-react-app');
+
 const menuTemplate = windowObj => [
   {
     label: 'Main',

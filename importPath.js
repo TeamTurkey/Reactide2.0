@@ -2,6 +2,8 @@
 const fs = require('fs');
 const path = require('path');
 const flowParser = require('flow-parser');
+const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, './lib/projInfo.js')));
+
 function getClassEntry(obj) {
   let entry = null;
   for (let elem of obj.body) {
@@ -17,11 +19,9 @@ function getClassEntry(obj) {
   }
   return entry;
 }
-
 function grabStateProps(obj) {
   let ret = [];
   let entry = getClassEntry(obj);
-
   if (entry)
     ret = digStateInClassBody(entry);
 
@@ -34,7 +34,6 @@ function digStateInClassBody(obj) {
   let ret = [];
   obj.body.forEach((elem) => {
     if (elem.type = "MethodDefinition" && elem.key.name === "constructor") {
-      console.log("found constructor");
       ret = digStateInBlockStatement(elem.value.body);
     }
   });
@@ -48,44 +47,17 @@ function digStateInBlockStatement(obj) {
   obj.body.forEach((elem) => {
     if (elem.type === "ExpressionStatement" && elem.expression.type === "AssignmentExpression")
       if (elem.expression.left.property.name === 'state') {
-        console.log("found state");
-        return elem.expression.right.properties.forEach(elem => {
-          ret.push(elem.key.name);
-          return ret;
-        });
+        if (elem.expression.right.type === "ObjectExpression")
+          return elem.expression.right.properties.forEach(elem => {
+            ret.push(elem.key.name);
+            return ret;
+          });
       }
   });
   return ret;
-}
-const statelessFunctionReturnObject = (json) => {
-  console.log('INSIDE STATELESS FUNCTION RETURN OBJECT',json);
-  let returnObj;
-  json.body.forEach((declaration) => {
-    if(declaration.type ==='VariableDeclaration') returnObj = declaration;
-  })
-  console.log( returnObj.declarations[0].init.body.body[0].argument);
-  return returnObj.declarations[0].init.body.body[0].argument;
-}
-const statefulReactComponent = (json) => {
-  let output;
-      getClassEntry(json).body.forEach(MD => {
-        if(MD.key.name === 'render') {
-          MD.value.body.body.forEach(func => {
-            if(func.type === 'ReturnStatement') {
-              output = func.argument;
-            }
-          })
-        }
-      })
-  return output;
-}
+ }
 
-
-// console.log(statelessFunctionReturnObject(test))
-
-// need to redo this function.
 const grabAttr = (arrOfAttr) => {
-  // console.log(arrOfAttr)
   return arrOfAttr.reduce((acc, curr) => {
     if (curr.value.type === 'JSXExpressionContainer') {
       if (curr.value.expression.type === 'ArrowFunctionExpression' || curr.value.expression.type === 'FunctionExpression') {
@@ -107,9 +79,7 @@ const grabAttr = (arrOfAttr) => {
     return acc;
   },{})
 };
-
-// console.log(grabAttr(statelessFunctionReturnObject(test)))
-
+//FIX FOR REDUX
 const importNamePath = (json) => {
   let output;
   const importObjectArr = json.body.filter((importObj) => {
@@ -129,81 +99,81 @@ const importNamePath = (json) => {
 }
 
 // outer function that initializes object and initial check for first opening element.
-const getInitialComponentandRecurse = (returnObj) => {
+const constructComponentProps = (returnObj) => {
   const output = {};
-  const innerFunc = (returnObj) => {
-    console.log('INSIDE GET INITIAL COMPONENET AND RECURSE', returnObj)
-    output[returnObj.openingElement.name.name] = grabAttr(returnObj.openingElement.attributes);
-
-    returnObj.children.forEach((child) => {
-      if (!child.children) return;
-      if (child.children.length > 1) innerFunc(child);
-        if (child.type === 'JSXElement') {
-          if (child.openingElement.name.name) {
-            output[child.openingElement.name.name] = grabAttr(child.openingElement.attributes);
-          }
-      }
-    })
-  }
-  innerFunc(returnObj);
+  output[returnObj.openingElement.name.name] = grabAttr(returnObj.openingElement.attributes)
   return output;
 }
 
 function isStateful(jsonObj) {
   return (getClassEntry(jsonObj) !== null);
 }
-//module.exports = stateParser;
 
 // TODO:
 // check for ternanry props,
-// conditional rendering
-// function.bind props
 
 function constructSingleLevel(jsxPath) {
-  let reactObj;
+  let reactObj = {};
   const fileContent = fs.readFileSync(jsxPath, { encoding: 'utf-8' });
   let jsonObj = flowParser.parse(fileContent);
-  console.log('IN CONSTRUCT SINGLE LEVEL', jsonObj)
   let imports = importNamePath(jsonObj);
   let state = grabStateProps(jsonObj);
-  if(isStateful(jsonObj)) {
-    console.log('this is a stateful component');
-    reactObj = statefulReactComponent(jsonObj);
+  let componentTags = grabChildComponents(imports, fileContent);
+  if (componentTags !== null){
+    componentTags.forEach(elem => {
+      let ast = flowParser.parse(elem).body[0].expression
+      reactObj = Object.assign(reactObj, constructComponentProps(ast));
+    });
+    imports = imports.filter(comp => {
+      comp.props = reactObj[comp.name]
+      return Object.keys(reactObj).includes(comp.name);
+    });
   } else{
-    console.log('This is a stateless component');
-    reactObj = statelessFunctionReturnObject(jsonObj);
-  }
-  console.log('THIS IS REACT OBJ', reactObj);
-  let returnTags = getInitialComponentandRecurse(reactObj);
-  let outputImports = [];
-  for (let tag of imports) {
-    if(returnTags[tag.name]) {
-      tag.props = returnTags[tag.name];
-      outputImports.push(tag);
-    }
+    imports = {};
   }
 
   let outputObj = {
     name: path.basename(jsxPath).split('.')[0],
-    childProps: outputImports,
+    childProps: imports,
     stateProps: state,
     children: []
   }
-  console.log(outputObj);
   return outputObj;
 }
 
-function constructComponentTree(filePath) {
-  let result = constructSingleLevel(filePath);
-  console.log(filePath);
-  console.log(path.dirname(filePath));
-  for(let childProp of result.childProps) {
-    console.log(childProp);
-    console.log(childProp.path);
-    console.log(__dirname);
-    result.children.push(constructComponentTree(path.join(path.dirname(filePath),path.basename(childProp.path) + '.jsx')));
-  }
+function constructComponentTree(filePath, rootPath = '') {
+  let result = constructSingleLevel(path.join(rootPath, filePath));
+  if(result && Object.keys(result.childProps).length > 0){
+    for(let childProp of result.childProps) {
+      let fullPath = path.join(rootPath, childProp.path);
+      let newRootPath = path.dirname(fullPath);
+      let newFileName = path.basename(fullPath);
+  
+      let childPathSplit = newFileName.split('.');
+      if (childPathSplit.length === 1)
+        newFileName += '.js';
+      let newFullPath = path.join(newRootPath, newFileName);
+      result.children.push(constructComponentTree(newFileName, newRootPath));
+    }
+  }  
   return result;
 }
+let rootPath = path.dirname(projInfo.reactEntry);
+let fileName = path.basename(projInfo.reactEntry);
 
-console.log(JSON.stringify(constructComponentTree('/Users/oscarchan/Desktop/perfect-React-project/components/App.jsx')));
+function grabChildComponents(imports, fileContent) {
+  //construct regex
+  let compNames = imports.reduce((arr, cur) => {
+    arr.push(cur.name);
+    return arr;
+  }, []);
+  compNames = compNames.join('|');
+  let pattern = '<\s*(' + compNames + ')(>|(.|[\r\n])*?[^?]>)'
+  const regExp = new RegExp(pattern, 'g');
+  let matchedComponents = fileContent.match(regExp);
+  return matchedComponents;
+ }
+ const fileContent = fs.readFileSync('./renderer/components/App.jsx', { encoding: 'utf-8' });
+ let astImports = importNamePath(flowParser.parse(fileContent));
+ let componentTags = grabChildComponents(astImports, fileContent);
+ console.log(JSON.stringify(constructComponentTree(fileName, rootPath)));
