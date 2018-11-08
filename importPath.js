@@ -86,6 +86,26 @@ function grabAttr(arrOfAttr) {
           acc[curr.name.name] = curr.value.expression.value;
       } else if (curr.value.expression.type === 'MemberExpression') {
           acc[curr.name.name] = curr.value.expression.property.name;
+      } else if (curr.value.expression.type === 'ConditionalExpression') {
+        let condition, consequent, alternate;
+          if(curr.value.expression.test.type === 'MemberExpression') {
+            condition = curr.value.expression.test.property.name;
+          } else{
+            condition = curr.value.expression.test.name;
+          }
+          if(curr.value.expression.consequent.type === 'MemberExpression') {
+            consequent = curr.value.expression.consequent.property.name;
+          } else{
+            consequent = curr.value.expression.consequent.name;
+          }
+          if(curr.value.expression.alternate.type === 'MemberExpression') {
+            alternate = curr.value.expression.alternate.property.name;
+          } else{
+            alternate = curr.value.expression.consequent.name;
+          }
+          acc[curr.name.name + 'True'] = {condition: condition, value:consequent};
+
+          acc[curr.name.name + 'False'] = {condition: condition, value: alternate}
       } else {
           acc[curr.name.name] = curr.value.expression.name;
       }
