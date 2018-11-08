@@ -2,8 +2,9 @@
 const fs = require('fs');
 const path = require('path');
 const flowParser = require('flow-parser');
-const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, './lib/projInfo.js')));
-
+// const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, './lib/projInfo.js')));
+// let rootPath = path.dirname(projInfo.reactEntry);
+// let fileName = path.basename(projInfo.reactEntry);
 function getClassEntry(obj) {
   let entry = null;
   for (let elem of obj.body) {
@@ -105,10 +106,6 @@ const constructComponentProps = (returnObj) => {
   return output;
 }
 
-function isStateful(jsonObj) {
-  return (getClassEntry(jsonObj) !== null);
-}
-
 // TODO:
 // check for ternanry props,
 
@@ -158,9 +155,6 @@ function constructComponentTree(filePath, rootPath = '') {
   }  
   return result;
 }
-let rootPath = path.dirname(projInfo.reactEntry);
-let fileName = path.basename(projInfo.reactEntry);
-
 function grabChildComponents(imports, fileContent) {
   //construct regex
   let compNames = imports.reduce((arr, cur) => {
@@ -173,7 +167,4 @@ function grabChildComponents(imports, fileContent) {
   let matchedComponents = fileContent.match(regExp);
   return matchedComponents;
  }
- const fileContent = fs.readFileSync('./renderer/components/App.jsx', { encoding: 'utf-8' });
- let astImports = importNamePath(flowParser.parse(fileContent));
- let componentTags = grabChildComponents(astImports, fileContent);
- console.log(JSON.stringify(constructComponentTree(fileName, rootPath)));
+ module.exports = {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, importNamePath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabStateProps, getClassEntry}
