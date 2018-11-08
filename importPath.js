@@ -2,34 +2,43 @@
 const fs = require('fs');
 const path = require('path');
 const flowParser = require('flow-parser');
-// const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, './lib/projInfo.js')));
-// let rootPath = path.dirname(projInfo.reactEntry);
-// let fileName = path.basename(projInfo.reactEntry);
+
+/**
+ *  Iterates through AST Object and returns the entry point for the Class or Function Block;
+ * @param {Object} obj AST JSON Object
+ */
 function getClassEntry(obj) {
   let entry = null;
+  // Start lookup if Program body has ClassDeclaration or inside ExportDefaultDeclaration has ClassDeclaration
   for (let elem of obj.body) {
-    // Start lookup if Program body has ClassDeclaration or inside ExportDefaultDeclaration has ClassDeclaration
     if (elem.type === 'ClassDeclaration') {
-      entry = elem.body;
-      break;
+      return entry = elem.body;
     }
     else if (elem.type === 'ExportDefaultDeclaration' && elem.declaration.type === 'ClassDeclaration') {
-      entry = elem.declaration.body;
-      break;
+      return entry = elem.declaration.body;
     }
   }
   return entry;
 }
-function grabStateProps(obj) {
+
+
+/**
+ *  grabs state of stateful Component if available;
+ * @param {Object} obj AST object created from file at Class Block
+ */
+function grabState(obj) {
   let ret = [];
   let entry = getClassEntry(obj);
-  if (entry)
-    ret = digStateInClassBody(entry);
-
+  if (entry) ret = digStateInClassBody(entry);
   return ret;
 }
 
+/**
+ * traverses through AST object and returns entry point for constructor Object;
+ * @param {Object} obj - classBody object from AST 
+ */
 function digStateInClassBody(obj) {
+  console.log(obj);
   if (obj.type !== 'ClassBody')
     return;
   let ret = [];
@@ -40,7 +49,10 @@ function digStateInClassBody(obj) {
   });
   return ret;
 }
-
+/**
+ * traverses through AST BlockStatement object and returns the state of Component;
+ * @param {*} obj 
+ */
 function digStateInBlockStatement(obj) {
   if (obj.type !== 'BlockStatement')
     return;
@@ -50,15 +62,18 @@ function digStateInBlockStatement(obj) {
       if (elem.expression.left.property.name === 'state') {
         if (elem.expression.right.type === "ObjectExpression")
           return elem.expression.right.properties.forEach(elem => {
-            ret.push(elem.key.name);
-            return ret;
+            return ret.push(elem.key.name);
           });
       }
   });
   return ret;
  }
 
-const grabAttr = (arrOfAttr) => {
+ /**
+  *  parses through AST Object and returns an object of props 
+  * @param {Array} arrOfAttr - Array of AST Object attributes
+  */
+function grabAttr(arrOfAttr) {
   return arrOfAttr.reduce((acc, curr) => {
     if (curr.value.type === 'JSXExpressionContainer') {
       if (curr.value.expression.type === 'ArrowFunctionExpression' || curr.value.expression.type === 'FunctionExpression') {
@@ -100,9 +115,11 @@ const grabAttr = (arrOfAttr) => {
     return acc;
   },{})
 };
-
-//FIX FOR REDUX
-const importNamePath = (json) => {
+/**
+ * returns an Array of Objects with the name and path of IMPORT objects
+ * @param {Object} json- AST Object
+ */
+function grabImportNameAndPath(json) {
   let output;
   const importObjectArr = json.body.filter((importObj) => {
     if (importObj.type === 'ImportDeclaration') {
@@ -120,36 +137,44 @@ const importNamePath = (json) => {
   return output;
 }
 
-// outer function that initializes object and initial check for first opening element.
+/**
+ *  returns an Object with Component name and props from AST Object;
+ * @param {Object} returnObj - AST object  
+ */
 const constructComponentProps = (returnObj) => {
   const output = {};
   output[returnObj.openingElement.name.name] = grabAttr(returnObj.openingElement.attributes)
   return output;
 }
 
-// TODO:
-// check for ternanry props,
 
+/**
+ *  returns Object with name and props of current Component;
+ * @param {String} jsxPath - Path of file to convert into a AST object
+ */
 function constructSingleLevel(jsxPath) {
   let reactObj = {};
+  // grabs content from file and creates an AST Object
   const fileContent = fs.readFileSync(jsxPath, { encoding: 'utf-8' });
   let jsonObj = flowParser.parse(fileContent);
-  let imports = importNamePath(jsonObj);
-  let state = grabStateProps(jsonObj);
+  // checks for Components 
+  let imports = grabImportNameAndPath(jsonObj);
   let componentTags = grabChildComponents(imports, fileContent);
+  // checks if component is Stateful and grabs state;
+  let state = grabState(jsonObj);
+  // iterates through components array and creates object with Component name, props and path;
   if (componentTags !== null){
     componentTags.forEach(elem => {
       let ast = flowParser.parse(elem).body[0].expression
       reactObj = Object.assign(reactObj, constructComponentProps(ast));
     });
     imports = imports.filter(comp => {
-      comp.props = reactObj[comp.name]
-      return Object.keys(reactObj).includes(comp.name);
+        comp.props = reactObj[comp.name]
+        return Object.keys(reactObj).includes(comp.name);
     });
-  } else{
+  } else {
     imports = {};
   }
-
   let outputObj = {
     name: path.basename(jsxPath).split('.')[0],
     childProps: imports,
@@ -159,33 +184,67 @@ function constructSingleLevel(jsxPath) {
   return outputObj;
 }
 
-function constructComponentTree(filePath, rootPath = '') {
+/**
+ * recursively traverses through all folders given from filePath and creates JSON Object;
+ * @param {String} filePath Path to Component folder
+ * @param {String} rootPath - name of File
+ */
+function constructComponentTree(filePath, rootPath) {
+  // create object at current level;
   let result = constructSingleLevel(path.join(rootPath, filePath));
+  // checks if current Object has children and traverses through children to create Object;
   if(result && Object.keys(result.childProps).length > 0){
     for(let childProp of result.childProps) {
+      //creates new path for children components - if rootPath doesnt have an extension adds .js extension
       let fullPath = path.join(rootPath, childProp.path);
       let newRootPath = path.dirname(fullPath);
       let newFileName = path.basename(fullPath);
-  
       let childPathSplit = newFileName.split('.');
       if (childPathSplit.length === 1)
         newFileName += '.js';
       let newFullPath = path.join(newRootPath, newFileName);
+      //traverses through children 
       result.children.push(constructComponentTree(newFileName, newRootPath));
     }
   }  
   return result;
 }
+
+/**
+ * returns an array of React Components in String Format, checks imports array and filters fileContent to find Components;
+ * @param {Array} imports - Array of Objects with name and path of all Import Objects;
+ * @param {String} fileContent - String of File Content;
+ */
 function grabChildComponents(imports, fileContent) {
-  //construct regex
+  // grab all import object name from import array;
   let compNames = imports.reduce((arr, cur) => {
-    arr.push(cur.name);
+    // skips <Provider/> component from redux
+    if (cur.name !== 'Provider') {
+      arr.push(cur.name);
+    }
     return arr;
   }, []);
+  console.log(compNames);
+  // format all import names for regex
   compNames = compNames.join('|');
   let pattern = '<\s*(' + compNames + ')(>|(.|[\r\n])*?[^?]>)'
   const regExp = new RegExp(pattern, 'g');
+  // finds all components that match imports;
   let matchedComponents = fileContent.match(regExp);
+
   return matchedComponents;
  }
- module.exports = {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, importNamePath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabStateProps, getClassEntry}
+
+
+
+// const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, './lib/projInfo.js')));
+// let rootPath = path.dirname(projInfo.reactEntry);
+// let fileName = path.basename(projInfo.reactEntry);
+//  console.log(JSON.stringify(constructComponentTree(fileName, rootPath)));
+
+ module.exports = {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, grabImportNameAndPath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabState, getClassEntry}
+
+// TODO:
+// -check for state when state is initializes through a function;
+// e.x: this.state = {};
+//      () => {this.state = {test: example}}
