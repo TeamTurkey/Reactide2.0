@@ -1,7 +1,7 @@
 import React from 'react';
 
 const MockComponentTree = (props) => {
-  console.log('THESE ARE THE COMPONENT TREE PROPS',props.componentTreeObj);
+  console.log('THESE ARE THE COMPONENT TREE PROPS',JSON.stringify(props.componentTreeObj));
   return (
     <div>hello world</div>
   )

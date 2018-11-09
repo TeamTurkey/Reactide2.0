@@ -278,12 +278,15 @@ export default class App extends React.Component {
       });
     });
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
-    let rootPath = path.dirname(projInfo.reactEntry);
-    let fileName = path.basename(projInfo.reactEntry);
-    const componentObj = importPathFunctions.constructComponentTree(fileName, rootPath);
-    this.setState({
-      componentTreeObj: componentObj
-    });
+    console.log('THIS IS PROJINFO', projInfo);
+    if(projInfo.reactEntry !== ''){
+      let rootPath = path.dirname(projInfo.reactEntry);
+      let fileName = path.basename(projInfo.reactEntry);
+      const componentObj = importPathFunctions.constructComponentTree(fileName, rootPath);
+      this.setState({
+        componentTreeObj: componentObj
+      });
+    }
   }
   //returns index of file/dir in files or subdirectories array
   findItemIndex(filesOrDirs, name) {
