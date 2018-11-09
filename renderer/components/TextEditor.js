@@ -157,6 +157,9 @@ export default class TextEditor extends React.PureComponent {
       {
         language: this._getLanguage(this.props.path),
         theme: 'ayu-dark',
+        lineNumbers: 'on',
+        wordWrap: 'on',
+        scrollBeyondLastLine: false,
         automaticLayout: true
       },
     );
