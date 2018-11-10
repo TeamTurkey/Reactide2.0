@@ -81,7 +81,25 @@ const menuTemplate = windowObj => [
   {
     role: 'window',
     submenu: [{ role: 'minimize' }, { role: 'close' }]
+  },
+  {
+    label: 'Developer Tools',
+    submenu: [
+      {
+        label: 'Toggle DevTools',
+        accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+        click(item, focusedWindow){
+          console.log('THIS IS ITEM',item);
+          console.log('THIS IS THE FOCUSED WINDOW', focusedWindow);
+          focusedWindow.toggleDevTools();
+        }
+      },
+      {
+        role: 'reload'
+      }
+    ]
   }
 ];
+
 
 module.exports = menuTemplate;

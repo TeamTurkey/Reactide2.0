@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const { BrowserWindow } = require('electron');
 
 const simulator = () => {
@@ -18,18 +18,17 @@ const simulator = () => {
     let child = exec(
       'npm start',
       {
-        cwd: projInfo.rootPath
+        cwd: projInfo.rootPath,
       },
       (err, stdout, stderr) => {
-        console.log('This is stdout:',stdout)
         if(err) console.log(err);
-        console.log('This is stderr', stderr);
-        let child = new BrowserWindow({
+        let childWindow = new BrowserWindow({
           width: WIDTH,
           height: HEIGHT
         });
-        child.loadURL('http://localhost:3000');
-        child.toggleDevTools();
+        childWindow.loadURL('http://localhost:3000');
+        childWindow.openDevTools();
+        console.log(childWindow);
       }
     );
   //Simulation for react-dev-server
@@ -47,7 +46,7 @@ const simulator = () => {
           height: HEIGHT
         });
         child.loadURL('http://localhost:8085');
-        child.toggleDevTools();
+        child.openDevTools();
       }
     );
   } else if (projInfo.htmlPath) {
@@ -56,7 +55,7 @@ const simulator = () => {
       height: HEIGHT
     });
     child.loadURL('file://' + projInfo.htmlPath);
-    child.toggleDevTools();
+    child.openDevTools();
   } else {
     console.log('No Index.html found');
   }
