@@ -27,7 +27,7 @@ const simulator = () => {
           height: HEIGHT
         });
         childWindow.loadURL('http://localhost:3000');
-        childWindow.toggleDevTools();
+        childWindow.openDevTools();
         console.log(childWindow);
       }
     );
@@ -46,7 +46,7 @@ const simulator = () => {
           height: HEIGHT
         });
         child.loadURL('http://localhost:8085');
-        child.toggleDevTools();
+        child.openDevTools();
       }
     );
   } else if (projInfo.htmlPath) {
@@ -55,7 +55,7 @@ const simulator = () => {
       height: HEIGHT
     });
     child.loadURL('file://' + projInfo.htmlPath);
-    child.toggleDevTools();
+    child.openDevTools();
   } else {
     console.log('No Index.html found');
   }

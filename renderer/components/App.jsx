@@ -58,7 +58,7 @@ export default class App extends React.Component {
     this.findParentDir = this.findParentDir.bind(this);
     this.deletePromptHandler = this.deletePromptHandler.bind(this);
     this.renameHandler = this.renameHandler.bind(this);
-    //this.handleOpenFile = this.handleOpenFile.bind(this);
+    this.constructComponentTreeObj = this.constructComponentTreeObj.bind(this);
     this.handleEditorValueChange = this.handleEditorValueChange.bind(this);
 
     //reset tabs, should store state in local storage before doing this though
@@ -92,13 +92,32 @@ export default class App extends React.Component {
       }
     });
   }
+  constructComponentTreeObj() {
+    const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
+      console.log('THIS IS PROJINFO', projInfo);
+    if(projInfo.reactEntry !== ''){
+      let rootPath = path.dirname(projInfo.reactEntry);
+      let fileName = path.basename(projInfo.reactEntry);
+      const componentObj = importPathFunctions.constructComponentTree(fileName, rootPath);
+      console.log("COMPONENT OBJ", componentObj);
+      this.setState({
+        componentTreeObj: componentObj
+      });
+    } else{
+      this.setState({
+        componentTreeObj: {}
+      });
+    }
+  }
+  
   //registers listeners for opening projects and new projects
-  fileTreeInit() {
+  fileTreeInit(){
     ipcRenderer.on('openDir', (event, dirPath) => {
       if (dirPath !== this.state.rootDirPath) {
+        console.log('Setting File Tree');
         this.setFileTree(dirPath);
-      }
-    });
+    }
+  }),
     ipcRenderer.on('newProject', (event, arg) => {
       if (this.state.watch) this.state.watch.close();
       this.setState({
@@ -276,17 +295,8 @@ export default class App extends React.Component {
         rootDirPath: dirPath,
         watch
       });
+      this.constructComponentTreeObj();
     });
-    const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
-    console.log('THIS IS PROJINFO', projInfo);
-    if(projInfo.reactEntry !== ''){
-      let rootPath = path.dirname(projInfo.reactEntry);
-      let fileName = path.basename(projInfo.reactEntry);
-      const componentObj = importPathFunctions.constructComponentTree(fileName, rootPath);
-      this.setState({
-        componentTreeObj: componentObj
-      });
-    }
   }
   //returns index of file/dir in files or subdirectories array
   findItemIndex(filesOrDirs, name) {

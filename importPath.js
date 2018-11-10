@@ -75,6 +75,7 @@ function digStateInBlockStatement(obj) {
   */
 function grabAttr(arrOfAttr) {
   return arrOfAttr.reduce((acc, curr) => {
+    console.log('THIS IS CURR', curr);
     if (curr.value.type === 'JSXExpressionContainer') {
       if (curr.value.expression.type === 'ArrowFunctionExpression' || curr.value.expression.type === 'FunctionExpression') {
         if(curr.value.expression.body.body) {
@@ -157,7 +158,7 @@ function constructSingleLevel(jsxPath) {
   // grabs content from file and creates an AST Object
   const fileContent = fs.readFileSync(jsxPath, { encoding: 'utf-8' });
   let jsonObj = flowParser.parse(fileContent);
-  // checks for Components 
+  // checks for Components in imports section  
   let imports = grabImportNameAndPath(jsonObj);
   let componentTags = grabChildComponents(imports, fileContent);
   // checks if component is Stateful and grabs state;
