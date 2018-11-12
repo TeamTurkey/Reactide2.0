@@ -4,7 +4,7 @@ import TextEditorPane from './TextEditorPane';
 import DeletePrompt from './DeletePrompt';
 import MockComponentTree from './MockComponentTree';
 import MockComponentInspector from './MockComponentInspector';
-
+import  XTerm  from './Terminal.js'
 const { ipcRenderer } = require('electron');
 const { getTree } = require('../../lib/file-tree');
 const fs = require('fs');
@@ -516,8 +516,8 @@ export default class App extends React.Component {
               <button className="btn" onClick={this.openSim}>
                 Simulator
               </button>
-              <MockComponentInspector />
-
+              {/* <MockComponentInspector /> */}
+              <XTerm></XTerm>
             </ride-pane>
 
           </ride-pane-axis>

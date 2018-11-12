@@ -18,7 +18,9 @@
     "react": "^16.6.0",
     "react-dom": "^16.6.0",
     "react-redux": "^5.0.7",
-    "redux": "^4.0.1"
+    "react-xterm": "^2.0.4",
+    "redux": "^4.0.1",
+    "xterm": "^3.8.0"
   },
   "devDependencies": {
     "@babel/core": "^7.1.2",
@@ -43,6 +45,7 @@
     "flow-parser": "^0.85.0",
     "mocha": "^3.2.0",
     "monaco-editor-webpack-plugin": "^1.5.4",
+    "node-pty": "^0.7.8",
     "react-addons-test-utils": "^15.4.2",
     "sinon": "^2.1.0",
     "spectron": "^3.6.2",
