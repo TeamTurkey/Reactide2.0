@@ -12,11 +12,11 @@ const path = require('path');
 const { File, Directory } = require('../../lib/item-schema');
 // const {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, importNamePath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabStateProps, getClassEntry} = require('../../importPath');
 const importPathFunctions = require('../../importPath');
-console.log('THIS IS WHAT IMPORTPATHFUNCTIONS IS', importPathFunctions);
+
 
 export default class App extends React.Component {
   constructor() {
-    console.log('CONSTRUCTING');
+
     super();
     this.state = {
       openTabs: {},
@@ -94,16 +94,26 @@ export default class App extends React.Component {
   }
   constructComponentTreeObj() {
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
-      console.log('THIS IS PROJINFO', projInfo);
+    console.log('PROJINFO')
+    console.log(projInfo)
     if(projInfo.reactEntry !== ''){
       let rootPath = path.dirname(projInfo.reactEntry);
       let fileName = path.basename(projInfo.reactEntry);
+      console.log(fileName, 'FILENAME');
+      console.log(rootPath, 'ROOTPATH');
       const componentObj = importPathFunctions.constructComponentTree(fileName, rootPath);
-      console.log("COMPONENT OBJ", componentObj);
       this.setState({
         componentTreeObj: componentObj
       });
-    } else{
+    } else if (projInfo.CRA === true) {
+        let rootPath = path.join(projInfo.rootPath, 'src');
+        console.log('THIS IS THE ROOT PATH')
+        console.log(rootPath);
+        const componentObj = importPathFunctions.constructComponentTree('App.js', rootPath);
+        this.setState({
+          componentTreeObj: componentObj
+        });
+    } else {
       this.setState({
         componentTreeObj: {}
       });

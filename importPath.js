@@ -75,7 +75,6 @@ function digStateInBlockStatement(obj) {
   */
 function grabAttr(arrOfAttr) {
   return arrOfAttr.reduce((acc, curr) => {
-    console.log('THIS IS CURR', curr);
     if (curr.value.type === 'JSXExpressionContainer') {
       if (curr.value.expression.type === 'ArrowFunctionExpression' || curr.value.expression.type === 'FunctionExpression') {
         if(curr.value.expression.body.body) {
@@ -121,6 +120,8 @@ function grabAttr(arrOfAttr) {
  * @param {Object} json- AST Object
  */
 function grabImportNameAndPath(json) {
+  console.log('THIS IS THE JSON FOR CRA')
+  console.log(json);
   let output;
   const importObjectArr = json.body.filter((importObj) => {
     if (importObj.type === 'ImportDeclaration') {
@@ -129,12 +130,22 @@ function grabImportNameAndPath(json) {
       }
     }
   })
+
   output = importObjectArr.map((importObj) => {
-    return {
-      name: importObj.specifiers[0].local.name,
-      path: importObj.source.value,
+    console.log(importObj);
+    if (importObj.specifiers[0]) {
+      return {
+        name: importObj.specifiers[0].local.name,
+        path: importObj.source.value,
+      }
     }
   })
+  output = output.filter((obj) => {
+    if (obj) {
+      return obj;
+    }
+  })
+  console.log(output, 'THIS IS OUTPUT')
   return output;
 }
 
@@ -196,7 +207,7 @@ function constructComponentTree(filePath, rootPath) {
   // checks if current Object has children and traverses through children to create Object;
   if(result && Object.keys(result.childProps).length > 0){
     for(let childProp of result.childProps) {
-      //creates new path for children components - if rootPath doesnt have an extension adds .js extension
+      //creates new path for children components - if girootPath doesnt have an extension adds .js extension
       let fullPath = path.join(rootPath, childProp.path);
       let newRootPath = path.dirname(fullPath);
       let newFileName = path.basename(fullPath);
@@ -218,14 +229,16 @@ function constructComponentTree(filePath, rootPath) {
  */
 function grabChildComponents(imports, fileContent) {
   // grab all import object name from import array;
+  console.log(imports, 'THIS IS IMPORTS');
   let compNames = imports.reduce((arr, cur) => {
     // skips <Provider/> component from redux
+    console.log('THIS IS CURR')
+    console.log(cur);
     if (cur.name !== 'Provider') {
       arr.push(cur.name);
     }
     return arr;
   }, []);
-  console.log(compNames);
   // format all import names for regex
   compNames = compNames.join('|');
   let pattern = '<\s*(' + compNames + ')(>|(.|[\r\n])*?[^?]>)'
