@@ -14,6 +14,7 @@ const { File, Directory } = require('../../lib/item-schema');
 const importPathFunctions = require('../../importPath');
 
 
+
 export default class App extends React.Component {
   constructor() {
 
@@ -521,7 +522,7 @@ export default class App extends React.Component {
 
             <ride-pane-resize-handle className="horizontal" />
 
-            <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
+            <ride-pane style={{ flexGrow: 0, flexBasis: '600px' }}>
 
               <button className="btn" onClick={this.openSim}>
                 Simulator
