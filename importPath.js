@@ -185,7 +185,7 @@ function constructSingleLevel(jsxPath) {
         return Object.keys(reactObj).includes(comp.name);
     });
   } else {
-    imports = {};
+    imports = [];
   }
   let outputObj = {
     name: path.basename(jsxPath).split('.')[0],
