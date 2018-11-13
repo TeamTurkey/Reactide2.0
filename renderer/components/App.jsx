@@ -41,7 +41,7 @@ export default class App extends React.Component {
       fileChangeType: null,
       deletePromptOpen: false,
       newName: '',
-      componentTreeObj: {}
+      componentTreeObj: null
     };
 
     this.fileTreeInit();
