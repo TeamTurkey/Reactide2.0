@@ -526,8 +526,8 @@ export default class App extends React.Component {
               <button className="btn" onClick={this.openSim}>
                 Simulator
               </button>
-              {/* <MockComponentInspector /> */}
-              <XTerm></XTerm>
+              {/* {this.state.rootDirPath !== '' ? <XTerm rootdir = {this.state.rootDirPath}></XTerm> : <span></span> } */}
+              <XTerm rootdir = {this.state.rootDirPath}></XTerm>
             </ride-pane>
 
           </ride-pane-axis>
