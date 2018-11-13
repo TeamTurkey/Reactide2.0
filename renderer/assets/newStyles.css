@@ -1,0 +1,234 @@
+@font-face {
+  font-family: 'seti';
+  src: url('./seti/seti.eot');
+  src: url('./seti/seti.eot?#iefix') format('eot'), url('./seti/seti.woff2') format('woff2'), url('./seti/seti.woff') format('woff'), url('./seti/seti.ttf') format('truetype'), url('./seti/seti.svg#seti') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+.seti-javascript:before {
+  font-family: 'seti';
+  content: '\E03E';
+  color: #cbcb41;
+}
+.seti-react:before {
+  font-family: 'seti';
+  content: '\E05D';
+  color: #519aba;
+}
+.seti-javascript:before,
+.seti-react:before, {
+  font-family: 'seti';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-style: normal;
+  font-variant: normal;
+  font-weight: normal;
+  text-decoration: none;
+  text-transform: none;
+  font-size: 22px;
+}
+body {
+  font-family: "BlinkMacSystemFont", "Lucida Grande", "Segoe UI", Ubuntu,
+    Cantarell, sans-serif;
+}
+.tree-view-scroller {
+  overflow: scroll;
+  height: 500px;
+  width: 500px;
+}
+.tree {
+  list-style: none;
+  margin: 0.2em 1.6em;
+  padding: 0;
+  min-height: 600px;
+  min-width: 400px;
+}
+.tree_rows {
+  padding-left: 0;
+  padding: 0;
+}
+/* */
+.tree_row > input[type="checkbox"] {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+}
+/* hide content for detail and subnodes */
+.tree_row > input[type="checkbox"] ~ .props-container {
+  display: none;
+}
+/* show content for detail and subnodes */
+.tree_row > input[type="checkbox"]:checked ~ .props-container {
+  display: block;
+}
+/* ————————————————————–
+  Tree branches
+*/
+/* tree positioning */
+li.tree_row {
+  line-height: 1.2;
+  position: relative;
+  list-style: none;
+  padding: 1em 0 0 1em;
+}
+/* !!this style seems to be no effect */
+/*
+.tree>li:
+.tree > li:last-child {
+  padding-bottom: 0;
+}
+*/
+/* ————————————————————–
+  Tree nodes
+*/
+/*
+/* node body w/o icon */
+.tree_node {
+  position: relative;
+  left: -0.5em;
+  display: inline-block;
+  margin: 0;
+  padding-left: 1em;
+  border-left: 1px solid rgba(0, 0, 0, 0);
+}
+/* node icon */
+.tree_node:before {
+  background: #4d78cc;
+  color: #7c8492;
+  position: relative;
+  float: left;
+  margin: -0.05em 1em 0 -1.65em;
+  width: 1.2em;
+  height: 1.2em;
+  border-radius: 1em;
+  content: "";
+  text-align: center;
+  line-height: 0.66em;
+  border: 3px solid #4d78cc;
+  z-index: 1;
+  cursor: pointer;
+}
+/*
+:checked ~ label.tree_label {
+  border-left: 1px solid blue;
+}
+*/
+/* change node color when expanded */
+input:checked ~ .tree_node:before {
+  background: #4dc1cc;
+  content: "";
+}
+/*end of chain
+[disabled] ~ .tree_node:before {
+  background: #23272f;
+}*/
+/* node hover */
+.tree_node:hover:before {
+  border-color: #d6dae1;
+}
+/* ————————————————————–
+  Tree branches
+*/
+/* vertical link */
+.tree_row:before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -0.5em;
+  display: block;
+  width: 0;
+  border-left: 1px solid #4d78cc;
+  content: "";
+}
+/* no v-link for the root row */
+.tree > .tree_row:before {
+  display: none;
+}
+/* adjust v-link length for the last row */
+.tree_row:last-child:before {
+  height: 1em;
+  border-left: 1px solid #4d78cc;
+}
+/* curve link */
+.tree_node:after {
+  position: absolute;
+  top: 0;
+  left: -1.05em;
+  display: block;
+  height: 0.5em;
+  width: 1.07em;
+  border-bottom: 1px solid #4d78cc;
+  border-left: 1px solid #4d78cc;
+  border-radius: 0 0 0 0.6em;
+  content: "";
+}
+/* no curve line for the root node */
+.tree > .tree_row > .tree_node:after {
+  display: none;
+}
+/* prop form */
+.props-form {
+  display: block;
+  background: #292e38;
+  padding: 0.9em 1.2em 0.6em;
+  border-radius: 0.2em;
+  border: 1px solid #1a1d23;
+}
+.comp_refs li {
+  list-style: circle;
+}
+/* green text */
+.state_props {
+  color: #86f694;
+}
+/* blue text */
+.comp_props {
+  color: #6494ed;
+}
+.comp_props li {
+  list-style: square;
+}
+/* make mouse pointer icon for the toggle */ 
+input[type="checkbox"] ~ label {
+  cursor: pointer;
+}
+.props-container {
+  position: relative;
+  padding: 0.9em 1.2em 0.6em;
+  width: 200px;
+}
+/* draw vertical link for props */
+.props-container:before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -0.5em;
+  display: block;
+  width: 0;
+  border-left: 1px solid #4d78cc;
+  content: "";
+}
+/* hide checkbox */
+.props-form > input[type="checkbox"] {
+  clip: rect(0, 0, 0, 0);
+  display: none;
+}
+/* hide props content */
+.props-form > input[type="checkbox"]:checked ~ .state_props,
+.props-form > input[type="checkbox"]:checked ~ .comp_refs {
+  display: none;
+}
+/* show caret-down icon */
+.props-form > input[type="checkbox"] + label:before {
+  font-family: 'Octicons Regular';
+  content: "\f05b";
+  display: inline-block;
+  padding: 3px;
+}
+/* show caret-right icon */
+.props-form > input[type="checkbox"]:checked + label:before {
+  font-family: 'Octicons Regular';
+  content: "\f05a";
+}
+.comp_props {
+  padding-left: 15px;
+}

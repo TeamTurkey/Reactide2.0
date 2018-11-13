@@ -1790,7 +1790,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-  content: "\f0d7";
+  /* content: "\f0d7"; */
 }
 .icon-move-down::before {
   font-family: 'Octicons Regular';
@@ -9327,6 +9327,7 @@ html {
 .styleguide .control .control-wrap .controls .btn-justify .btn {
   flex: 1;
 }
+/*
 .tree {
   list-style: none;
   margin: 1em;
@@ -9359,9 +9360,7 @@ html {
   text-align: center;
   text-decoration: none;
 }
-/* ————————————————————–
-  Tree rows
-*/
+
 .tree li {
   line-height: 1.2;
   position: relative;
@@ -9374,9 +9373,6 @@ html {
 .tree > li:last-child {
   padding-bottom: 0;
 }
-/* ————————————————————–
-  Tree labels
-*/
 .tree_label {
   position: relative;
   left: -0.5em;
@@ -9385,13 +9381,8 @@ html {
   padding-left: 1em;
   border-left: 1px solid rgba(0, 0, 0, 0);
 }
-/*label.tree_label {
-  cursor: pointer;
-  }*/
-/*label.tree_label:hover { color: #d6dae1; }*/
-/* ————————————————————–
-  Tree expanded icon
-*/
+
+
 label.tree_label:before {
   background: #4d78cc;
   color: #7c8492;
@@ -9411,21 +9402,18 @@ label.tree_label:before {
 :checked ~ label.tree_label {
   border-left: 1px solid #4d78cc;
 }
-/*expanded*/
+
 :checked ~ label.tree_label:before {
   background: #4dc1cc;
   content: '';
 }
-/*end of chain*/
+
 [disabled] ~ label.tree_label:before {
   background: #23272f;
 }
 label.tree_label:hover:before {
   border-color: #d6dae1;
 }
-/* ————————————————————–
-  Tree branches
-*/
 .tree li:before {
   position: absolute;
   top: 0;
@@ -9448,11 +9436,11 @@ label.tree_label:hover:before {
   border-radius: 0 0 0 .6em;
   content: '';
 }
-/*hide branch of first node*/
+
 .tree > li > .tree_label:after {
   display: none;
 }
-/*label.tree_label:after { border-bottom: 0; }*/
+
 :checked ~ label.tree_label:after {
   border-radius: 0 0 0 .6em;
   border-bottom: 1px solid #4d78cc;
@@ -9461,7 +9449,7 @@ label.tree_label:hover:before {
   border-right: 0;
   top: 0;
   bottom: 0.7em;
-  /*height: auto;*/
+
 }
 .tree li:last-child:before {
   height: 1em;
@@ -9481,7 +9469,7 @@ label.tree_label:hover:before {
   padding: .9em 1.2em .6em;
   border-radius: 0.2em;
   border: 1px solid #1a1d23;
-}
+}*/
 .styleguide .tree_custom {
   border: none;
   padding: 0;
@@ -9489,18 +9477,13 @@ label.tree_label:hover:before {
 }
 .plus-icon {
   font-size: 15px;
-<<<<<<< HEAD
-<<<<<<< HEAD
   float: right;
-=======
   /*float:right;*/
   position: absolute;
   right: 0px;
->>>>>>> b0ab8c17... rename working, also if tab is open will change the name on there
-=======
   position: absolute;
   right: 0px;
->>>>>>> cfa5ae64... fixed styles
+
   cursor: pointer;
   z-index: 100;
 }

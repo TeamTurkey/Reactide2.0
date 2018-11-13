@@ -6,43 +6,40 @@ function renderChildrenTrees(children) {
     children.forEach(elem => {
       renderArr.push(renderTree(elem));
     })
-    return (<ul>{renderArr}</ul>);
+    return (<ul className="tree_rows">{renderArr}</ul>);
   }
 }
 
 function renderStateProps(stateProps) {
-  console.log('stateProps', stateProps);
   if (stateProps && stateProps.length) {
     let renderArr = [];
     stateProps.forEach(elem => {
       renderArr.push(<li>{elem}</li>)
     });
-    return (<ul>
-        <li>
-          <input type="checkbox" /><label>[state_props]</label>
-          <ul>
-            {renderArr}
-          </ul>
-        </li>
+    return (
+      <ul className="state_props">
+        {renderArr}
       </ul>
     );
   }
 }
 
 function renderChildProps(childProps) {
-  console.log('childProps', stateProps);
   if (childProps && Object.keys(childProps)) {
     let renderArr = [];
-    stateProps.forEach(elem => {
-      renderArr.push(<li>{elem}</li>)
+    console.log('childprop', childProps.props);
+    childProps.forEach(elem => {
+      renderArr.push(<li>{elem.name}
+        <ul className="comp_props">
+          {Object.keys(elem.props).map(key =>
+            <li>{key}: <i>{elem.props[key]}</i></li>
+          )}
+        </ul>
+      </li>);
     });
-    return (<ul>
-        <li>
-          <input type="checkbox" /><label>[comp_props]</label>
-          <ul>
-            {renderArr}
-          </ul>
-        </li>
+    return (
+      <ul className="comp_refs">
+        {renderArr}
       </ul>
     );
   }
@@ -51,11 +48,24 @@ function renderTree(treeObj) {
   const { name, stateProps, childProps, children } = treeObj;
   let renderArr = [];
 
+
   return (
-    <li key={'ct-li-' + name}>
-      <input type="checkbox" key={'ct-npt_' + name} checked="checked" />
-      <label className="tree_label" htmlFor={'ct-lbl-' + name}>{treeObj.name}</label>
-      {renderStateProps(treeObj.stateProps)}
+    <li key={'ct_node-li' + name} className="tree_row">
+      <input type="checkbox" id={'ct_node-npt_' + name} key={'ct_node-npt_' + name} />
+      <label key={'ct_node-lbl_' + name} id={'ct_node-lbl_' + name} className="tree_node" htmlFor={'ct_node-npt_' + name}>{treeObj.name}</label>
+      <div className="props-container">
+        <span className="props-form">
+          {stateProps.length > 0 && (
+            <div>
+              <input type="checkbox" id={"ct_state-npt_" + name} />
+              <label htmlFor={"ct_state-npt_" + name}>[state_props] ({stateProps.length})</label><br />
+              {renderStateProps(stateProps)}
+            </div>)}
+          <input type="checkbox" id={"ct_child-npt_" + name} />
+          <label htmlFor={"ct_child-npt_" + name}>[comp_props] ({childProps.length})</label><br />
+          {renderChildProps(treeObj.childProps)}
+        </span>
+      </div>
       {renderChildrenTrees(treeObj.children)}
     </li>
   );
@@ -88,8 +98,16 @@ const MockComponentTree = (props) => {
         {componentTree}
       </div>
     </div>
-  )
+  );
 };
+/* // <div className="item-views">
+//   <div className="styleguide pane-item">
+//     <header className="styleguide-header">
+//       <h5>Component Tree</h5>
+//     </header>
+//     {componentTree}
+//   </div>
+// </div> */
 
 // <ul className="tree">
 //           <li>
