@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const deleteItem = require('../lib/delete-directory');
 const simulator = require('./simulator');
+const windowSimulator = require('./windowSimulator')
 
 module.exports = () => {
   //ipcMain listeners
@@ -12,6 +13,9 @@ module.exports = () => {
     simulator();
   });
 
+  ipcMain.on('openInWindow', () => {
+    InWindowSimulator();
+  })
   ipcMain.on('createItem', (event, dirPath, name, type) => {
     if (type === 'file') {
       fs.writeFile(path.join(dirPath, name), '', err => {
@@ -31,4 +35,8 @@ module.exports = () => {
   ipcMain.on('rename', (event, itemPath, newName) => {
     fs.rename(itemPath, path.join(path.dirname(itemPath), newName));
   });
+  ipcMain.on('start simulator', ()=> {
+    console.log('IN IPCMAIN')
+    windowSimulator();
+  })
 };
