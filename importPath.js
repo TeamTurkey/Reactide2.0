@@ -38,7 +38,6 @@ function grabState(obj) {
  * @param {Object} obj - classBody object from AST 
  */
 function digStateInClassBody(obj) {
-  console.log(obj);
   if (obj.type !== 'ClassBody')
     return;
   let ret = [];
@@ -120,8 +119,6 @@ function grabAttr(arrOfAttr) {
  * @param {Object} json- AST Object
  */
 function grabImportNameAndPath(json) {
-  console.log('THIS IS THE JSON FOR CRA')
-  console.log(json);
   let output;
   const importObjectArr = json.body.filter((importObj) => {
     if (importObj.type === 'ImportDeclaration') {
@@ -132,7 +129,6 @@ function grabImportNameAndPath(json) {
   })
 
   output = importObjectArr.map((importObj) => {
-    console.log(importObj);
     if (importObj.specifiers[0]) {
       return {
         name: importObj.specifiers[0].local.name,
@@ -145,7 +141,6 @@ function grabImportNameAndPath(json) {
       return obj;
     }
   })
-  console.log(output, 'THIS IS OUTPUT')
   return output;
 }
 
@@ -229,11 +224,8 @@ function constructComponentTree(filePath, rootPath) {
  */
 function grabChildComponents(imports, fileContent) {
   // grab all import object name from import array;
-  console.log(imports, 'THIS IS IMPORTS');
   let compNames = imports.reduce((arr, cur) => {
     // skips <Provider/> component from redux
-    console.log('THIS IS CURR')
-    console.log(cur);
     if (cur.name !== 'Provider') {
       arr.push(cur.name);
     }
@@ -254,7 +246,6 @@ function grabChildComponents(imports, fileContent) {
 // const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, './lib/projInfo.js')));
 // let rootPath = path.dirname(projInfo.reactEntry);
 // let fileName = path.basename(projInfo.reactEntry);
-//  console.log(JSON.stringify(constructComponentTree(fileName, rootPath)));
 
  module.exports = {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, grabImportNameAndPath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabState, getClassEntry}
 

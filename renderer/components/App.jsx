@@ -14,6 +14,7 @@ const { File, Directory } = require('../../lib/item-schema');
 const importPathFunctions = require('../../importPath');
 
 
+
 export default class App extends React.Component {
   constructor() {
 
@@ -223,15 +224,16 @@ export default class App extends React.Component {
       if (this.state.watch) {
         this.state.watch.close();
       }
-
+      console.log('THIS IS THE DIRPATH TO WATCH', dirPath);
       let watch = fs.watch(dirPath, { recursive: true }, (eventType, fileName) => {
+        console.log('STATEINWATCH', this.state);
+        console.log('Eventtype:', eventType);
         if (eventType === 'rename') {
           const fileTree = this.state.fileTree;
           const absPath = path.join(this.state.rootDirPath, fileName);
           const parentDir = this.findParentDir(path.dirname(absPath), fileTree);
           const name = path.basename(absPath);
           const openTabs = this.state.openTabs;
-
           //delete handler
           if (this.state.fileChangeType === 'delete') {
             let index;
@@ -250,6 +252,7 @@ export default class App extends React.Component {
             }
           } else if (this.state.fileChangeType === 'new') {
             //new handler
+            console.log('WITHIN NEW');
             if (this.state.createMenuInfo.type === 'directory') {
               parentDir.subdirectories.push(new Directory(absPath, name));
             } else {
@@ -277,7 +280,6 @@ export default class App extends React.Component {
                 path: path.join(path.dirname(absPath), this.state.newName)
               }
             });
-
             //rename the opened tab of the renamed file if it's there
             for (var i = 0; i < this.state.openTabs.length; i++) {
               if (openTabs[i].name === name) {
@@ -286,7 +288,7 @@ export default class App extends React.Component {
               }
             }
           }
-
+          console.log('about to setState', fileTree)
           this.setState({
             fileTree,
             fileChangeType: null,
@@ -297,6 +299,7 @@ export default class App extends React.Component {
             },
             openTabs
           });
+          console.log('AFTER SET STATE TO NULL', this.state);
         }
       });
 
@@ -320,7 +323,8 @@ export default class App extends React.Component {
 
   //returns parent directory object of file/directory in question
   findParentDir(dirPath, directory = this.state.fileTree) {
-    if (directory.path === dirPath) return directory;
+    console.log('IN FINDPARENTDIR',dirPath, directory)
+    if (directory && directory.path === dirPath) return directory;
     else {
       let dirNode;
       for (var i in directory.subdirectories) {
@@ -521,7 +525,7 @@ export default class App extends React.Component {
 
             <ride-pane-resize-handle className="horizontal" />
 
-            <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
+            <ride-pane style={{ flexGrow: 0, flexBasis: '600px' }}>
 
               <button className="btn" onClick={this.openSim}>
                 Simulator
