@@ -4,7 +4,8 @@ import TextEditorPane from './TextEditorPane';
 import DeletePrompt from './DeletePrompt';
 import MockComponentTree from './MockComponentTree';
 import MockComponentInspector from './MockComponentInspector';
-import  XTerm  from './Terminal.js'
+import  XTerm  from './Terminal.js';
+import InWindowSimulator from './InWindowSimulator.js';
 const { ipcRenderer } = require('electron');
 const { getTree } = require('../../lib/file-tree');
 const fs = require('fs');
@@ -12,8 +13,6 @@ const path = require('path');
 const { File, Directory } = require('../../lib/item-schema');
 // const {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, importNamePath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabStateProps, getClassEntry} = require('../../importPath');
 const importPathFunctions = require('../../importPath');
-
-
 
 export default class App extends React.Component {
   constructor() {
@@ -41,7 +40,8 @@ export default class App extends React.Component {
       fileChangeType: null,
       deletePromptOpen: false,
       newName: '',
-      componentTreeObj: null
+      componentTreeObj: null,
+      simulator: false,
     };
 
     this.fileTreeInit();
@@ -61,6 +61,8 @@ export default class App extends React.Component {
     this.renameHandler = this.renameHandler.bind(this);
     this.constructComponentTreeObj = this.constructComponentTreeObj.bind(this);
     this.handleEditorValueChange = this.handleEditorValueChange.bind(this);
+    this.openSim = this.openSim.bind(this);
+    this.closeSim = this.closeSim.bind(this);
 
     //reset tabs, should store state in local storage before doing this though
   }
@@ -93,6 +95,7 @@ export default class App extends React.Component {
       }
     });
   }
+  
   constructComponentTreeObj() {
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
     console.log('PROJINFO')
@@ -445,7 +448,8 @@ export default class App extends React.Component {
 
   //simulator click handler
   openSim() {
-    ipcRenderer.send('openSimulator', 'helloworld');
+    this.setState({simulator: true});
+    //ipcRenderer.send('openSimulator', 'helloworld');
   }
 
   //closes any open dialogs, handles clicks on anywhere besides the active open menu/form
@@ -477,16 +481,16 @@ export default class App extends React.Component {
     copyOpenTabs[this.state.previousPaths[this.state.previousPaths.length - 1]] = copyTabObject;
     this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
-
+  closeSim() {
+    console.log('Closing sim');
+    this.setState({simulator: false});
+  }
   render() {
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
-
         <ride-panel-container className="header" />
-
         <ride-pane-container>
           <ride-pane-axis className="horizontal">
-
             <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
               <FileTree
                 dblClickHandler={this.dblClickHandler}
@@ -507,13 +511,31 @@ export default class App extends React.Component {
                   name={path.basename(this.state.selectedItem.path)}
                 />
                 : <span />}
-
               <MockComponentTree componentTreeObj = {this.state.componentTreeObj} />
-
             </ride-pane>
-            <ride-pane-resize-handle class="horizontal" />
-
-            <TextEditorPane
+            {/* <ride-pane-resize-handle class="horizontal" /> */}
+            
+            <ride-pane-resize-handle className="horizontal" />
+            <ride-pane style={{ flexGrow: 0, flexBasis: '900px' }}>
+              {this.state.simulator
+                  ? <InWindowSimulator closeSim = {this.closeSim}/>
+                  : <TextEditorPane
+                  appState={this.state}
+                  setActiveTab={this.setActiveTab}
+                  addEditorInstance={this.addEditorInstance}
+                  closeTab={this.closeTab}
+                  openMenuId={this.state.openMenuId}
+                  onOpenFile={this.handleOpenFile}
+                  onEditorValueChange={this.handleEditorValueChange}
+                />}
+              {this.state.simulator ?
+            <button className="btn" onClick={this.closeSim}>
+                  Close Simulator
+              </button>: <button className="btn" onClick={this.openSim}>
+                  Simulator
+              </button>}
+              {this.state.simulator
+              ? <TextEditorPane
               appState={this.state}
               setActiveTab={this.setActiveTab}
               addEditorInstance={this.addEditorInstance}
@@ -521,19 +543,8 @@ export default class App extends React.Component {
               openMenuId={this.state.openMenuId}
               onOpenFile={this.handleOpenFile}
               onEditorValueChange={this.handleEditorValueChange}
-            />
-
-            <ride-pane-resize-handle className="horizontal" />
-
-            <ride-pane style={{ flexGrow: 0, flexBasis: '600px' }}>
-
-              <button className="btn" onClick={this.openSim}>
-                Simulator
-              </button>
-              {/* {this.state.rootDirPath !== '' ? <XTerm rootdir = {this.state.rootDirPath}></XTerm> : <span></span> } */}
-              <XTerm rootdir = {this.state.rootDirPath}></XTerm>
+            />: <XTerm rootdir = {this.state.rootDirPath}></XTerm>}
             </ride-pane>
-
           </ride-pane-axis>
         </ride-pane-container>
 
