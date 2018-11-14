@@ -456,8 +456,8 @@ export default class App extends React.Component {
 
   //simulator click handler
   openSim() {
-    this.setState({simulator: true});
-    //ipcRenderer.send('openSimulator', 'helloworld');
+    //this.setState({simulator: true});
+    ipcRenderer.send('openSimulator', 'helloworld');
   }
 
   openSimulatorInMain() {
@@ -543,7 +543,7 @@ export default class App extends React.Component {
             <ride-pane-resize-handle className="horizontal" />
             <ride-pane style={{ flexGrow: 0, flexBasis: '900px' }}>
               {this.state.simulator
-                  ? <InWindowSimulator closeSim = {this.closeSim}/>
+                  ? <InWindowSimulator url = {this.state.url} closeSim = {this.closeSim}/>
                   : <TextEditorPane
                   appState={this.state}
                   setActiveTab={this.setActiveTab}
@@ -559,6 +559,9 @@ export default class App extends React.Component {
               </button>: <button className="btn" onClick={this.openSimulatorInMain}>
                   Simulator
               </button>}
+              <button className="btn" onClick={this.openSim}>
+                  Simulator in new window
+              </button>
               {this.state.simulator
               ? <TextEditorPane
               appState={this.state}
