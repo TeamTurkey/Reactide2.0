@@ -27,7 +27,6 @@ function renderStateProps(stateProps) {
 function renderChildProps(childProps) {
   if (childProps && Object.keys(childProps)) {
     let renderArr = [];
-    console.log('childprop', childProps.props);
     childProps.forEach(elem => {
       renderArr.push(<li>{elem.name}
         <ul className="comp_props">
@@ -72,7 +71,6 @@ function renderTree(treeObj) {
 }
 
 const MockComponentTree = (props) => {
-  console.log('THESE ARE THE COMPONENT TREE PROPS', props.componentTreeObj);
   let componentTree = [];
 
   if (props.componentTreeObj) {

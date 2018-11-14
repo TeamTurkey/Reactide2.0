@@ -38,7 +38,6 @@ function grabState(obj) {
  * @param {Object} obj - classBody object from AST 
  */
 function digStateInClassBody(obj) {
-  console.log(obj);
   if (obj.type !== 'ClassBody')
     return;
   let ret = [];
@@ -247,7 +246,6 @@ function grabChildComponents(imports, fileContent) {
 // const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, './lib/projInfo.js')));
 // let rootPath = path.dirname(projInfo.reactEntry);
 // let fileName = path.basename(projInfo.reactEntry);
-//  console.log(JSON.stringify(constructComponentTree(fileName, rootPath)));
 
  module.exports = {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, grabImportNameAndPath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabState, getClassEntry}
 
