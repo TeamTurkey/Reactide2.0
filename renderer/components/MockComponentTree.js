@@ -1,103 +1,217 @@
 import React from 'react';
+import { findDOMNode } from 'react-dom';
 
-function renderChildrenTrees(children) {
-  if (children && children.length) {
-    let renderArr = [];
-    children.forEach(elem => {
-      renderArr.push(renderTree(elem));
-    })
-    return (<ul className="tree_rows">{renderArr}</ul>);
+class MockComponentTree extends React.PureComponent {
+  constructor(props) {
+    super(props);
   }
-}
 
-function renderStateProps(stateProps) {
-  if (stateProps && stateProps.length) {
-    let renderArr = [];
-    stateProps.forEach(elem => {
-      renderArr.push(<li>{elem}</li>)
-    });
-    return (
-      <ul className="state_props">
-        {renderArr}
-      </ul>
-    );
+  renderChildrenTrees(children) {
+    if (children && children.length) {
+      let renderArr = [];
+      children.forEach(elem => {
+        renderArr.push(this.renderTree(elem));
+      })
+      return (<ul className="tree_rows">{renderArr}</ul>);
+    }
   }
-}
 
-function renderChildProps(childProps) {
-  if (childProps && Object.keys(childProps)) {
-    let renderArr = [];
-    childProps.forEach(elem => {
-      renderArr.push(<li>{elem.name}
-        <ul className="comp_props">
-          {Object.keys(elem.props).map(key =>
-            <li>{key}: <i>{elem.props[key]}</i></li>
-          )}
+  renderStateProps(stateProps) {
+    if (stateProps && stateProps.length) {
+      let renderArr = [];
+      stateProps.forEach(elem => {
+        renderArr.push(<li>{elem}</li>)
+      });
+      return (
+        <ul className="state_props">
+          {renderArr}
         </ul>
-      </li>);
-    });
+      );
+    }
+  }
+
+  renderChildProps(childProps) {
+    if (childProps && childProps.length > 0) {
+      let renderArr = [];
+      childProps.forEach(elem => {
+        renderArr.push(<li>{elem.name}
+          <ul className="comp_props">
+            {Object.keys(elem.props).map(key =>
+              <li>{key}: <i>{elem.props[key]}</i></li>
+            )}
+          </ul>
+        </li>);
+      });
+      return (
+        <ul className="comp_refs">
+          {renderArr}
+        </ul>
+      );
+    }
+  }
+
+  renderTree(treeObj) {
+    const { name, stateProps, childProps, children } = treeObj;
+    let renderArr = [];
+
     return (
-      <ul className="comp_refs">
-        {renderArr}
-      </ul>
+      <li key={'ct_node-li' + name} className="tree_row">
+        <input type="checkbox" id={'ct_node-npt_' + name} key={'ct_node-npt_' + name} />
+        <label key={'ct_node-lbl_' + name} id={'ct_node-lbl_' + name} className="tree_node" htmlFor={'ct_node-npt_' + name}>{name}</label>
+        {(stateProps.length > 0 || childProps.length > 0) && (
+          <div className="props-container">
+            <span className="props-form">
+              {stateProps.length > 0 && (
+                <React.Fragment>
+                  <input type="checkbox" id={"ct_state-npt_" + name} />
+                  <label htmlFor={"ct_state-npt_" + name}>[state_props] ({stateProps.length})</label><br />
+                  {this.renderStateProps(stateProps)}
+                </React.Fragment>)}
+              {childProps.length > 0 && (
+                <React.Fragment>
+                  <input type="checkbox" id={"ct_child-npt_" + name} />
+                  <label htmlFor={"ct_child-npt_" + name}>[comp_props] ({childProps.length})</label><br />
+                  {this.renderChildProps(childProps)}
+                </React.Fragment>)}
+            </span>
+          </div>
+        )}
+        {this.renderChildrenTrees(children)}
+      </li>
     );
   }
-}
-function renderTree(treeObj) {
-  const { name, stateProps, childProps, children } = treeObj;
-  let renderArr = [];
 
+  render() {
+    console.log('THESE ARE THE COMPONENT TREE PROPS', this.props.componentTreeObj);
+    let componentTree = [];
 
-  return (
-    <li key={'ct_node-li' + name} className="tree_row">
-      <input type="checkbox" id={'ct_node-npt_' + name} key={'ct_node-npt_' + name} />
-      <label key={'ct_node-lbl_' + name} id={'ct_node-lbl_' + name} className="tree_node" htmlFor={'ct_node-npt_' + name}>{treeObj.name}</label>
-      <div className="props-container">
-        <span className="props-form">
-          {stateProps.length > 0 && (
-            <div>
-              <input type="checkbox" id={"ct_state-npt_" + name} />
-              <label htmlFor={"ct_state-npt_" + name}>[state_props] ({stateProps.length})</label><br />
-              {renderStateProps(stateProps)}
-            </div>)}
-          <input type="checkbox" id={"ct_child-npt_" + name} />
-          <label htmlFor={"ct_child-npt_" + name}>[comp_props] ({childProps.length})</label><br />
-          {renderChildProps(treeObj.childProps)}
-        </span>
-      </div>
-      {renderChildrenTrees(treeObj.children)}
-    </li>
-  );
-}
+    // if (this.props.componentTreeObj) {
+    //   componentTree.push(
+    //     <main className="styleguide-sections">
+    //       <div className="tree-view-resizer tool-panel">
+    //         <div className="tree-view-scroller">
+    //           <ul className="tree">
+    //             {this.renderTree(this.props.componentTreeObj)}
+    //           </ul>
+    //         </div>
+    //       </div>
+    //     </main>
+    //   );
+    // }
 
-const MockComponentTree = (props) => {
-  let componentTree = [];
-
-  if (props.componentTreeObj) {
-    componentTree.push(
+    return (
       <main className="styleguide-sections">
         <div className="tree-view-resizer tool-panel">
           <div className="tree-view-scroller">
             <ul className="tree">
-              {renderTree(props.componentTreeObj)}
+              {this.renderTree(this.props.componentTreeObj)}
             </ul>
           </div>
         </div>
       </main>
     );
   }
+}
 
-  return (
-    <div className="item-views">
-      <div className="styleguide pane-item">
-        <header className="styleguide-header">
-          <h5>Component Tree</h5>
-        </header>
-        {componentTree}
-      </div>
-    </div>
-  );
-};
+// function renderChildrenTrees(children) {
+//   if (children && children.length) {
+//     let renderArr = [];
+//     children.forEach(elem => {
+//       renderArr.push(renderTree(elem));
+//     })
+//     return (<ul className="tree_rows">{renderArr}</ul>);
+//   }
+// }
+
+// function renderStateProps(stateProps) {
+//   if (stateProps && stateProps.length) {
+//     let renderArr = [];
+//     stateProps.forEach(elem => {
+//       renderArr.push(<li>{elem}</li>)
+//     });
+//     return (
+//       <ul className="state_props">
+//         {renderArr}
+//       </ul>
+//     );
+//   }
+// }
+
+// function renderChildProps(childProps) {
+//   if (childProps && Object.keys(childProps)) {
+//     let renderArr = [];
+//     console.log('childprop', childProps.props);
+//     childProps.forEach(elem => {
+//       renderArr.push(<li>{elem.name}
+//         <ul className="comp_props">
+//           {Object.keys(elem.props).map(key =>
+//             <li>{key}: <i>{elem.props[key]}</i></li>
+//           )}
+//         </ul>
+//       </li>);
+//     });
+//     return (
+//       <ul className="comp_refs">
+//         {renderArr}
+//       </ul>
+//     );
+//   }
+// }
+// function renderTree(treeObj) {
+//   const { name, stateProps, childProps, children } = treeObj;
+//   let renderArr = [];
+
+//   return (
+//     <li key={'ct_node-li' + name} className="tree_row">
+//       <input type="checkbox" id={'ct_node-npt_' + name} key={'ct_node-npt_' + name} />
+//       <label key={'ct_node-lbl_' + name} id={'ct_node-lbl_' + name} className="tree_node" htmlFor={'ct_node-npt_' + name}>{treeObj.name}</label>
+//       <div className="props-container">
+//         <span className="props-form">
+//           {stateProps.length > 0 && (
+//             <div>
+//               <input type="checkbox" id={"ct_state-npt_" + name} />
+//               <label htmlFor={"ct_state-npt_" + name}>[state_props] ({stateProps.length})</label><br />
+//               {renderStateProps(stateProps)}
+//             </div>)}
+//           <input type="checkbox" id={"ct_child-npt_" + name} />
+//           <label htmlFor={"ct_child-npt_" + name}>[comp_props] ({childProps.length})</label><br />
+//           {renderChildProps(treeObj.childProps)}
+//         </span>
+//       </div>
+//       {renderChildrenTrees(treeObj.children)}
+//     </li>
+//   );
+// }
+
+// const MockComponentTree = (props) => {
+//   console.log('THESE ARE THE COMPONENT TREE PROPS', props.componentTreeObj);
+//   let componentTree = [];
+
+//   if (props.componentTreeObj) {
+//     componentTree.push(
+//       <main className="styleguide-sections">
+//         <div className="tree-view-resizer tool-panel">
+//           <div className="tree-view-scroller">
+//             <ul className="tree">
+//               {renderTree(props.componentTreeObj)}
+//             </ul>
+//           </div>
+//         </div>
+//       </main>
+//     );
+//   }
+
+//   return (
+//     <div className="item-views">
+//       <div className="styleguide pane-item">
+//         <header className="styleguide-header">
+//           <h5>Component Tree</h5>
+//         </header>
+//         {componentTree}
+//       </div>
+//     </div>
+//   );
+// };
 /* // <div className="item-views">
 //   <div className="styleguide pane-item">
 //     <header className="styleguide-header">
