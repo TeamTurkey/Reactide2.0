@@ -1,14 +1,13 @@
-import React from 'react'
-
+import React from 'react';
 
 const InWindowSimulator = (props) => {
-  const divStyle = {
-    height: '400px',
+  const style = {
+    height: '60%',
   }
-  return(
-    <div style={divStyle}>
-      Hello World
+  return (
+    <div style={style}>
+      <iframe src={props.url}></iframe>
     </div>
   )
-}
+} 
 export default InWindowSimulator;

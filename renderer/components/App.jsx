@@ -4,8 +4,10 @@ import TextEditorPane from './TextEditorPane';
 import DeletePrompt from './DeletePrompt';
 import MockComponentTree from './MockComponentTree';
 import MockComponentInspector from './MockComponentInspector';
-import  XTerm  from './Terminal.js';
-import InWindowSimulator from './InWindowSimulator.js';
+import Simulator from './InWindowSimulator';
+import  XTerm  from './Terminal.js'
+import { ipcMain } from 'electron';
+import InWindowSimulator from './InWindowSimulator';
 const { ipcRenderer } = require('electron');
 const { getTree } = require('../../lib/file-tree');
 const fs = require('fs');
@@ -42,6 +44,7 @@ export default class App extends React.Component {
       newName: '',
       componentTreeObj: null,
       simulator: false,
+      url: '',
     };
 
     this.fileTreeInit();
@@ -63,6 +66,7 @@ export default class App extends React.Component {
     this.handleEditorValueChange = this.handleEditorValueChange.bind(this);
     this.openSim = this.openSim.bind(this);
     this.closeSim = this.closeSim.bind(this);
+    this.openSimulatorInMain = this.openSimulatorInMain.bind(this);
 
     //reset tabs, should store state in local storage before doing this though
   }
@@ -94,8 +98,12 @@ export default class App extends React.Component {
         });
       }
     });
+    ipcRenderer.on('start simulator', (event, arg) => {
+      this.setState({url: arg});
+    })
   }
-  
+
+
   constructComponentTreeObj() {
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
     console.log('PROJINFO')
@@ -452,6 +460,12 @@ export default class App extends React.Component {
     //ipcRenderer.send('openSimulator', 'helloworld');
   }
 
+  openSimulatorInMain() {
+    console.log('SENDING ACTION TO RENDERER')
+    ipcRenderer.send('start simulator', 'helloworld');
+    this.setState({simulator: true})
+  }
+
   //closes any open dialogs, handles clicks on anywhere besides the active open menu/form
   closeOpenDialogs() {
     const selectedItem = this.state.selectedItem;
@@ -486,6 +500,17 @@ export default class App extends React.Component {
     this.setState({simulator: false});
   }
   render() {
+    let mainScreen;
+    this.state.simulator ? mainScreen =  <InWindowSimulator url={this.state.url} />: 
+      mainScreen = <TextEditorPane
+                    appState={this.state}
+                    setActiveTab={this.setActiveTab}
+                    addEditorInstance={this.addEditorInstance}
+                    closeTab={this.closeTab}
+                    openMenuId={this.state.openMenuId}
+                    onOpenFile={this.handleOpenFile}
+                    onEditorValueChange={this.handleEditorValueChange}
+                    />
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
         <ride-panel-container className="header" />
@@ -531,7 +556,7 @@ export default class App extends React.Component {
               {this.state.simulator ?
             <button className="btn" onClick={this.closeSim}>
                   Close Simulator
-              </button>: <button className="btn" onClick={this.openSim}>
+              </button>: <button className="btn" onClick={this.openSimulatorInMain}>
                   Simulator
               </button>}
               {this.state.simulator
@@ -544,6 +569,7 @@ export default class App extends React.Component {
               onOpenFile={this.handleOpenFile}
               onEditorValueChange={this.handleEditorValueChange}
             />: <XTerm rootdir = {this.state.rootDirPath}></XTerm>}
+            <ride-pane-resize-handle class="horizontal" />
             </ride-pane>
           </ride-pane-axis>
         </ride-pane-container>
