@@ -16,8 +16,6 @@ const { File, Directory } = require('../../lib/item-schema');
 // const {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, importNamePath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabStateProps, getClassEntry} = require('../../importPath');
 const importPathFunctions = require('../../importPath');
 
-
-
 export default class App extends React.Component {
   constructor() {
 
@@ -66,6 +64,8 @@ export default class App extends React.Component {
     this.renameHandler = this.renameHandler.bind(this);
     this.constructComponentTreeObj = this.constructComponentTreeObj.bind(this);
     this.handleEditorValueChange = this.handleEditorValueChange.bind(this);
+    this.openSim = this.openSim.bind(this);
+    this.closeSim = this.closeSim.bind(this);
     this.openSimulatorInMain = this.openSimulatorInMain.bind(this);
 
     //reset tabs, should store state in local storage before doing this though
@@ -456,6 +456,7 @@ export default class App extends React.Component {
 
   //simulator click handler
   openSim() {
+    //this.setState({simulator: true});
     ipcRenderer.send('openSimulator', 'helloworld');
   }
 
@@ -494,7 +495,10 @@ export default class App extends React.Component {
     copyOpenTabs[this.state.previousPaths[this.state.previousPaths.length - 1]] = copyTabObject;
     this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
-
+  closeSim() {
+    console.log('Closing sim');
+    this.setState({simulator: false});
+  }
   render() {
     let mainScreen;
     this.state.simulator ? mainScreen =  <InWindowSimulator url={this.state.url} />: 
@@ -509,12 +513,9 @@ export default class App extends React.Component {
                     />
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
-
         <ride-panel-container className="header" />
-
         <ride-pane-container>
           <ride-pane-axis className="horizontal">
-
             <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
               <FileTree
                 dblClickHandler={this.dblClickHandler}
@@ -535,28 +536,44 @@ export default class App extends React.Component {
                   name={path.basename(this.state.selectedItem.path)}
                 />
                 : <span />}
-
               <MockComponentTree componentTreeObj = {this.state.componentTreeObj} />
-
             </ride-pane>
-            <ride-pane-resize-handle class="horizontal" />
+            {/* <ride-pane-resize-handle class="horizontal" /> */}
             
-            {mainScreen}
-
             <ride-pane-resize-handle className="horizontal" />
-
-            <ride-pane style={{ flexGrow: 0, flexBasis: '600px' }}>
-
+            <ride-pane style={{ flexGrow: 0, flexBasis: '900px' }}>
+              {this.state.simulator
+                  ? <InWindowSimulator url = {this.state.url} closeSim = {this.closeSim}/>
+                  : <TextEditorPane
+                  appState={this.state}
+                  setActiveTab={this.setActiveTab}
+                  addEditorInstance={this.addEditorInstance}
+                  closeTab={this.closeTab}
+                  openMenuId={this.state.openMenuId}
+                  onOpenFile={this.handleOpenFile}
+                  onEditorValueChange={this.handleEditorValueChange}
+                />}
+              {this.state.simulator ?
+            <button className="btn" onClick={this.closeSim}>
+                  Close Simulator
+              </button>: <button className="btn" onClick={this.openSimulatorInMain}>
+                  Simulator
+              </button>}
               <button className="btn" onClick={this.openSim}>
-                Simulator new Window
+                  Simulator in new window
               </button>
-              <button className="btn" onClick={this.openSimulatorInMain}>
-                Simulator
-              </button>
-              {/* {this.state.rootDirPath !== '' ? <XTerm rootdir = {this.state.rootDirPath}></XTerm> : <span></span> } */}
-              <XTerm rootdir = {this.state.rootDirPath}></XTerm>
+              {this.state.simulator
+              ? <TextEditorPane
+              appState={this.state}
+              setActiveTab={this.setActiveTab}
+              addEditorInstance={this.addEditorInstance}
+              closeTab={this.closeTab}
+              openMenuId={this.state.openMenuId}
+              onOpenFile={this.handleOpenFile}
+              onEditorValueChange={this.handleEditorValueChange}
+            />: <XTerm rootdir = {this.state.rootDirPath}></XTerm>}
+            <ride-pane-resize-handle class="horizontal" />
             </ride-pane>
-
           </ride-pane-axis>
         </ride-pane-container>
 
