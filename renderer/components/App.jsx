@@ -96,7 +96,7 @@ export default class App extends React.Component {
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
     console.log('PROJINFO')
     console.log(projInfo)
-    if(projInfo.reactEntry !== ''){
+    if (projInfo.reactEntry !== '') {
       let rootPath = path.dirname(projInfo.reactEntry);
       let fileName = path.basename(projInfo.reactEntry);
       console.log(fileName, 'FILENAME');
@@ -106,41 +106,41 @@ export default class App extends React.Component {
         componentTreeObj: componentObj
       });
     } else if (projInfo.CRA === true) {
-        let rootPath = path.join(projInfo.rootPath, 'src');
-        console.log('THIS IS THE ROOT PATH')
-        console.log(rootPath);
-        const componentObj = importPathFunctions.constructComponentTree('App.js', rootPath);
-        this.setState({
-          componentTreeObj: componentObj
-        });
+      let rootPath = path.join(projInfo.rootPath, 'src');
+      console.log('THIS IS THE ROOT PATH')
+      console.log(rootPath);
+      const componentObj = importPathFunctions.constructComponentTree('App.js', rootPath);
+      this.setState({
+        componentTreeObj: componentObj
+      });
     } else {
       this.setState({
         componentTreeObj: {}
       });
     }
   }
-  
+
   //registers listeners for opening projects and new projects
-  fileTreeInit(){
+  fileTreeInit() {
     ipcRenderer.on('openDir', (event, dirPath) => {
       if (dirPath !== this.state.rootDirPath) {
         console.log('Setting File Tree');
         this.setFileTree(dirPath);
-    }
-  }),
-    ipcRenderer.on('newProject', (event, arg) => {
-      if (this.state.watch) this.state.watch.close();
-      this.setState({
-        fileTree: null,
-        watch: null,
-        rootDirPath: '',
-        selectedItem: {
-          id: null,
-          path: null,
-          type: null
-        }
+      }
+    }),
+      ipcRenderer.on('newProject', (event, arg) => {
+        if (this.state.watch) this.state.watch.close();
+        this.setState({
+          fileTree: null,
+          watch: null,
+          rootDirPath: '',
+          selectedItem: {
+            id: null,
+            path: null,
+            type: null
+          }
+        });
       });
-    });
   }
   //sends old path and new name to main process to rename, closes rename form and sets filechangetype and newName for fswatch
   renameHandler(event) {
@@ -477,12 +477,9 @@ export default class App extends React.Component {
   render() {
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
-
         <ride-panel-container className="header" />
-
         <ride-pane-container>
           <ride-pane-axis className="horizontal">
-
             <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
               <FileTree
                 dblClickHandler={this.dblClickHandler}
@@ -503,9 +500,16 @@ export default class App extends React.Component {
                   name={path.basename(this.state.selectedItem.path)}
                 />
                 : <span />}
-
-              <MockComponentTree componentTreeObj = {this.state.componentTreeObj} />
-
+              <div className="item-views">
+                <div className="styleguide pane-item">
+                  <header className="styleguide-header">
+                    <h5>Component Tree</h5>
+                  </header>
+                  {this.state.componentTreeObj &&
+                    <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
+                  }
+                </div>
+              </div>
             </ride-pane>
             <ride-pane-resize-handle class="horizontal" />
 

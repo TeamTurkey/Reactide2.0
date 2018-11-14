@@ -57,7 +57,7 @@ const Directory = ({
       className="list-item"
       onClick={clickHandler.bind(null, id, directory.path, directory.type)}
     >
-      <span className="icon icon-file-directory">
+      <span className="octi-file-directory">
         {directory.name}
       </span>
       <span className="plus-icon" onClick={openCreateMenu.bind(null,id, directory.path, directory.type)}>+</span>

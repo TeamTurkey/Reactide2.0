@@ -2,6 +2,46 @@ import React from 'react';
 import RenameForm from './RenameForm';
 import PropTypes from 'prop-types';
 
+function getCssByFlleExt(ext) {
+  switch(ext.toUpperCase()) {
+    case 'JS':
+      return 'seti-javascript';
+    case 'JSX':
+      return 'seti-react';
+    case 'CSS':
+      return 'seti-css';
+    case 'LESS':
+      return 'seti-less';
+    case 'SASS':
+    case 'SCSS':
+      return 'seti-sass';
+    case 'JSON':
+      return 'seti-json';
+    case 'SVG':
+      return 'seti-svg';
+    case 'EOT':
+    case 'WOFF':
+    case 'WOFF2':
+    case 'TTF':
+      return 'seti-font';
+    case 'XML':
+      return 'seti-xml';
+    case 'YML':
+      return 'seti-yml';
+    case 'MD':
+      return 'seti-markdown';
+    case 'HTML':
+      return 'seti-html';
+    case 'JPG':
+    case 'PNG':
+    case 'GIF':
+    case 'JPEG':
+      return 'seti-image';
+    default:
+      return 'octi-file-text'; 
+  }
+}
+
 const File = ({ file, dblClickHandler, selectedItem, id, clickHandler, renameFlag, renameHandler }) => {
   return (
     <li
@@ -11,10 +51,11 @@ const File = ({ file, dblClickHandler, selectedItem, id, clickHandler, renameFla
     >
       {renameFlag && selectedItem.id === id
         ? <RenameForm renameHandler={renameHandler} />
-        : <span className="icon icon-file-text">{file.name}</span>}
+        : <span className={getCssByFlleExt(file.ext)}>{file.name}</span>}
     </li>
   );
 };
+
 
 File.propTypes = {
   file: PropTypes.object.isRequired,

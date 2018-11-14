@@ -57,9 +57,7 @@ const FileTree = ({
             <h5>File Directory</h5>
           </header>
           <main className="styleguide-sections">
-
             <div className="tree-view-resizer tool-panel" />
-
           </main>
         </div>
       </div>
