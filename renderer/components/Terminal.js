@@ -113,7 +113,8 @@ class XTerm extends React.Component {
   }
     render() {
       const divStyle = {
-        height: '30%'
+        height: '30%',
+        width: '105%'
       }
       return ( 
           <div id='terminal' style = {divStyle}>

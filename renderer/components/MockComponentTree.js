@@ -86,12 +86,17 @@ const MockComponentTree = (props) => {
       </main>
     );
   }
-
+  const buttonStyle = {
+    width: '100%'
+  }
   return (
     <div className="item-views">
       <div className="styleguide pane-item">
         <header className="styleguide-header">
           <h5>Component Tree</h5>
+          <button style = {buttonStyle} className="btn" onClick={props.refresh}>
+                  Refresh Component Tree
+          </button>
         </header>
         {componentTree}
       </div>

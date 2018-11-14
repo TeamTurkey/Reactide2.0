@@ -105,6 +105,7 @@ export default class App extends React.Component {
 
 
   constructComponentTreeObj() {
+    console.log('CONSTRUCTING');
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
     console.log('PROJINFO')
     console.log(projInfo)
@@ -117,6 +118,7 @@ export default class App extends React.Component {
       this.setState({
         componentTreeObj: componentObj
       });
+      console.log('CHANGED TREE OBJ');
     } else if (projInfo.CRA === true) {
         let rootPath = path.join(projInfo.rootPath, 'src');
         console.log('THIS IS THE ROOT PATH')
@@ -536,12 +538,13 @@ export default class App extends React.Component {
                   name={path.basename(this.state.selectedItem.path)}
                 />
                 : <span />}
-              <MockComponentTree componentTreeObj = {this.state.componentTreeObj} />
+              
+              <MockComponentTree refresh = {this.constructComponentTreeObj} componentTreeObj = {this.state.componentTreeObj} />
             </ride-pane>
             {/* <ride-pane-resize-handle class="horizontal" /> */}
             
             <ride-pane-resize-handle className="horizontal" />
-            <ride-pane style={{ flexGrow: 0, flexBasis: '900px' }}>
+            <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
               {this.state.simulator
                   ? <InWindowSimulator url = {this.state.url} closeSim = {this.closeSim}/>
                   : <TextEditorPane
@@ -572,7 +575,6 @@ export default class App extends React.Component {
               onOpenFile={this.handleOpenFile}
               onEditorValueChange={this.handleEditorValueChange}
             />: <XTerm rootdir = {this.state.rootDirPath}></XTerm>}
-            <ride-pane-resize-handle class="horizontal" />
             </ride-pane>
           </ride-pane-axis>
         </ride-pane-container>
