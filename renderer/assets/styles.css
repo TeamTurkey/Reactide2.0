@@ -830,19 +830,6 @@
   height: 16px;
   content: "\f010";
 }
-.icon-file-directory::before {
-  font-family: 'Octicons Regular';
-  font-weight: normal;
-  font-style: normal;
-  display: inline-block;
-  line-height: 1;
-  -webkit-font-smoothing: antialiased;
-  text-decoration: none;
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-  content: "\f016";
-}
 .icon-file-directory-create::before {
   font-family: 'Octicons Regular';
   font-weight: normal;
@@ -5817,7 +5804,7 @@ button.list-group-item-danger.active:focus {
   font-size: 12px;
   width: 12px;
   height: 12px;
-  content: "\f0a3";
+  content: "\f05b";
 }
 .list-tree.has-collapsable-children .list-nested-item > .list-item::before {
   position: relative;
@@ -5835,7 +5822,7 @@ button.list-group-item-danger.active:focus {
   font-size: 12px;
   width: 12px;
   height: 12px;
-  content: "\f078";
+  content: "\f05a";
 }
 .list-tree.has-collapsable-children .list-nested-item.collapsed > .list-item::before {
   left: 1px;

@@ -5,18 +5,84 @@
   font-weight: normal;
   font-style: normal;
 }
+/* js */
 .seti-javascript:before {
-  font-family: 'seti';
   content: '\E03E';
   color: #cbcb41;
 }
+/* jsx */
 .seti-react:before {
-  font-family: 'seti';
   content: '\E05D';
   color: #519aba;
 }
-.seti-javascript:before,
-.seti-react:before, {
+/* css */
+.seti-css:before {
+  content: '\E015';
+  color: #519aba;
+}
+/* sass */
+.seti-sass:before {
+  content: '\E062';
+  color: #f55385;
+}
+.seti-less:before {
+  content: '\E044';
+  color: #519aba;
+}
+/* font */
+.seti-font:before {
+  content: '\E026';
+  color: #cc3e44;
+}
+/* html */
+.seti-html:before {
+  content: '\E035';
+  color: #e37933;
+}
+/* json */
+.seti-json:before {
+  content: '\E041';
+  color: #cbcb41;
+}
+/* svg */
+.seti-svg:before {
+  content: '\E06D';
+  color: #a074c4;
+}
+/* gitinore */
+.seti-gitignore:before {
+  content: '\E028';
+  color: #4d5a5e;
+}
+/* xml */
+.seti-xml:before {
+  content: '\E07B';
+  color: #e37933;
+}
+/* yml */
+.seti-yml:before {
+  content: '\E07D';
+  color: #a074c4;
+}
+.seti-default:before {
+  content: '\E019';
+  color: #d4d7d6;
+}
+.seti-image:before {
+  content: '\E039';
+  color: #a074c4;
+}
+.seti-markdown:before {
+  content: '\E04A';
+  color: #519aba;
+}
+.seti-folder:before{
+  content: '\E025';
+  color: #519aba;
+}
+/* common rule for '.seti-' */
+[class^="seti-"]:before {
+  float: left;
   font-family: 'seti';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -25,7 +91,38 @@
   font-weight: normal;
   text-decoration: none;
   text-transform: none;
-  font-size: 22px;
+  font-size: 21px;
+  margin-left: -2px;
+  margin-right: 2px;
+}
+.octi-file-text::before {
+  font-family: 'Octicons Regular';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  text-decoration: none;
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  margin: 0 3px;
+  content: "\f011";
+}
+.octi-file-directory::before {
+  font-family: 'seti';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  text-decoration: none;
+  font-size: 15px;
+  content: '\e025';
+  color: #519aba;
+  margin-right: 8px;
+  vertical-align: bottom;
+  margin-bottom: 5px;
 }
 body {
   font-family: "BlinkMacSystemFont", "Lucida Grande", "Segoe UI", Ubuntu,
@@ -40,8 +137,6 @@ body {
   list-style: none;
   margin: 0.2em 1.6em;
   padding: 0;
-  min-height: 600px;
-  min-width: 400px;
 }
 .tree_rows {
   padding-left: 0;
