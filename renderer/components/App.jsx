@@ -105,6 +105,7 @@ export default class App extends React.Component {
 
 
   constructComponentTreeObj() {
+    console.log('CONSTRUCTING');
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
     console.log('PROJINFO')
     console.log(projInfo)
@@ -117,6 +118,7 @@ export default class App extends React.Component {
       this.setState({
         componentTreeObj: componentObj
       });
+      console.log('CHANGED TREE OBJ');
     } else if (projInfo.CRA === true) {
       let rootPath = path.join(projInfo.rootPath, 'src');
       console.log('THIS IS THE ROOT PATH')
@@ -540,6 +542,9 @@ export default class App extends React.Component {
                 <div className="styleguide pane-item">
                   <header className="styleguide-header">
                     <h5>Component Tree</h5>
+                    <button  onClick = {this.constructComponentTreeObj} className = 'btn'>
+                      Refresh Component Tree
+                    </button>
                   </header>
                   {this.state.componentTreeObj &&
                     <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
@@ -550,7 +555,7 @@ export default class App extends React.Component {
             {/* <ride-pane-resize-handle class="horizontal" /> */}
             
             <ride-pane-resize-handle className="horizontal" />
-            <ride-pane style={{ flexGrow: 0, flexBasis: '900px' }}>
+            <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
               {this.state.simulator
                   ? <InWindowSimulator url = {this.state.url} closeSim = {this.closeSim}/>
                   : <TextEditorPane
@@ -580,8 +585,7 @@ export default class App extends React.Component {
               openMenuId={this.state.openMenuId}
               onOpenFile={this.handleOpenFile}
               onEditorValueChange={this.handleEditorValueChange}
-            />: <XTerm rootdir = {this.state.rootDirPath}></XTerm>}
-            <ride-pane-resize-handle class="horizontal" />
+            />: <XTerm rootdir = {this.state.rootDirPath} setFileTree = {this.setFileTree}></XTerm>}
             </ride-pane>
           </ride-pane-axis>
         </ride-pane-container>

@@ -8,11 +8,11 @@ const runTerminal = (cwd, command, terminal) => {
   }
   //If not npm, just run an exec because its faster output
   if(command.split(' ')[0] !== 'npm' || basicCommands.includes(command.split(' ')[0])){
-      let result = '';
+    return new Promise((resolve, reject) => {
       let child = exec(command, 
         {
           cwd: cwd
-        })
+        });
         //when data is returned, write it to the terminal
       child.stdout.on('data', (data) => {
         //result = result + data.toString() + ' ';
@@ -23,12 +23,15 @@ const runTerminal = (cwd, command, terminal) => {
         console.log('closed');
         terminal.write('\r\n' + cwd + '\r\n');
         terminal.write('$');
+        resolve();
       });
         //Error handling
       child.stderr.on('data', (data) => {
         console.log('err within runTerminal', data);
         terminal.write(data.toString() + '\r\n');
+        reject();
       })
+    })
       //If it is an npm command, use SPAWN for heavier computation
   } else{
     //user prompt to understand their command is running
