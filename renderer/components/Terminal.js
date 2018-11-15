@@ -43,17 +43,18 @@ class XTerm extends React.Component {
       term.fit();
       //On keypress, execute. Switch case to handle the enter, lft, rght, up, down arrow and normal keys
       term.on('key', (key, ev) => {
+        const fileManipulation = new Set(['cp', 'mkdir','touch', 'rm', 'rmdir', 'mv']);
         switch(ev.keyCode){
           //When a user hits enter, clean up the input for execution of the command within node child_process
           case 13:
             let output;
             let command = this.state.currCommand;
-            console.log(command);
             let newPath;
             //Check for cd to be handled on the front-end without communication with spawn
             if(command.split(' ')[0] === 'cd' && command.split(' ').length === 2) {
               console.log('CD PATH CASE');
               newPath = path.join(this.state.cwd, command.split(' ')[1]);
+              console.log('NEWPATH', newPath);
               this.setState({cwd: newPath});
               greeting = newPath;
               term.write('\r\n' + greeting + '\r\n');
@@ -68,10 +69,8 @@ class XTerm extends React.Component {
                 }
                 output = runTerminal(this.state.cwd, command, term);
                 if(Promise.resolve(output) === output) {
-                  console.log('helloworld got past instanceof')
                   output.then(() => {
-                    console.log('RESOLVED PROMISE');
-                    if(command.split(' ')[0] === 'mkdir') {
+                    if(fileManipulation.has(command.split(' ')[0])) {
                       this.props.setFileTree(this.state.rootDir);
                     }
                   })
@@ -79,14 +78,10 @@ class XTerm extends React.Component {
                     console.log(err);
                   })
               }
-            
-            //set past Commands
-            const arrCopy = this.state.pastCommands.slice();
-            arrCopy.push(command)
-            //Clear state for the next command
-            this.setState({currCommand: '', pastCommands: arrCopy});
-            break;
           }
+          //Clear state for the next command
+          this.setState({currCommand: ''});
+          break;
             //When a backspace is hit, write it, then delete the latest char from the curr Command
           case 8:
             term.write('\b \b');
@@ -125,8 +120,6 @@ class XTerm extends React.Component {
     })
   }
   componentWillUnmount() {
-    console.log('THIS IS TERM', term)
-    
     term.destroy();
     term = new Terminal();
     term.write(this.state.cwd + '\r\n' + '$');

@@ -239,8 +239,6 @@ export default class App extends React.Component {
       }
       console.log('THIS IS THE DIRPATH TO WATCH', dirPath);
       let watch = fs.watch(dirPath, { recursive: true }, (eventType, fileName) => {
-        console.log('STATEINWATCH', this.state);
-        console.log('Eventtype:', eventType);
         if (eventType === 'rename') {
           const fileTree = this.state.fileTree;
           const absPath = path.join(this.state.rootDirPath, fileName);
@@ -265,7 +263,6 @@ export default class App extends React.Component {
             }
           } else if (this.state.fileChangeType === 'new') {
             //new handler
-            console.log('WITHIN NEW');
             if (this.state.createMenuInfo.type === 'directory') {
               parentDir.subdirectories.push(new Directory(absPath, name));
             } else {
@@ -301,7 +298,6 @@ export default class App extends React.Component {
               }
             }
           }
-          console.log('about to setState', fileTree)
           this.setState({
             fileTree,
             fileChangeType: null,
@@ -312,7 +308,6 @@ export default class App extends React.Component {
             },
             openTabs
           });
-          console.log('AFTER SET STATE TO NULL', this.state);
         }
       });
 
@@ -336,7 +331,6 @@ export default class App extends React.Component {
 
   //returns parent directory object of file/directory in question
   findParentDir(dirPath, directory = this.state.fileTree) {
-    console.log('IN FINDPARENTDIR',dirPath, directory)
     if (directory && directory.path === dirPath) return directory;
     else {
       let dirNode;
@@ -349,7 +343,6 @@ export default class App extends React.Component {
 
   //click handler for plus button on directories, 'opens' new file/dir menu by setting openMenuID state
   openCreateMenu(id, itemPath, type, event) {
-    console.log(id, itemPath, type, event);
     event.stopPropagation();
     this.setState({
       openMenuId: id,
@@ -463,7 +456,6 @@ export default class App extends React.Component {
   }
 
   openSimulatorInMain() {
-    console.log('SENDING ACTION TO RENDERER')
     ipcRenderer.send('start simulator', 'helloworld');
     this.setState({simulator: true})
   }
@@ -498,7 +490,6 @@ export default class App extends React.Component {
     this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
   closeSim() {
-    console.log('Closing sim');
     this.setState({simulator: false});
   }
   render() {
