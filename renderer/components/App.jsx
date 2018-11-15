@@ -5,11 +5,11 @@ import DeletePrompt from './DeletePrompt';
 import MockComponentTree from './MockComponentTree';
 import MockComponentInspector from './MockComponentInspector';
 import Simulator from './InWindowSimulator';
-import  XTerm  from './Terminal.js'
+import XTerm from './Terminal.js'
 import { ipcMain } from 'electron';
 import InWindowSimulator from './InWindowSimulator';
 const { ipcRenderer } = require('electron');
-const { getTree } = require('../../lib/file-tree');
+const { getTree, getFileExt } = require('../../lib/file-tree');
 const fs = require('fs');
 const path = require('path');
 const { File, Directory } = require('../../lib/item-schema');
@@ -52,7 +52,7 @@ export default class App extends React.Component {
     this.setFileTree = this.setFileTree.bind(this);
     this.dblClickHandler = this.dblClickHandler.bind(this);
     this.setActiveTab = this.setActiveTab.bind(this);
-    this.isFileOpened = this.isFileOpened.bind(this);
+    //this.isFileOpened = this.isFileOpened.bind(this);
     this.saveTab = this.saveTab.bind(this);
     this.closeTab = this.closeTab.bind(this);
     this.openCreateMenu = this.openCreateMenu.bind(this);
@@ -99,7 +99,7 @@ export default class App extends React.Component {
       }
     });
     ipcRenderer.on('start simulator', (event, arg) => {
-      this.setState({url: arg});
+      this.setState({ url: arg });
     })
   }
 
@@ -266,7 +266,7 @@ export default class App extends React.Component {
             if (this.state.createMenuInfo.type === 'directory') {
               parentDir.subdirectories.push(new Directory(absPath, name));
             } else {
-              parentDir.files.push(new File(absPath, name));
+              parentDir.files.push(new File(absPath, name, getFileExt));
             }
           } else if (this.state.fileChangeType === 'rename' && this.state.newName) {
             //rename handler
@@ -440,14 +440,14 @@ export default class App extends React.Component {
   }
 
   //checks if project is already open
-  isFileOpened(file) {
-    for (var i = 0; i < this.state.openTabs.length; i++) {
-      if (this.state.openTabs[i].path === file.path) {
-        return this.state.openTabs[i].id;
-      }
-    }
-    return -1;
-  }
+  // isFileOpened(file) {
+  //   for (var i = 0; i < this.state.openTabs.length; i++) {
+  //     if (this.state.openTabs[i].path === file.path) {
+  //       return this.state.openTabs[i].id;
+  //     }
+  //   }
+  //   return -1;
+  // }
 
   //simulator click handler
   openSim() {
@@ -457,7 +457,7 @@ export default class App extends React.Component {
 
   openSimulatorInMain() {
     ipcRenderer.send('start simulator', 'helloworld');
-    this.setState({simulator: true})
+    this.setState({ simulator: true })
   }
 
   //closes any open dialogs, handles clicks on anywhere besides the active open menu/form
@@ -490,20 +490,24 @@ export default class App extends React.Component {
     this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
   closeSim() {
-    this.setState({simulator: false});
+    this.setState({ simulator: false });
+  }
+  // render function for TextEditorPane
+  renderTextEditorPane() {
+    return (
+      <TextEditorPane
+        appState={this.state}
+        setActiveTab={this.setActiveTab}
+        closeTab={this.closeTab}
+        openMenuId={this.state.openMenuId}
+        onOpenFile={this.handleOpenFile}
+        onEditorValueChange={this.handleEditorValueChange}
+      />);
   }
   render() {
-    let mainScreen;
-    this.state.simulator ? mainScreen =  <InWindowSimulator url={this.state.url} />: 
-      mainScreen = <TextEditorPane
-                    appState={this.state}
-                    setActiveTab={this.setActiveTab}
-                    addEditorInstance={this.addEditorInstance}
-                    closeTab={this.closeTab}
-                    openMenuId={this.state.openMenuId}
-                    onOpenFile={this.handleOpenFile}
-                    onEditorValueChange={this.handleEditorValueChange}
-                    />
+    // let mainScreen;
+    // this.state.simulator ? mainScreen = <InWindowSimulator url={this.state.url} /> :
+    //   mainScreen = this.renderTextEditorPane();
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
         <ride-panel-container className="header" />
@@ -544,39 +548,24 @@ export default class App extends React.Component {
               </div>
             </ride-pane>
             {/* <ride-pane-resize-handle class="horizontal" /> */}
-            
+
             <ride-pane-resize-handle className="horizontal" />
             <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
               {this.state.simulator
-                  ? <InWindowSimulator url = {this.state.url} closeSim = {this.closeSim}/>
-                  : <TextEditorPane
-                  appState={this.state}
-                  setActiveTab={this.setActiveTab}
-                  addEditorInstance={this.addEditorInstance}
-                  closeTab={this.closeTab}
-                  openMenuId={this.state.openMenuId}
-                  onOpenFile={this.handleOpenFile}
-                  onEditorValueChange={this.handleEditorValueChange}
-                />}
+                ? <InWindowSimulator url={this.state.url} closeSim={this.closeSim} />
+                : this.renderTextEditorPane()}
               {this.state.simulator ?
-            <button className="btn" onClick={this.closeSim}>
+                <button className="btn" onClick={this.closeSim}>
                   Close Simulator
-              </button>: <button className="btn" onClick={this.openSimulatorInMain}>
+              </button> : <button className="btn" onClick={this.openSimulatorInMain}>
                   Simulator
               </button>}
               <button className="btn" onClick={this.openSim}>
-                  Simulator in new window
+                Simulator in new window
               </button>
               {this.state.simulator
-              ? <TextEditorPane
-              appState={this.state}
-              setActiveTab={this.setActiveTab}
-              addEditorInstance={this.addEditorInstance}
-              closeTab={this.closeTab}
-              openMenuId={this.state.openMenuId}
-              onOpenFile={this.handleOpenFile}
-              onEditorValueChange={this.handleEditorValueChange}
-            />: <XTerm rootdir = {this.state.rootDirPath} setFileTree = {this.setFileTree}></XTerm>}
+                ? this.renderTextEditorPane() : <XTerm rootdir={this.state.rootDirPath} setFileTree = {this.setFileTree}></XTerm>}
+              <ride-pane-resize-handle class="horizontal" />
             </ride-pane>
           </ride-pane-axis>
         </ride-pane-container>

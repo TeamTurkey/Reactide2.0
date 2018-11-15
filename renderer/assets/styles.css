@@ -7829,6 +7829,7 @@ progress:indeterminate {
   overflow-y: hidden;
   border-radius: 0;
   margin: 0;
+  white-space: nowrap;
 }
 .tab-bar::-webkit-scrollbar {
   display: none;
@@ -7885,7 +7886,6 @@ progress:indeterminate {
   background-color: #23272f;
   background-clip: content-box;
   backface-visibility: hidden;
-  width: 170px;
   float: left;
 }
 .tab-bar .tab:hover .title {
@@ -7946,7 +7946,7 @@ progress:indeterminate {
 }
 .tab-bar .tab .title,
 .tab-bar .tab.active .title {
-  padding: 0;
+  padding: 0 17px 0 3px;
 }
 .tab-bar .tab.active {
   color: #d6dae1;
