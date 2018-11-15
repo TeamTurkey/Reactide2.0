@@ -2,6 +2,7 @@ const {exec, spawn} = require('child_process');
 
 const runTerminal = (cwd, command, terminal) => {
   //Clear weird case where command includes \r
+  console.log('COMMAND WITHIN RUNTERMINAL', command);
   const basicCommands = ['cd', 'pwd', 'hostname', 'mkdir', 'ls', 'find', 'rmdir', 'less', 'cp', 'mv', 'pushd', 'popd', 'grep', 'xargs', 'cat', 'env', 'export', 'echo', 'man', 'apropos', 'chown', 'chmod', 'exit']
   if(command[0] === '\\'){
     command = command.slice(2);
