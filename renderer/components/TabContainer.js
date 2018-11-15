@@ -23,6 +23,7 @@ const TabContainer = ({
         <Tab
           key={key}
           name={appState.openTabs[key].name}
+          isActive={appState.previousPaths[appState.previousPaths.length - 1] === key}
           setActiveTab = {setActiveTab}
           path={key}
           closeTab={closeTab}

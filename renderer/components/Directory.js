@@ -20,7 +20,7 @@ const Directory = ({
   id
 }) => {
   const arr = [];
-  let uniqueId;
+
   for (var i = 0; i < directory.subdirectories.length; i++) {
     arr.push(
       <Directory

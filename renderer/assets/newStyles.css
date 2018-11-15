@@ -81,7 +81,7 @@
   color: #519aba;
 }
 /* common rule for '.seti-' */
-[class^="seti-"]:before {
+[class*="seti-"]:before {
   float: left;
   font-family: 'seti';
   -webkit-font-smoothing: antialiased;
