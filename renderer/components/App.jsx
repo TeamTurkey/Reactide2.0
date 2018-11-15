@@ -105,6 +105,7 @@ export default class App extends React.Component {
 
 
   constructComponentTreeObj() {
+    console.log('CONSTRUCTING');
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
     console.log('PROJINFO')
     console.log(projInfo)
@@ -117,6 +118,7 @@ export default class App extends React.Component {
       this.setState({
         componentTreeObj: componentObj
       });
+      console.log('CHANGED TREE OBJ');
     } else if (projInfo.CRA === true) {
       let rootPath = path.join(projInfo.rootPath, 'src');
       console.log('THIS IS THE ROOT PATH')
@@ -237,8 +239,6 @@ export default class App extends React.Component {
       }
       console.log('THIS IS THE DIRPATH TO WATCH', dirPath);
       let watch = fs.watch(dirPath, { recursive: true }, (eventType, fileName) => {
-        console.log('STATEINWATCH', this.state);
-        console.log('Eventtype:', eventType);
         if (eventType === 'rename') {
           const fileTree = this.state.fileTree;
           const absPath = path.join(this.state.rootDirPath, fileName);
@@ -263,7 +263,6 @@ export default class App extends React.Component {
             }
           } else if (this.state.fileChangeType === 'new') {
             //new handler
-            console.log('WITHIN NEW');
             if (this.state.createMenuInfo.type === 'directory') {
               parentDir.subdirectories.push(new Directory(absPath, name));
             } else {
@@ -299,7 +298,6 @@ export default class App extends React.Component {
               }
             }
           }
-          console.log('about to setState', fileTree)
           this.setState({
             fileTree,
             fileChangeType: null,
@@ -310,7 +308,6 @@ export default class App extends React.Component {
             },
             openTabs
           });
-          console.log('AFTER SET STATE TO NULL', this.state);
         }
       });
 
@@ -334,7 +331,6 @@ export default class App extends React.Component {
 
   //returns parent directory object of file/directory in question
   findParentDir(dirPath, directory = this.state.fileTree) {
-    console.log('IN FINDPARENTDIR', dirPath, directory)
     if (directory && directory.path === dirPath) return directory;
     else {
       let dirNode;
@@ -347,7 +343,6 @@ export default class App extends React.Component {
 
   //click handler for plus button on directories, 'opens' new file/dir menu by setting openMenuID state
   openCreateMenu(id, itemPath, type, event) {
-    console.log(id, itemPath, type, event);
     event.stopPropagation();
     this.setState({
       openMenuId: id,
@@ -461,7 +456,6 @@ export default class App extends React.Component {
   }
 
   openSimulatorInMain() {
-    console.log('SENDING ACTION TO RENDERER')
     ipcRenderer.send('start simulator', 'helloworld');
     this.setState({ simulator: true })
   }
@@ -496,7 +490,6 @@ export default class App extends React.Component {
     this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
   closeSim() {
-    console.log('Closing sim');
     this.setState({ simulator: false });
   }
   // render function for TextEditorPane
@@ -544,6 +537,9 @@ export default class App extends React.Component {
                 <div className="styleguide pane-item">
                   <header className="styleguide-header">
                     <h5>Component Tree</h5>
+                    <button  onClick = {this.constructComponentTreeObj} className = 'btn'>
+                      Refresh Component Tree
+                    </button>
                   </header>
                   {this.state.componentTreeObj &&
                     <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
@@ -554,7 +550,7 @@ export default class App extends React.Component {
             {/* <ride-pane-resize-handle class="horizontal" /> */}
 
             <ride-pane-resize-handle className="horizontal" />
-            <ride-pane>
+            <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
               {this.state.simulator
                 ? <InWindowSimulator url={this.state.url} closeSim={this.closeSim} />
                 : this.renderTextEditorPane()}
@@ -568,7 +564,7 @@ export default class App extends React.Component {
                 Simulator in new window
               </button>
               {this.state.simulator
-                ? this.renderTextEditorPane() : <XTerm rootdir={this.state.rootDirPath}></XTerm>}
+                ? this.renderTextEditorPane() : <XTerm rootdir={this.state.rootDirPath} setFileTree = {this.setFileTree}></XTerm>}
               <ride-pane-resize-handle class="horizontal" />
             </ride-pane>
           </ride-pane-axis>

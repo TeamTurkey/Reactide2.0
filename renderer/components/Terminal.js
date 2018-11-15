@@ -6,9 +6,8 @@ import path from 'path';
 const { runTerminal } = require('../../nodeTerminal.js');
 console.log('THIS IS RUN TERMINAL', runTerminal);
 Terminal.applyAddon(fit);
+let term = new Terminal();
 //Declare terminal for use throughout the component lifecycle
-const term = new Terminal();
-
 class XTerm extends React.Component {
 
     constructor(props) {
@@ -18,7 +17,8 @@ class XTerm extends React.Component {
         cwd: this.props.rootdir,
         pastCommands: [],
         commandIndex: 0,
-        cursorIndex: -1
+        cursorIndex: -1,
+        rootDir: this.props.rootdir
       }
     }
     //Compare rootdir being passed to determine whether or not we need to render a new terminal
@@ -26,7 +26,7 @@ class XTerm extends React.Component {
     componentWillReceiveProps(nextProps) {
       if(nextProps.rootdir !==this.state.cwd && nextProps.rootdir !== this.props.rootdir){
         //Perform some operation
-        this.setState({cwd: nextProps.rootdir }, () => {
+        this.setState({cwd: nextProps.rootdir, rootDir: nextProps.rootdir }, () => {
           term.clear();
           term.write(this.state.cwd + '\r\n' + '$');
           shell.cd(this.state.cwd);
@@ -43,37 +43,45 @@ class XTerm extends React.Component {
       term.fit();
       //On keypress, execute. Switch case to handle the enter, lft, rght, up, down arrow and normal keys
       term.on('key', (key, ev) => {
+        const fileManipulation = new Set(['cp', 'mkdir','touch', 'rm', 'rmdir', 'mv']);
         switch(ev.keyCode){
           //When a user hits enter, clean up the input for execution of the command within node child_process
           case 13:
             let output;
             let command = this.state.currCommand;
-            console.log(command);
             let newPath;
             //Check for cd to be handled on the front-end without communication with spawn
             if(command.split(' ')[0] === 'cd' && command.split(' ').length === 2) {
               console.log('CD PATH CASE');
               newPath = path.join(this.state.cwd, command.split(' ')[1]);
+              console.log('NEWPATH', newPath);
               this.setState({cwd: newPath});
               greeting = newPath;
               term.write('\r\n' + greeting + '\r\n');
               term.write('$');
               //Check for cd with other options, strip the cd command away and run the rest of the command in spawn
             } else{
-              if(command.split(' ')[0] === 'cd' && command.split(' ').length > 2) {
-                newPath = path.join(this.state.cwd, command.split(' ')[1]);
-                this.setState({cwd: newPath});
-                greeting = newPath;
-                command = command.split(' ').slice(2).join(' ');
+                if(command.split(' ')[0] === 'cd' && command.split(' ').length > 2) {
+                  newPath = path.join(this.state.cwd, command.split(' ')[1]);
+                  this.setState({cwd: newPath});
+                  greeting = newPath;
+                  command = command.split(' ').slice(2).join(' ');
+                }
+                output = runTerminal(this.state.cwd, command, term);
+                if(Promise.resolve(output) === output) {
+                  output.then(() => {
+                    if(fileManipulation.has(command.split(' ')[0])) {
+                      this.props.setFileTree(this.state.rootDir);
+                    }
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  })
               }
-              output = runTerminal(this.state.cwd, command, term);
-            }
-            //set past Commands
-            const arrCopy = this.state.pastCommands.slice();
-            arrCopy.push(command)
-            //Clear state for the next command
-            this.setState({currCommand: '', pastCommands: arrCopy});
-            break;
+          }
+          //Clear state for the next command
+          this.setState({currCommand: ''});
+          break;
             //When a backspace is hit, write it, then delete the latest char from the curr Command
           case 8:
             term.write('\b \b');
@@ -111,9 +119,15 @@ class XTerm extends React.Component {
       }
     })
   }
+  componentWillUnmount() {
+    term.destroy();
+    term = new Terminal();
+    term.write(this.state.cwd + '\r\n' + '$');
+  }
     render() {
       const divStyle = {
-        height: '30%'
+        height: '30%',
+        width: '105%'
       }
       return ( 
           <div id='terminal' style = {divStyle}>
