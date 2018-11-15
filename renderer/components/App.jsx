@@ -542,6 +542,9 @@ export default class App extends React.Component {
                 <div className="styleguide pane-item">
                   <header className="styleguide-header">
                     <h5>Component Tree</h5>
+                    <button  onClick = {this.constructComponentTreeObj} className = 'btn'>
+                      Refresh Component Tree
+                    </button>
                   </header>
                   {this.state.componentTreeObj &&
                     <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
@@ -582,7 +585,7 @@ export default class App extends React.Component {
               openMenuId={this.state.openMenuId}
               onOpenFile={this.handleOpenFile}
               onEditorValueChange={this.handleEditorValueChange}
-            />: <XTerm rootdir = {this.state.rootDirPath}></XTerm>}
+            />: <XTerm rootdir = {this.state.rootDirPath} setFileTree = {this.setFileTree}></XTerm>}
             </ride-pane>
           </ride-pane-axis>
         </ride-pane-container>
