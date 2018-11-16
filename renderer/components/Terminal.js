@@ -37,6 +37,7 @@ class XTerm extends React.Component {
       //Set up some terminal options
       term.setOption('cursorStyle', 'block');
       term.setOption('cursorBlink', true);
+      term.setOption('fontSize', 14);
       //Grab div from the DOM to render terminal
       term.open(document.getElementById('terminal'));
       let greeting = '';
@@ -52,9 +53,7 @@ class XTerm extends React.Component {
             let newPath;
             //Check for cd to be handled on the front-end without communication with spawn
             if(command.split(' ')[0] === 'cd' && command.split(' ').length === 2) {
-              console.log('CD PATH CASE');
               newPath = path.join(this.state.cwd, command.split(' ')[1]);
-              console.log('NEWPATH', newPath);
               this.setState({cwd: newPath});
               greeting = newPath;
               term.write('\r\n' + greeting + '\r\n');

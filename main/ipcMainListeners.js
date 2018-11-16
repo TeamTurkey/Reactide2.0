@@ -29,11 +29,15 @@ module.exports = () => {
   });
 
   ipcMain.on('delete', (event, itemPath) => {
+    console.log('deleting');
     deleteItem(itemPath);
   });
 
   ipcMain.on('rename', (event, itemPath, newName) => {
-    fs.rename(itemPath, path.join(path.dirname(itemPath), newName));
+    fs.rename(itemPath, path.join(path.dirname(itemPath), newName), (err) => {
+      if(err) console.log(err);
+      console.log('Rename done.');
+    });
   });
   ipcMain.on('start simulator', ()=> {
     console.log('IN IPCMAIN')
