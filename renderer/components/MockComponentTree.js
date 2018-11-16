@@ -85,30 +85,12 @@ class MockComponentTree extends React.PureComponent {
     console.log('THESE ARE THE COMPONENT TREE PROPS', this.props.componentTreeObj);
     let componentTree = [];
 
-    // if (this.props.componentTreeObj) {
-    //   componentTree.push(
-    //     <main className="styleguide-sections">
-    //       <div className="tree-view-resizer tool-panel">
-    //         <div className="tree-view-scroller">
-    //           <ul className="tree">
-    //             {this.renderTree(this.props.componentTreeObj)}
-    //           </ul>
-    //         </div>
-    //       </div>
-    //     </main>
-    //   );
-    // }
-
     return (
-      <main className="styleguide-sections">
-        <div className="tree-view-resizer tool-panel">
-          <div className="tree-view-scroller">
-            <ul className="tree">
-              {this.renderTree(this.props.componentTreeObj)}
-            </ul>
-          </div>
-        </div>
-      </main>
+      <div className="tree-view-resizer tool-panel">
+        <ul className="tree">
+          {this.renderTree(this.props.componentTreeObj)}
+        </ul>
+      </div>
     );
   }
 }
