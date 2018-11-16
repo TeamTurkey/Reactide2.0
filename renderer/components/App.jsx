@@ -4,6 +4,7 @@ import TextEditorPane from './TextEditorPane';
 import DeletePrompt from './DeletePrompt';
 import MockComponentTree from './MockComponentTree';
 import MockComponentInspector from './MockComponentInspector';
+import RefreshComponentTreeButton from './RefreshComponentTreeButton';
 import Simulator from './InWindowSimulator';
 import XTerm from './Terminal.js'
 import { ipcMain } from 'electron';
@@ -505,28 +506,36 @@ export default class App extends React.Component {
       />);
   }
   render() {
-    // let mainScreen;
-    // this.state.simulator ? mainScreen = <InWindowSimulator url={this.state.url} /> :
-    //   mainScreen = this.renderTextEditorPane();
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
         <ride-panel-container className="header" />
         <ride-pane-container>
           <ride-pane-axis className="horizontal">
             <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
-              <FileTree
-                dblClickHandler={this.dblClickHandler}
-                openCreateMenu={this.openCreateMenu}
-                openMenuId={this.state.openMenuId}
-                createMenuInfo={this.state.createMenuInfo}
-                createMenuHandler={this.createMenuHandler}
-                createItem={this.createItem}
-                fileTree={this.state.fileTree}
-                selectedItem={this.state.selectedItem}
-                clickHandler={this.clickHandler}
-                renameFlag={this.state.renameFlag}
-                renameHandler={this.renameHandler}
-              />
+              <div className="item-views">
+                <div className="styleguide pane-item">
+                  <header className="styleguide-header">
+                    <h5>File Directory</h5>
+                  </header>
+                  <main className="styleguide-sections">
+                    {this.state.fileTree &&
+                      <FileTree
+                        dblClickHandler={this.dblClickHandler}
+                        openCreateMenu={this.openCreateMenu}
+                        openMenuId={this.state.openMenuId}
+                        createMenuInfo={this.state.createMenuInfo}
+                        createMenuHandler={this.createMenuHandler}
+                        createItem={this.createItem}
+                        fileTree={this.state.fileTree}
+                        selectedItem={this.state.selectedItem}
+                        clickHandler={this.clickHandler}
+                        renameFlag={this.state.renameFlag}
+                        renameHandler={this.renameHandler}
+                      />
+                    }
+                  </main>
+                </div>
+              </div>
               {this.state.deletePromptOpen
                 ? <DeletePrompt
                   deletePromptHandler={this.deletePromptHandler}
@@ -536,14 +545,19 @@ export default class App extends React.Component {
               <div className="item-views">
                 <div className="styleguide pane-item">
                   <header className="styleguide-header">
-                    <h5>Component Tree</h5>
-                    <button  onClick = {this.constructComponentTreeObj} className = 'btn'>
-                      Refresh Component Tree
-                    </button>
+                    <div id="comptree-titlebar-left">
+                      <h5>Component Tree</h5>
+                    </div>
+                    <div id="comptree-titlebar-right">
+                      {this.state.componentTreeObj &&
+                        <RefreshComponentTreeButton constructComponentTreeObj={this.constructComponentTreeObj} />}
+                    </div>
                   </header>
-                  {this.state.componentTreeObj &&
-                    <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
-                  }
+                  <main className="styleguide-sections">
+                    {this.state.componentTreeObj &&
+                      <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
+                    }
+                  </main>
                 </div>
               </div>
             </ride-pane>
@@ -564,7 +578,7 @@ export default class App extends React.Component {
                 Simulator in new window
               </button>
               {this.state.simulator
-                ? this.renderTextEditorPane() : <XTerm rootdir={this.state.rootDirPath} setFileTree = {this.setFileTree}></XTerm>}
+                ? this.renderTextEditorPane() : <XTerm rootdir={this.state.rootDirPath} setFileTree={this.setFileTree}></XTerm>}
               <ride-pane-resize-handle class="horizontal" />
             </ride-pane>
           </ride-pane-axis>

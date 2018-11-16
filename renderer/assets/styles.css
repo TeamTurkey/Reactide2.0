@@ -8288,10 +8288,10 @@ code {
   border-top: 1px solid transparent;
   background-clip: padding-box;
 }
-.tree-view-resizer .tree-view-resize-handle {
+/* .tree-view-resizer .tree-view-resize-handle {
   width: 8px;
   right: -5px;
-}
+} */
 .list-group li:not(.list-nested-item),
 .list-tree li:not(.list-nested-item),
 .list-group li.list-nested-item > .list-item,

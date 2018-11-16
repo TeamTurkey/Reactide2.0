@@ -82,7 +82,6 @@
 }
 /* common rule for '.seti-' */
 [class*="seti-"]:before {
-  float: left;
   font-family: 'seti';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -94,6 +93,7 @@
   font-size: 21px;
   margin-left: -2px;
   margin-right: 2px;
+  vertical-align: bottom;
 }
 .octi-file-text::before {
   font-family: 'Octicons Regular';
@@ -130,8 +130,6 @@ body {
 }
 .tree-view-scroller {
   overflow: scroll;
-  height: 500px;
-  width: 500px;
 }
 .tree {
   list-style: none;
@@ -326,4 +324,27 @@ input[type="checkbox"] ~ label {
 }
 .comp_props {
   padding-left: 15px;
+}
+.list-item {
+  cursor: pointer;
+}
+#comptree-titlebar-left {
+  float: left;
+}
+#comptree-titlebar-right {
+  float: right;
+}
+.icon-btn {
+  background-color: transparent;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  border: none;
+  margin-top: 3px;
+}
+.icon-btn i {
+  padding-right: 3px;
+}
+.icon-btn:hover {
+  color: #d6dae1;
 }
