@@ -2,7 +2,6 @@ const {exec, spawn} = require('child_process');
 
 const runTerminal = (cwd, command, terminal) => {
   //Clear weird case where command includes \r
-  console.log('COMMAND WITHIN RUNTERMINAL', command);
   const basicCommands = ['cd', 'pwd', 'hostname', 'mkdir', 'ls', 'find', 'rmdir', 'less', 'cp', 'mv', 'pushd', 'popd', 'grep', 'xargs', 'cat', 'env', 'export', 'echo', 'man', 'apropos', 'chown', 'chmod', 'exit']
   if(command[0] === '\\'){
     command = command.slice(2);
@@ -21,14 +20,12 @@ const runTerminal = (cwd, command, terminal) => {
       });
         //When child process is done executing, write a new prompt line in terminal
       child.on('close', (code) => {
-        console.log('closed');
         terminal.write('\r\n' + cwd + '\r\n');
         terminal.write('$');
         resolve();
       });
         //Error handling
       child.stderr.on('data', (data) => {
-        console.log('err within runTerminal', data);
         terminal.write(data.toString() + '\r\n');
         reject();
       })
@@ -41,14 +38,11 @@ const runTerminal = (cwd, command, terminal) => {
     let child = spawn(command.split(' ')[0], command.split(' ').slice(1), {cwd: cwd});
     //On data, write it to the terminal
     child.stdout.on('data', (data) => {
-      console.log('WITHIN CHILD STDOUT ON');
       let output = data.toString().replace(/(\r\n|\n|\r)/gm,"");
-      console.log(output);
       terminal.write(output + '\r\n');
     });
     //on close, reprompt
     child.on('close', () => {
-      console.log('Process ended');
       terminal.write(cwd + '\r\n');
       terminal.write('$');
     })
