@@ -14,6 +14,7 @@
   "author": "Mark Cruz, Jin Choi, Bita Djaghouri",
   "license": "ISC",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.5.0",
     "monaco-editor": "^0.14.3",
     "prop-types": "^15.5.8",
     "react": "^16.6.0",
