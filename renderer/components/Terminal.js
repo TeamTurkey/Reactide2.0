@@ -1,10 +1,8 @@
 import React from 'react';
 import { Terminal } from 'xterm';
-import shell from 'shelljs';
 import * as fit from 'xterm/lib/addons/fit/fit';
 import path from 'path';
 const { runTerminal } = require('../../nodeTerminal.js');
-console.log('THIS IS RUN TERMINAL', runTerminal);
 Terminal.applyAddon(fit);
 let term = new Terminal();
 //Declare terminal for use throughout the component lifecycle
@@ -24,7 +22,7 @@ class XTerm extends React.Component {
     //Compare rootdir being passed to determine whether or not we need to render a new terminal
     //with a different rootpath
     componentWillReceiveProps(nextProps) {
-      if(nextProps.rootdir !==this.state.cwd && nextProps.rootdir !== this.props.rootdir){
+      if(nextProps.rootdir !==this.state.cwd && nextProps.rootdir !== this.props.rootdir) {
         //Perform some operation
         this.setState({cwd: nextProps.rootdir, rootDir: nextProps.rootdir }, () => {
           term.clear();
@@ -109,7 +107,7 @@ class XTerm extends React.Component {
   }
     render() {
       const divStyle = {
-        height: '30%',
+        height: '40%',
         width: '105%'
       }
       return ( 

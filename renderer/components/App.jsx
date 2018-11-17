@@ -6,7 +6,8 @@ import MockComponentTree from './MockComponentTree';
 import MockComponentInspector from './MockComponentInspector';
 import RefreshComponentTreeButton from './RefreshComponentTreeButton';
 import Simulator from './InWindowSimulator';
-import XTerm from './Terminal.js'
+import XTerm from './Terminal.js';
+import Output from './Output.js';
 import { ipcMain } from 'electron';
 import InWindowSimulator from './InWindowSimulator';
 const { ipcRenderer } = require('electron');
@@ -46,6 +47,9 @@ export default class App extends React.Component {
       componentTreeObj: null,
       simulator: false,
       url: '',
+      cra: false,
+      craOut: '',
+      outputOrTerminal: 'output'
     };
 
     this.fileTreeInit();
@@ -68,11 +72,19 @@ export default class App extends React.Component {
     this.openSim = this.openSim.bind(this);
     this.closeSim = this.closeSim.bind(this);
     this.openSimulatorInMain = this.openSimulatorInMain.bind(this);
+    this.outputHandler = this.outputHandler.bind(this);
+    this.terminalHandler = this.terminalHandler.bind(this);
 
     //reset tabs, should store state in local storage before doing this though
   }
-  componentDidMount() {
 
+  outputHandler() {
+    this.setState({outputOrTerminal: 'output'})
+  }
+  terminalHandler() {
+    this.setState({outputOrTerminal: 'terminal'});
+  }
+  componentDidMount() {
     ipcRenderer.on('openDir', (event, projPath) => {
       if (this.state.openedProjectPath !== projPath) {
         this.setState({ openTabs: {}, openedProjectPath: projPath });
@@ -101,7 +113,11 @@ export default class App extends React.Component {
     });
     ipcRenderer.on('start simulator', (event, arg) => {
       this.setState({ url: arg });
-    })
+    });
+    ipcRenderer.on('craOut', (event, arg) => {
+      console.log('arg in App.jsx', arg);
+      this.setState({craOut: arg, cra: false});
+    });
   }
 
   /**
@@ -148,7 +164,8 @@ export default class App extends React.Component {
             id: null,
             path: null,
             type: null
-          }
+          },
+          cra: true
         });
       });
   }
@@ -557,6 +574,14 @@ export default class App extends React.Component {
       />);
   }
   render() {
+    let renderBottomPanel;
+    if(this.state.simulator) {
+      this.renderTextEditorPane;
+    } else if(this.state.outputOrTerminal === 'terminal') {
+      renderBottomPanel = (<XTerm cra = {this.state.cra} rootdir={this.state.rootDirPath} setFileTree={this.setFileTree}></XTerm>)
+    } else{
+      renderBottomPanel = (<Output cra = {this.state.cra} craOut = {this.state.craOut}/>)
+    }
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
         <ride-panel-container className="header" />
@@ -622,8 +647,11 @@ export default class App extends React.Component {
                   Close Simulator
                 </button>
               }
-              {this.state.simulator
-                ? this.renderTextEditorPane() : <XTerm rootdir={this.state.rootDirPath} setFileTree={this.setFileTree}></XTerm>}
+              {this.state.simulator ? <span /> :  (<div>
+                <button className="btn" onClick = {this.outputHandler}>Output</button>
+                <button className="btn" onClick = {this.terminalHandler}>Terminal</button>
+              </div>) }
+              {renderBottomPanel}
               <ride-pane-resize-handle class="horizontal" />
             </ride-pane>
           </ride-pane-axis>

@@ -27,13 +27,12 @@ const menuTemplate = windowObj => [
         click: () => {
           // warn user of unsaved changes before below
           global.newProj = true;
-          global.mainWindow.webContents.send('newProject');
           const save = dialog.showSaveDialog();
-          // if (save) {
-          //   copy('./lib/new-project-template/new-project', save);
-          // }
           //Run cra with 'save' variable as destination path
-          cra(save);
+          if(save) {
+            cra(save);
+            global.mainWindow.webContents.send('newProject');
+          }
         },
         accelerator: 'CommandOrControl+N'
       },
