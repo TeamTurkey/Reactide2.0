@@ -6,7 +6,8 @@ import MockComponentTree from './MockComponentTree';
 import MockComponentInspector from './MockComponentInspector';
 import RefreshComponentTreeButton from './RefreshComponentTreeButton';
 import Simulator from './InWindowSimulator';
-import XTerm from './Terminal.js'
+import XTerm from './Terminal.js';
+import Output from './Output.js';
 import { ipcMain } from 'electron';
 import InWindowSimulator from './InWindowSimulator';
 const { ipcRenderer } = require('electron');
@@ -46,6 +47,9 @@ export default class App extends React.Component {
       componentTreeObj: null,
       simulator: false,
       url: '',
+      cra: false,
+      craOut: '',
+      outputOrTerminal: 'output'
     };
 
     this.fileTreeInit();
@@ -68,11 +72,19 @@ export default class App extends React.Component {
     this.openSim = this.openSim.bind(this);
     this.closeSim = this.closeSim.bind(this);
     this.openSimulatorInMain = this.openSimulatorInMain.bind(this);
+    this.outputHandler = this.outputHandler.bind(this);
+    this.terminalHandler = this.terminalHandler.bind(this);
 
     //reset tabs, should store state in local storage before doing this though
   }
-  componentDidMount() {
 
+  outputHandler() {
+    this.setState({outputOrTerminal: 'output'})
+  }
+  terminalHandler() {
+    this.setState({outputOrTerminal: 'terminal'});
+  }
+  componentDidMount() {
     ipcRenderer.on('openDir', (event, projPath) => {
       if (this.state.openedProjectPath !== projPath) {
         this.setState({ openTabs: {}, openedProjectPath: projPath });
@@ -101,10 +113,16 @@ export default class App extends React.Component {
     });
     ipcRenderer.on('start simulator', (event, arg) => {
       this.setState({ url: arg });
-    })
+    });
+    ipcRenderer.on('craOut', (event, arg) => {
+      console.log('arg in App.jsx', arg);
+      this.setState({craOut: arg, cra: false});
+    });
   }
 
-
+  /**
+   * Creates component Tree object for rendering by calling on methods defined in importPath.js
+   */
   constructComponentTreeObj() {
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
     if (projInfo.reactEntry !== '') {
@@ -127,7 +145,9 @@ export default class App extends React.Component {
     }
   }
 
-  //registers listeners for opening projects and new projects
+  /**
+   * Registers listeners for opening projects and new projects
+   */
   fileTreeInit() {
     ipcRenderer.on('openDir', (event, dirPath) => {
       if (dirPath !== this.state.rootDirPath) {
@@ -144,11 +164,15 @@ export default class App extends React.Component {
             id: null,
             path: null,
             type: null
-          }
+          },
+          cra: true
         });
       });
   }
-  //sends old path and new name to main process to rename, closes rename form and sets filechangetype and newName for fswatch
+  /**
+   * sends old path and new name to main process to rename, closes rename form and sets filechangetype and newName for fswatch
+   * @param {Javascript event Object} event 
+   */
   renameHandler(event) {
     if (event.key === 'Enter' && event.target.value) {
       ipcRenderer.send('rename', this.state.selectedItem.path, event.target.value);
@@ -181,7 +205,9 @@ export default class App extends React.Component {
       deletePromptOpen: false
     });
   }
-  //handles click events for directories and files in file tree render
+  /**
+   * handles click events for directories and files in file tree render, if you click a directory, it will run through the directory and open all its files in the file-tree
+   */
   clickHandler(id, filePath, type, event) {
     const temp = this.state.fileTree;
     // when clicked on '+'  
@@ -225,15 +251,16 @@ export default class App extends React.Component {
       }
     });
   }
-
-  //calls file tree module and sets state with file tree object representation in callback
+/**
+ * calls file-tree module and sets state with file tree object representation in callback
+ */
   setFileTree(dirPath) {
     getTree(dirPath, fileTree => {
       //if watcher instance already exists close it as it's for the previously opened project
       if (this.state.watch) {
         this.state.watch.close();
       }
-      console.log('THIS IS THE DIRPATH TO WATCH', dirPath);
+      //Setting up fs.watch to watch for changes that occur anywhere in the filesystem
       let watch = fs.watch(dirPath, { recursive: true }, (eventType, fileName) => {
         if (eventType === 'rename') {
           const fileTree = this.state.fileTree;
@@ -241,7 +268,7 @@ export default class App extends React.Component {
           const parentDir = this.findParentDir(path.dirname(absPath), fileTree);
           const name = path.basename(absPath);
           const openTabs = this.state.openTabs;
-          //delete handler
+          //Delete handler
           if (this.state.fileChangeType === 'delete') {
             let index;
             if (this.state.selectedItem.type === 'directory') {
@@ -277,7 +304,6 @@ export default class App extends React.Component {
               parentDir.files[index].name = this.state.newName;
               parentDir.files[index].path = path.join(path.dirname(absPath), this.state.newName);
             }
-
             //renames path of selected renamed file so it has the right info
             this.setState({
               selectedItem: {
@@ -315,7 +341,9 @@ export default class App extends React.Component {
       this.constructComponentTreeObj();
     });
   }
-  //returns index of file/dir in files or subdirectories array
+  /**
+   * returns index of file/dir in files or subdirectories array
+   */
   findItemIndex(filesOrDirs, name) {
     for (var i = 0; i < filesOrDirs.length; i++) {
       if (filesOrDirs[i].name === name) {
@@ -324,8 +352,9 @@ export default class App extends React.Component {
     }
     return -1;
   }
-
-  //returns parent directory object of file/directory in question
+  /**
+   * returns parent directory object of file/directory in question
+   */
   findParentDir(dirPath, directory = this.state.fileTree) {
     if (directory && directory.path === dirPath) return directory;
     else {
@@ -336,8 +365,9 @@ export default class App extends React.Component {
       }
     }
   }
-
-  //click handler for plus button on directories, 'opens' new file/dir menu by setting openMenuID state
+  /**
+   * click handler for right-click on directories/files, 'opens' new file/dir menu by setting openMenuID state
+   */
   openCreateMenu(id, itemPath, type, event) {
     console.log('OPENING MENU', id, itemPath, type);
     event.stopPropagation();
@@ -350,8 +380,14 @@ export default class App extends React.Component {
       }
     });
   }
-
-  //handler for create menu
+/**
+ * Handler to determine what action to take based on which option in the Menu that opened after right-click
+ * @param {Integer} id of the menu being opened (pertaining to a certain file/directory)
+ * @param {String} type either file or directory
+ * @param {Object} event event object
+ * @param {String} actionType either rename, delete, or new
+ * @param {String} path Path to the file or directory being changed
+ */
   createMenuHandler(id, type, event, actionType, path) {
     //unhook keypress listeners
     document.body.onkeydown = () => { };
@@ -376,8 +412,11 @@ export default class App extends React.Component {
         });  
       }
     }
-  //sends input name to main, where the file/directory is actually created.
-  //creation of new file/directory will trigger watch handler
+    /**
+     * sends input name to main, where the file/directory is actually created.
+     * creation of new file/directory will trigger watch handler
+     */
+
   createItem(event) {
     if (event.key === 'Enter') {
       //send path and file type to main process to actually create file/dir only if there is value
@@ -395,7 +434,11 @@ export default class App extends React.Component {
     }
   }
 
-  //tab close handler
+  /**
+   * On close tab, change state to reflect the current Tabs that need to be rendered
+   * @param {String} path Path of tab that is about to be closed
+   * @param {*} event Event Object
+   */
   closeTab(path, event) {
     const copyOpenTabs = Object.assign({}, this.state.openTabs);
     const history = this.state.previousPaths.slice().filter((elem) => {
@@ -410,23 +453,34 @@ export default class App extends React.Component {
     event.stopPropagation();
     this.setState({ openTabs: copyOpenTabs, previousPaths: history });
   }
-
-  //save handler
+  /**
+   * Save tab handler --> Writes to filesystem of whichever path is being changed
+   */
   saveTab() {
     fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length - 1], this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length - 1]].editorValue, { encoding: 'utf8' });
   }
-  // //sets active tab
+  /**
+   * Sets active tab to change highlighting, and to determine which Monaco model is open
+   * @param {String} path Path of the tab being set to Active
+   */
   setActiveTab(path) {
     let copyPreviousPaths = this.updateHistory(path);
     this.setState({ previousPaths: copyPreviousPaths })
   }
+  /** 
+   * Add a path to the previousPaths, in order to determine which path to pop back to on tab close
+   * @param {String} path Path of tab that needs to be put into the history arr
+   */
   updateHistory(path) {
     let copyPreviousPaths = this.state.previousPaths;
     copyPreviousPaths.push(path);
     return copyPreviousPaths;
   }
 
-  //double click handler for files
+  /**
+   * On double click of a file, create a new Tab for the file being opened, and push it into previousPaths
+   * @param {Object} file Object being clicked on, the Object describes the files name, path, ext, etc.
+   */
   dblClickHandler(file) {
     const history = this.updateHistory(file.path);
     if (!(Object.keys(this.state.openTabs).includes(file.path))) {
@@ -452,19 +506,24 @@ export default class App extends React.Component {
   //   }
   //   return -1;
   // }
-
-  //simulator click handler
+/**
+ * Open up the simulator by sending a message to ipcRenderer('openSimulator')
+ */
   openSim() {
     //this.setState({simulator: true});
     ipcRenderer.send('openSimulator', 'helloworld');
   }
-
+/**
+ * Opens up simulator within IDE window by sending a message to ipcRenderer('start simulator')
+ * Changes state of simulator to true to trigger conditional rendering of Editor and Simulator
+ */
   openSimulatorInMain() {
     ipcRenderer.send('start simulator', 'helloworld');
     this.setState({ simulator: true })
   }
-
-  //closes any open dialogs, handles clicks on anywhere besides the active open menu/form
+/**
+ * closes any open dialogs, handles clicks on anywhere besides the active open menu/form
+ */
   closeOpenDialogs() {
     const selectedItem = this.state.selectedItem;
     selectedItem.focused = false;
@@ -485,7 +544,10 @@ export default class App extends React.Component {
   // handleOpenFile(path) {
   //   this.setState({ currentFile: path });
   // }
-  //Change state whenever something is typed,
+  /**
+   * Auto save on change of the editor
+   * @param {String} value Contents of the Monaco editor instance
+   */
   handleEditorValueChange(value) {
     const copyOpenTabs = Object.assign({}, this.state.openTabs)
     const copyTabObject = Object.assign({}, this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length - 1]]);
@@ -496,7 +558,9 @@ export default class App extends React.Component {
   closeSim() {
     this.setState({ simulator: false });
   }
-  // render function for TextEditorPane
+  /**
+   * render function for TextEditorPane
+   */
   renderTextEditorPane() {
     return (
       <TextEditorPane
@@ -510,6 +574,14 @@ export default class App extends React.Component {
       />);
   }
   render() {
+    let renderBottomPanel;
+    if(this.state.simulator) {
+      this.renderTextEditorPane;
+    } else if(this.state.outputOrTerminal === 'terminal') {
+      renderBottomPanel = (<XTerm cra = {this.state.cra} rootdir={this.state.rootDirPath} setFileTree={this.setFileTree}></XTerm>)
+    } else{
+      renderBottomPanel = (<Output cra = {this.state.cra} craOut = {this.state.craOut}/>)
+    }
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
         <ride-panel-container className="header" />
@@ -575,8 +647,11 @@ export default class App extends React.Component {
                   Close Simulator
                 </button>
               }
-              {this.state.simulator
-                ? this.renderTextEditorPane() : <XTerm rootdir={this.state.rootDirPath} setFileTree={this.setFileTree}></XTerm>}
+              {this.state.simulator ? <span /> :  (<div>
+                <button className="btn" onClick = {this.outputHandler}>Output</button>
+                <button className="btn" onClick = {this.terminalHandler}>Terminal</button>
+              </div>) }
+              {renderBottomPanel}
               <ride-pane-resize-handle class="horizontal" />
             </ride-pane>
           </ride-pane-axis>
