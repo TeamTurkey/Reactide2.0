@@ -85,22 +85,6 @@ class XTerm extends React.Component {
           case 8:
             term.write('\b \b');
             this.setState({currCommand: this.state.currCommand.slice(0, -1)});
-            break;
-          case 38:
-            // let commandUp = this.state.pastCommands[this.state.commandIndex];
-            // term.clear();
-            // term.write(commandUp)
-            // if(this.state.commandIndex < this.state.pastCommands.length) {
-            //   this.setState({currCommand: commandUp, commandIndex: this.state.commandIndex + 1})
-            // } 
-            break;
-          case 40:
-            // let commandDown = this.state.pastCommands[this.state.commandIndex];
-            // term.clear();
-            // term.write(commandDown);
-            // if(this.state.commandIndex > 0) {
-            //   this.setState({currCommand: commandUp, commandIndex: this.state.commandIndex - 1})
-            // } 
             break;            
           default:
             //Disable left and right keys from changing state, only allow them to change how the terminal looks

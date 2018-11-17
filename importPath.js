@@ -20,8 +20,6 @@ function getClassEntry(obj) {
   }
   return entry;
 }
-
-
 /**
  *  grabs state of stateful Component if available;
  * @param {Object} obj AST object created from file at Class Block
@@ -32,7 +30,6 @@ function grabState(obj) {
   if (entry) ret = digStateInClassBody(entry);
   return ret;
 }
-
 /**
  * traverses through AST object and returns entry point for constructor Object;
  * @param {Object} obj - classBody object from AST 
@@ -127,7 +124,6 @@ function grabImportNameAndPath(json) {
       }
     }
   })
-
   output = importObjectArr.map((importObj) => {
     if (importObj.specifiers[0]) {
       return {
@@ -143,7 +139,6 @@ function grabImportNameAndPath(json) {
   })
   return output;
 }
-
 /**
  *  returns an Object with Component name and props from AST Object;
  * @param {Object} returnObj - AST object  
@@ -153,8 +148,6 @@ const constructComponentProps = (returnObj) => {
   output[returnObj.openingElement.name.name] = grabAttr(returnObj.openingElement.attributes)
   return output;
 }
-
-
 /**
  *  returns Object with name and props of current Component;
  * @param {String} jsxPath - Path of file to convert into a AST object
@@ -190,7 +183,6 @@ function constructSingleLevel(jsxPath) {
   }
   return outputObj;
 }
-
 /**
  * recursively traverses through all folders given from filePath and creates JSON Object;
  * @param {String} filePath Path to Component folder
@@ -216,7 +208,6 @@ function constructComponentTree(filePath, rootPath) {
   }  
   return result;
 }
-
 /**
  * returns an array of React Components in String Format, checks imports array and filters fileContent to find Components;
  * @param {Array} imports - Array of Objects with name and path of all Import Objects;
@@ -239,17 +230,5 @@ function grabChildComponents(imports, fileContent) {
   let matchedComponents = fileContent.match(regExp);
 
   return matchedComponents;
- }
-
-
-
-// const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, './lib/projInfo.js')));
-// let rootPath = path.dirname(projInfo.reactEntry);
-// let fileName = path.basename(projInfo.reactEntry);
-
- module.exports = {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, grabImportNameAndPath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabState, getClassEntry}
-
-// TODO:
-// -check for state when state is initializes through a function;
-// e.x: this.state = {};
-//      () => {this.state = {test: example}}
+}
+module.exports = {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, grabImportNameAndPath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabState, getClassEntry}
