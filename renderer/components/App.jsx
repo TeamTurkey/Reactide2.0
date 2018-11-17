@@ -550,8 +550,9 @@ export default class App extends React.Component {
         appState={this.state}
         setActiveTab={this.setActiveTab}
         closeTab={this.closeTab}
-        openMenuId={this.state.openMenuId}
-        onOpenFile={this.handleOpenFile}
+        cbOpenSimulator_Main={this.openSimulatorInMain}
+        cbOpenSimulator_Ext={this.openSim}
+        // onOpenFile={this.handleOpenFile}
         onEditorValueChange={this.handleEditorValueChange}
       />);
   }
@@ -611,22 +612,16 @@ export default class App extends React.Component {
                 </div>
               </div>
             </ride-pane>
-            {/* <ride-pane-resize-handle class="horizontal" /> */}
-
             <ride-pane-resize-handle className="horizontal" />
             <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
               {this.state.simulator
                 ? <InWindowSimulator url={this.state.url} closeSim={this.closeSim} />
                 : this.renderTextEditorPane()}
-              {this.state.simulator ?
+              {this.state.simulator &&
                 <button className="btn" onClick={this.closeSim}>
                   Close Simulator
-              </button> : <button className="btn" onClick={this.openSimulatorInMain}>
-                  Simulator
-              </button>}
-              <button className="btn" onClick={this.openSim}>
-                Simulator in new window
-              </button>
+                </button>
+              }
               {this.state.simulator
                 ? this.renderTextEditorPane() : <XTerm rootdir={this.state.rootDirPath} setFileTree={this.setFileTree}></XTerm>}
               <ride-pane-resize-handle class="horizontal" />
