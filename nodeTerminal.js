@@ -1,5 +1,10 @@
 const {exec, spawn} = require('child_process');
-
+/**
+ * Takes in a command and current working directory from Terminal.js then runs and executes command using Node child process
+ * @param {String} cwd Current working directory of the terminal
+ * @param {String} command Command entered by the user
+ * @param {Terminal} terminal Terminal instance to write messages to the pseudo terminal GUI
+ */
 const runTerminal = (cwd, command, terminal) => {
   //Clear weird case where command includes \r
   const basicCommands = ['cd', 'pwd', 'hostname', 'mkdir', 'ls', 'find', 'rmdir', 'less', 'cp', 'mv', 'pushd', 'popd', 'grep', 'xargs', 'cat', 'env', 'export', 'echo', 'man', 'apropos', 'chown', 'chmod', 'exit']
@@ -15,7 +20,6 @@ const runTerminal = (cwd, command, terminal) => {
         });
         //when data is returned, write it to the terminal
       child.stdout.on('data', (data) => {
-        //result = result + data.toString() + ' ';
         terminal.write('\r\n' + data.toString().replace(/(\r\n|\n|\r)/gm," ") + ' \r\n');
       });
         //When child process is done executing, write a new prompt line in terminal
