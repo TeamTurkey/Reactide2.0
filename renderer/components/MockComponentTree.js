@@ -82,7 +82,6 @@ class MockComponentTree extends React.PureComponent {
   }
 
   render() {
-    console.log('THESE ARE THE COMPONENT TREE PROPS', this.props.componentTreeObj);
     let componentTree = [];
 
     return (

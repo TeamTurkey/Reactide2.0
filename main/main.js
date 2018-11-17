@@ -8,6 +8,7 @@ const registerShortcuts = require('./localShortcuts');
 const registerIpcListeners = require('./ipcMainListeners');
 const devtron = require('devtron');
 require('electron-debug')();
+
 const projInfoPath = path.join(__dirname, '../lib/projInfo.js');
 const projInfo = {
   htmlPath: '',
@@ -36,7 +37,6 @@ const installExtensions = async () => {
 // Main window init
 // define window in global scope to prevent garbage collection
 let win = null;
-
 app.on('ready', async () => {
   // initialize main window
   win = new BrowserWindow({

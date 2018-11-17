@@ -9467,21 +9467,22 @@ label.tree_label:hover:before {
 }
 .create-menu {
   padding: 0px 10px 10px 10px;
-  width: 200px;
+  width: 150px;
   position: absolute;
-  background-color: white;
-  left: 100px;
-  z-index: 5;
+  background-color: gray;
+  left: 10px;
+  z-index: 99;
   border-radius: 3px;
+  color: black;
 }
 .create-button {
   width: 90%;
-  height: 30px;
+  height: 25px;
   text-align: center;
   margin-left: auto;
   margin-right: auto;
   display: block;
-  margin-top: 8px;
+  margin-top: 5px;
 }
 .create-form {
   width: 100%;

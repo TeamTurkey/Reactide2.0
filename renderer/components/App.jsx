@@ -106,24 +106,16 @@ export default class App extends React.Component {
 
 
   constructComponentTreeObj() {
-    console.log('CONSTRUCTING');
     const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
-    console.log('PROJINFO')
-    console.log(projInfo)
     if (projInfo.reactEntry !== '') {
       let rootPath = path.dirname(projInfo.reactEntry);
       let fileName = path.basename(projInfo.reactEntry);
-      console.log(fileName, 'FILENAME');
-      console.log(rootPath, 'ROOTPATH');
       const componentObj = importPathFunctions.constructComponentTree(fileName, rootPath);
       this.setState({
         componentTreeObj: componentObj
       });
-      console.log('CHANGED TREE OBJ');
     } else if (projInfo.CRA === true) {
       let rootPath = path.join(projInfo.rootPath, 'src');
-      console.log('THIS IS THE ROOT PATH')
-      console.log(rootPath);
       const componentObj = importPathFunctions.constructComponentTree('App.js', rootPath);
       this.setState({
         componentTreeObj: componentObj
@@ -139,7 +131,6 @@ export default class App extends React.Component {
   fileTreeInit() {
     ipcRenderer.on('openDir', (event, dirPath) => {
       if (dirPath !== this.state.rootDirPath) {
-        console.log('Setting File Tree');
         this.setFileTree(dirPath);
       }
     }),
@@ -171,6 +162,11 @@ export default class App extends React.Component {
         renameFlag: false
       });
     }
+    let copyObj = {createMenuInfo: {
+      id: null,
+      type: null
+    }}
+    this.setState({createMenuInfo: copyObj, openMenuId: null});
   }
   //handles click event from delete prompt
   deletePromptHandler(answer) {
@@ -181,7 +177,6 @@ export default class App extends React.Component {
         fileChangeType: null
       });
     }
-
     this.setState({
       deletePromptOpen: false
     });
@@ -189,7 +184,7 @@ export default class App extends React.Component {
   //handles click events for directories and files in file tree render
   clickHandler(id, filePath, type, event) {
     const temp = this.state.fileTree;
-
+    // when clicked on '+'  
     document.body.onkeydown = event => {
       if (event.key === 'Enter') {
         this.setState({
@@ -344,6 +339,7 @@ export default class App extends React.Component {
 
   //click handler for plus button on directories, 'opens' new file/dir menu by setting openMenuID state
   openCreateMenu(id, itemPath, type, event) {
+    console.log('OPENING MENU', id, itemPath, type);
     event.stopPropagation();
     this.setState({
       openMenuId: id,
@@ -356,21 +352,30 @@ export default class App extends React.Component {
   }
 
   //handler for create menu
-  createMenuHandler(id, type, event) {
+  createMenuHandler(id, type, event, actionType, path) {
     //unhook keypress listeners
     document.body.onkeydown = () => { };
-
     event.stopPropagation();
+    if(actionType === 'rename') {
+      this.setState({
+        renameFlag: true
+      });
+    } else if (actionType === 'delete') {
 
-    this.setState({
-      createMenuInfo: {
-        id,
-        type
-      },
-      openMenuId: null
-    });
-  }
-
+        ipcRenderer.send('delete', path);
+        this.setState({
+          fileChangeType: 'delete'
+        });
+    } else {
+        this.setState({
+          createMenuInfo: {
+            id,
+            type
+          },
+          openMenuId: null
+        });  
+      }
+    }
   //sends input name to main, where the file/directory is actually created.
   //creation of new file/directory will trigger watch handler
   createItem(event) {
@@ -383,7 +388,6 @@ export default class App extends React.Component {
           event.target.value,
           this.state.createMenuInfo.type
         );
-
       //set type of file change so watch handler knows which type
       this.setState({
         fileChangeType: 'new'
@@ -425,7 +429,6 @@ export default class App extends React.Component {
   //double click handler for files
   dblClickHandler(file) {
     const history = this.updateHistory(file.path);
-
     if (!(Object.keys(this.state.openTabs).includes(file.path))) {
       const openTabs = Object.assign({}, this.state.openTabs);
       openTabs[file.path] = {
