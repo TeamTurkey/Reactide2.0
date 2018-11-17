@@ -99,15 +99,14 @@
   font-family: 'Octicons Regular';
   font-weight: normal;
   font-style: normal;
-  display: inline-block;
-  line-height: 1;
   -webkit-font-smoothing: antialiased;
   text-decoration: none;
   font-size: 16px;
   width: 16px;
   height: 16px;
-  margin: 0 3px;
+  margin: 0 3px 4px;
   content: "\f011";
+  vertical-align: bottom;
 }
 .octi-file-directory::before {
   font-family: 'seti';
@@ -120,7 +119,7 @@
   font-size: 15px;
   content: '\e025';
   color: #519aba;
-  margin-right: 8px;
+  margin-right: 6px;
   vertical-align: bottom;
   margin-bottom: 5px;
 }
@@ -339,12 +338,39 @@ input[type="checkbox"] ~ label {
   text-align: center;
   cursor: pointer;
   font-size: 12px;
-  border: none;
-  margin-top: 3px;
+  border: 1px solid #23272f;
+  margin-top: 2px;
 }
 .icon-btn i {
-  padding-right: 3px;
+  padding-right: 4px;
 }
 .icon-btn:hover {
   color: #d6dae1;
+}
+.styleguide-header {
+  padding: 3px 15px 2px;
+  border-bottom: 1px solid #1a1d23;
+}
+ride-pane-container {
+  padding: 0;
+}
+.list-tree.has-collapsable-children .list-nested-item > .list-item::before {
+  position: relative;
+  margin-right: 3px;
+  margin-left: 2px;
+}
+#editor-tabbar-left {
+  float: left;
+}
+#editor-tabbar-right {
+  float: right;
+}
+#btn-hmr-group {
+  background-color: transparent;
+  color: #4BC94D;
+  border: 1px solid;
+  border-radius: 20px;
+  padding: 2px 5px;
+  margin: 5px;
+  font-size: 14px;
 }
