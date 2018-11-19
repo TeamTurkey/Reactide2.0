@@ -3,7 +3,7 @@
   "productName": "Reactide",
   "version": "1.0.0",
   "description": "",
-  "main": "./main.js",
+  "main": "./main/main.js",
   "scripts": {
     "test": "mocha --compilers js:babel-register test/test.js",
     "start": "cross-env NODE_ENV=production electron .",

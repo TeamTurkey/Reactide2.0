@@ -16,25 +16,22 @@ const FileTree = ({
   renameHandler
 }) => {
   return (
-    <div className="tree-view-resizer tool-panel">
-      <ul className="tree-view list-tree has-collapsable-children">
-        <Directory
-          directory={fileTree}
-          dblClickHandler={dblClickHandler}
-          id={fileTree.id}
-          clickHandler={clickHandler}
-          selectedItem={selectedItem}
-          openCreateMenu={openCreateMenu}
-          openMenuId={openMenuId}
-          createMenuInfo={createMenuInfo}
-          createMenuHandler={createMenuHandler}
-          createItem={createItem}
-          renameFlag={renameFlag}
-          renameHandler={renameHandler}
-        />
-      </ul>
-      <div className="tree-view-resize-handle" />
-    </div>
+    <ul className="tree-view list-tree has-collapsable-children">
+      <Directory
+        directory={fileTree}
+        dblClickHandler={dblClickHandler}
+        id={fileTree.id}
+        clickHandler={clickHandler}
+        selectedItem={selectedItem}
+        openCreateMenu={openCreateMenu}
+        openMenuId={openMenuId}
+        createMenuInfo={createMenuInfo}
+        createMenuHandler={createMenuHandler}
+        createItem={createItem}
+        renameFlag={renameFlag}
+        renameHandler={renameHandler}
+      />
+    </ul>
   );
 };
 

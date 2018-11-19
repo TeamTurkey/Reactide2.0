@@ -16,7 +16,13 @@ const TextEditorPane = ({ appState, setActiveTab, closeTab, onEditorValueChange,
 
   return (
     <ride-pane>
-      <TabContainer appState={appState} setActiveTab={setActiveTab} closeTab={closeTab} cbOpenSimulator_Ext={cbOpenSimulator_Ext} cbOpenSimulator_Main = {cbOpenSimulator_Main} />
+      <TabContainer 
+        appState={appState}
+        setActiveTab={setActiveTab}
+        closeTab={closeTab}
+        cbOpenSimulator_Main={cbOpenSimulator_Main}
+        cbOpenSimulator_Ext={cbOpenSimulator_Ext}
+      />
       {editorArr}
     </ride-pane>
   );

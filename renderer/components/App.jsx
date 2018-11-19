@@ -5,9 +5,7 @@ import DeletePrompt from './DeletePrompt';
 import MockComponentTree from './MockComponentTree';
 import MockComponentInspector from './MockComponentInspector';
 import RefreshComponentTreeButton from './RefreshComponentTreeButton';
-import Simulator from './InWindowSimulator';
-import XTerm from './Terminal.js';
-import Output from './Output.js';
+import ConsolePane from './ConsolePane';
 import { ipcMain } from 'electron';
 import InWindowSimulator from './InWindowSimulator';
 const { ipcRenderer } = require('electron');
@@ -73,18 +71,10 @@ export default class App extends React.Component {
     this.openSim = this.openSim.bind(this);
     this.closeSim = this.closeSim.bind(this);
     this.openSimulatorInMain = this.openSimulatorInMain.bind(this);
-    this.outputHandler = this.outputHandler.bind(this);
-    this.terminalHandler = this.terminalHandler.bind(this);
 
     //reset tabs, should store state in local storage before doing this though
   }
 
-  outputHandler() {
-    this.setState({outputOrTerminal: 'output'})
-  }
-  terminalHandler() {
-    this.setState({outputOrTerminal: 'terminal'});
-  }
   componentDidMount() {
     ipcRenderer.on('openDir', (event, projPath) => {
       if (this.state.openedProjectPath !== projPath) {
@@ -118,7 +108,7 @@ export default class App extends React.Component {
     });
     ipcRenderer.on('craOut', (event, arg) => {
       console.log('arg in App.jsx', arg);
-      this.setState({craOut: arg, cra: false});
+      this.setState({ craOut: arg, cra: false });
     });
     ipcRenderer.on('closeSim', (event, arg) => {
       this.setState({url: ' '})
@@ -190,11 +180,13 @@ export default class App extends React.Component {
         renameFlag: false
       });
     }
-    let copyObj = {createMenuInfo: {
-      id: null,
-      type: null
-    }}
-    this.setState({createMenuInfo: copyObj, openMenuId: null});
+    let copyObj = {
+      createMenuInfo: {
+        id: null,
+        type: null
+      }
+    }
+    this.setState({ createMenuInfo: copyObj, openMenuId: null });
   }
   //handles click event from delete prompt
   deletePromptHandler(answer) {
@@ -255,9 +247,9 @@ export default class App extends React.Component {
       }
     });
   }
-/**
- * calls file-tree module and sets state with file tree object representation in callback
- */
+  /**
+   * calls file-tree module and sets state with file tree object representation in callback
+   */
   setFileTree(dirPath) {
     getTree(dirPath, fileTree => {
       //if watcher instance already exists close it as it's for the previously opened project
@@ -384,42 +376,42 @@ export default class App extends React.Component {
       }
     });
   }
-/**
- * Handler to determine what action to take based on which option in the Menu that opened after right-click
- * @param {Integer} id of the menu being opened (pertaining to a certain file/directory)
- * @param {String} type either file or directory
- * @param {Object} event event object
- * @param {String} actionType either rename, delete, or new
- * @param {String} path Path to the file or directory being changed
- */
+  /**
+   * Handler to determine what action to take based on which option in the Menu that opened after right-click
+   * @param {Integer} id of the menu being opened (pertaining to a certain file/directory)
+   * @param {String} type either file or directory
+   * @param {Object} event event object
+   * @param {String} actionType either rename, delete, or new
+   * @param {String} path Path to the file or directory being changed
+   */
   createMenuHandler(id, type, event, actionType, path) {
     //unhook keypress listeners
     document.body.onkeydown = () => { };
     event.stopPropagation();
-    if(actionType === 'rename') {
+    if (actionType === 'rename') {
       this.setState({
         renameFlag: true
       });
     } else if (actionType === 'delete') {
 
-        ipcRenderer.send('delete', path);
-        this.setState({
-          fileChangeType: 'delete'
-        });
+      ipcRenderer.send('delete', path);
+      this.setState({
+        fileChangeType: 'delete'
+      });
     } else {
-        this.setState({
-          createMenuInfo: {
-            id,
-            type
-          },
-          openMenuId: null
-        });  
-      }
+      this.setState({
+        createMenuInfo: {
+          id,
+          type
+        },
+        openMenuId: null
+      });
     }
-    /**
-     * sends input name to main, where the file/directory is actually created.
-     * creation of new file/directory will trigger watch handler
-     */
+  }
+  /**
+   * sends input name to main, where the file/directory is actually created.
+   * creation of new file/directory will trigger watch handler
+   */
 
   createItem(event) {
     if (event.key === 'Enter') {
@@ -510,23 +502,23 @@ export default class App extends React.Component {
   //   }
   //   return -1;
   // }
-/**
- * Open up the simulator by sending a message to ipcRenderer('openSimulator')
- */
+  /**
+   * Open up the simulator by sending a message to ipcRenderer('openSimulator')
+   */
   openSim() {
     ipcRenderer.send('openSimulator', 'helloworld');
   }
-/**
- * Opens up simulator within IDE window by sending a message to ipcRenderer('start simulator')
- * Changes state of simulator to true to trigger conditional rendering of Editor and Simulator
- */
+  /**
+   * Opens up simulator within IDE window by sending a message to ipcRenderer('start simulator')
+   * Changes state of simulator to true to trigger conditional rendering of Editor and Simulator
+   */
   openSimulatorInMain() {
     this.setState({simulator: true});
     ipcRenderer.send('start simulator', 'helloworld');
   }
-/**
- * closes any open dialogs, handles clicks on anywhere besides the active open menu/form
- */
+  /**
+   * closes any open dialogs, handles clicks on anywhere besides the active open menu/form
+   */
   closeOpenDialogs() {
     const selectedItem = this.state.selectedItem;
     selectedItem.focused = false;
@@ -577,88 +569,96 @@ export default class App extends React.Component {
         onEditorValueChange={this.handleEditorValueChange}
       />);
   }
-  render() {
-    console.log('STATE IN RENDER', this.state);
-    let renderBottomPanel;
-    if(this.state.simulator) {
-      renderBottomPanel = this.renderTextEditorPane();
-    } else if(this.state.outputOrTerminal === 'terminal') {
-      renderBottomPanel = (<XTerm cra = {this.state.cra} rootdir={this.state.rootDirPath} setFileTree={this.setFileTree}></XTerm>)
-    } else{
-      renderBottomPanel = (<Output cra = {this.state.cra} craOut = {this.state.craOut}/>)
+
+  renderBottomPanel() {
+    if (this.state.simulator) {
+      return this.renderTextEditorPane();
+    } else {
+      return (
+        <ConsolePane
+          rootDirPath={this.state.rootDirPath}
+          cb_setFileTree={this.setFileTree}
+          cb_cra={this.state.cra}
+          cb_craOut={this.state.craOut}
+        />);
     }
+  }
+  renderSideLayout() {
+    return (
+      <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
+        <div className="item-views">
+          <div className="styleguide pane-item">
+            <header className="styleguide-header">
+              <h5>File Directory</h5>
+            </header>
+            <main className="styleguide-sections">
+              {this.state.fileTree &&
+                <FileTree
+                  dblClickHandler={this.dblClickHandler}
+                  openCreateMenu={this.openCreateMenu}
+                  openMenuId={this.state.openMenuId}
+                  createMenuInfo={this.state.createMenuInfo}
+                  createMenuHandler={this.createMenuHandler}
+                  createItem={this.createItem}
+                  fileTree={this.state.fileTree}
+                  selectedItem={this.state.selectedItem}
+                  clickHandler={this.clickHandler}
+                  renameFlag={this.state.renameFlag}
+                  renameHandler={this.renameHandler}
+                />
+              }
+            </main>
+          </div>
+        </div>
+        {this.state.deletePromptOpen
+          ? <DeletePrompt
+            deletePromptHandler={this.deletePromptHandler}
+            name={path.basename(this.state.selectedItem.path)}
+          />
+          : <span />}
+        <div className="item-views">
+          <div className="styleguide pane-item">
+            <header className="styleguide-header">
+              <div id="comptree-titlebar-left">
+                <h5>Component Tree</h5>
+              </div>
+              <div id="comptree-titlebar-right">
+                {this.state.componentTreeObj &&
+                  <RefreshComponentTreeButton constructComponentTreeObj={this.constructComponentTreeObj} />}
+              </div>
+            </header>
+            <main className="styleguide-sections">
+              {this.state.componentTreeObj &&
+                <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
+              }
+            </main>
+          </div>
+        </div>
+      </ride-pane>
+    );
+  }
+
+  renderMainLayout() { }
+  render() {
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
         <ride-panel-container className="header" />
         <ride-pane-container>
           <ride-pane-axis className="horizontal">
-            <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
-              <div className="item-views">
-                <div className="styleguide pane-item">
-                  <header className="styleguide-header">
-                    <h5>File Directory</h5>
-                  </header>
-                  <main className="styleguide-sections">
-                    {this.state.fileTree &&
-                      <FileTree
-                        dblClickHandler={this.dblClickHandler}
-                        openCreateMenu={this.openCreateMenu}
-                        openMenuId={this.state.openMenuId}
-                        createMenuInfo={this.state.createMenuInfo}
-                        createMenuHandler={this.createMenuHandler}
-                        createItem={this.createItem}
-                        fileTree={this.state.fileTree}
-                        selectedItem={this.state.selectedItem}
-                        clickHandler={this.clickHandler}
-                        renameFlag={this.state.renameFlag}
-                        renameHandler={this.renameHandler}
-                      />
-                    }
-                  </main>
-                </div>
-              </div>
-              {this.state.deletePromptOpen
-                ? <DeletePrompt
-                  deletePromptHandler={this.deletePromptHandler}
-                  name={path.basename(this.state.selectedItem.path)}
-                />
-                : <span />}
-              <div className="item-views">
-                <div className="styleguide pane-item">
-                  <header className="styleguide-header">
-                    <div id="comptree-titlebar-left">
-                      <h5>Component Tree</h5>
-                    </div>
-                    <div id="comptree-titlebar-right">
-                      {this.state.componentTreeObj &&
-                        <RefreshComponentTreeButton constructComponentTreeObj={this.constructComponentTreeObj} />}
-                    </div>
-                  </header>
-                  <main className="styleguide-sections">
-                    {this.state.componentTreeObj &&
-                      <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
-                    }
-                  </main>
-                </div>
-              </div>
-            </ride-pane>
-            <ride-pane-resize-handle className="horizontal" />
+            {this.renderSideLayout()}
             <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
               {this.state.simulator
                 ? <InWindowSimulator url={this.state.url}/>
                 : this.renderTextEditorPane()}
-              {this.state.simulator ? <button className="btn" onClick={this.closeSim}>
+              {this.state.simulator &&
+                <button className="btn" onClick={this.closeSim}>
                   Close Simulator
-                </button> :  (<div>
-                <button className="btn" onClick = {this.outputHandler}>Output</button>
-                <button className="btn" onClick = {this.terminalHandler}>Terminal</button>
-              </div>) }
-              {renderBottomPanel}
-              <ride-pane-resize-handle class="horizontal" />
+                </button>
+              }
+              {this.renderBottomPanel()}
             </ride-pane>
           </ride-pane-axis>
         </ride-pane-container>
-
       </ride-workspace>
     );
   }
