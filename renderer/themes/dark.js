@@ -4,7 +4,7 @@ export default {
   base: 'vs-dark',
   inherit: true,
   rules: [
-    { token: '', foreground: 'd9d7ce' },
+    { token: '', foreground: 'd9d7ce', background: '292A2B'  },
     { token: 'invalid', foreground: 'ff3333' },
     { token: 'emphasis', fontstyle: 'italic' },
     { token: 'strong', fontstyle: 'bold' },
@@ -60,7 +60,7 @@ export default {
     { token: 'predefined.sql', foreground: 'ff00ff' }, //
   ],
   colors: {
-    'editor.background': '#292A2B',   // panda background
+    'editor.background': '#292A2B',   // panda background #292A2B
     'editor.foreground': '#E6E6E6',   // panda foreground
     'editorIndentGuide.background': '#393b41',
     'editorIndentGuide.activeBackground': '#494b51',

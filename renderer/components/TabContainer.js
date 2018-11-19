@@ -43,7 +43,7 @@ const TabContainer = ({
     console.log('OPENTABS', appState.openTabs);
   }
   return (
-    <div>
+    <div id="editor-tabbar-container">
       <div id="editor-tabbar-left">
         <ul className="list-inline tab-bar inset-panel tab-container">
           {tabs}

@@ -30,7 +30,7 @@ const menuTemplate = windowObj => [
           const save = dialog.showSaveDialog();
           //Run cra with 'save' variable as destination path
           if(save) {
-            cra(save);
+            cra(path.join(path.dirname(save) +path.basename(save).toLowerCase()));
             global.mainWindow.webContents.send('newProject');
           }
         },
