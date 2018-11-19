@@ -47,7 +47,8 @@ export default class App extends React.Component {
       url: '',
       cra: false,
       craOut: '',
-      outputOrTerminal: 'output'
+      outputOrTerminal: 'output',
+      liveServerPID: null
     };
 
     this.fileTreeInit();
@@ -102,14 +103,17 @@ export default class App extends React.Component {
       }
     });
     ipcRenderer.on('start simulator', (event, arg) => {
-      this.setState({ url: arg });
+      console.log('ARG in App.jsx', arg);
+      this.setState({url: arg[0], liveServerPID: arg[1]});
     });
     ipcRenderer.on('craOut', (event, arg) => {
       console.log('arg in App.jsx', arg);
       this.setState({ craOut: arg, cra: false });
     });
+    ipcRenderer.on('closeSim', (event, arg) => {
+      this.setState({url: ' '})
+    })
   }
-
   /**
    * Creates component Tree object for rendering by calling on methods defined in importPath.js
    */
@@ -502,7 +506,6 @@ export default class App extends React.Component {
    * Open up the simulator by sending a message to ipcRenderer('openSimulator')
    */
   openSim() {
-    //this.setState({simulator: true});
     ipcRenderer.send('openSimulator', 'helloworld');
   }
   /**
@@ -510,8 +513,8 @@ export default class App extends React.Component {
    * Changes state of simulator to true to trigger conditional rendering of Editor and Simulator
    */
   openSimulatorInMain() {
+    this.setState({simulator: true});
     ipcRenderer.send('start simulator', 'helloworld');
-    this.setState({ simulator: true })
   }
   /**
    * closes any open dialogs, handles clicks on anywhere besides the active open menu/form
@@ -548,7 +551,8 @@ export default class App extends React.Component {
     this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
   closeSim() {
-    this.setState({ simulator: false });
+    this.setState({simulator: false});
+    ipcRenderer.send('closeSim', this.state.liveServerPID);
   }
   /**
    * render function for TextEditorPane
@@ -644,7 +648,7 @@ export default class App extends React.Component {
             {this.renderSideLayout()}
             <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
               {this.state.simulator
-                ? <InWindowSimulator url={this.state.url} closeSim={this.closeSim} />
+                ? <InWindowSimulator url={this.state.url}/>
                 : this.renderTextEditorPane()}
               {this.state.simulator &&
                 <button className="btn" onClick={this.closeSim}>

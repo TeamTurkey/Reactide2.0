@@ -6,6 +6,7 @@ const path = require('path');
 const deleteItem = require('../lib/delete-directory');
 const simulator = require('./simulator');
 const windowSimulator = require('./windowSimulator')
+const closeSim = require('./closeSim');
 
 module.exports = () => {
   //ipcMain listeners
@@ -42,5 +43,8 @@ module.exports = () => {
   ipcMain.on('start simulator', ()=> {
     console.log('IN IPCMAIN')
     windowSimulator();
-  })
+  });
+  ipcMain.on('closeSim', (event, pid) => {
+    closeSim(pid);
+  });
 };
