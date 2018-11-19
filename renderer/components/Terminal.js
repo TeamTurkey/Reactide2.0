@@ -27,7 +27,7 @@ class XTerm extends React.Component {
         this.setState({cwd: nextProps.rootdir, rootDir: nextProps.rootdir }, () => {
           term.clear();
           term.write(this.state.cwd + '\r\n' + '$');
-          shell.cd(this.state.cwd);
+          // shell.cd(this.state.cwd);
         });
       }
   }

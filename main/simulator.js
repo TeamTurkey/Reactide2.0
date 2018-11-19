@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+require('fix-path')();
 const { exec, spawn } = require('child_process');
 const { BrowserWindow } = require('electron');
 
