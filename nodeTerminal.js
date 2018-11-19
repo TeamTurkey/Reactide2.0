@@ -1,4 +1,5 @@
 const {exec, spawn} = require('child_process');
+require('fix-path')();
 /**
  * Takes in a command and current working directory from Terminal.js then runs and executes command using Node child process
  * @param {String} cwd Current working directory of the terminal
@@ -39,7 +40,7 @@ const runTerminal = (cwd, command, terminal) => {
     //user prompt to understand their command is running
     terminal.write('\r\n' + 'Running ' + command + '...' + '\r\n');
     //Create the child_process spawn with current working directory
-    let child = spawn(command.split(' ')[0], command.split(' ').slice(1), {cwd: cwd});
+    let child = spawn(command.split(' ')[0], command.split(' ').slice(1), {cwd: cwd, shell: true});
     //On data, write it to the terminal
     child.stdout.on('data', (data) => {
       let output = data.toString().replace(/(\r\n|\n|\r)/gm,"");

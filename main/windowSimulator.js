@@ -2,7 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
-const { exec, spawn } = require('child_process');
+require('fix-path')();
+const {spawn} = require('child_process');
 
 
 const windowSimulator = () => {
@@ -13,30 +14,23 @@ const windowSimulator = () => {
   //Simulation for CRA
   if (projInfo.devServerScript === 'start') {
     console.log('RUNNING NPM START');
-    let child = exec(
-      'npm start',
-      {
-        cwd: projInfo.rootPath,
-      },
-      (err, stdout, stderr) => {
-        if(err) console.log(err);
-        console.log('ABOUT TO SEND PAYLOAD')
-        global.mainWindow.webContents.send('start simulator','http://localhost:3000');
-      }
-    );
+    const child = spawn('npm', ['start'], {cwd: projInfo.rootPath});
+      child.stdout.on('data', (data) => {
+        global.mainWindow.webContents.send('start simulator',['http://localhost:3000',child.pid]);
+      });
+      child.on('close', (data) => {
+        console.log('ONCLOSE PID', child.pid);
+      })
+      // (err, stdout, stderr) => {
+      //   if(err) console.log(err);
+      //   console.log('ABOUT TO SEND PAYLOAD')
+      // }
   //Simulation for react-dev-server
   } else if (projInfo.devServerScript === 'run dev-server') {
-    let child = exec(
-      'npm run dev-server',
-      {
-        cwd: projInfo.rootPath,
-        shell: '/bin/bash'
-      },
-      (err, stdout, stderr) => {
-        console.log('ABOUT TO SEND PAYLOAD');
-        global.mainWindow.webContents.send('start simulator','http://localhost:8085');
-      }
-    );
+    let child = spawn('npm',  ['run', 'dev-server'], {cwd: projInfo.rootPath, shell: true});
+      child.stdout.on('data', (data) => {
+      global.mainWindow.webContents.send('start simulator',['http://localhost:8085/index.html', child.pid]);
+    })
   } else if (projInfo.htmlPath) {
     global.mainWindow.webContents.send('file://' + projInfo.htmlPath);
   } else {

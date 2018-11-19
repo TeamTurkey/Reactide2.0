@@ -8,9 +8,7 @@ const CreateForm = ({createItem}) => {
     </div>
   )
 }
-
 CreateForm.propTypes = {
   createItem: PropTypes.func.isRequired
 }
-
 export default CreateForm;
