@@ -529,7 +529,7 @@ CONSOLE PANE
 #console-tab .list-item span {
     padding-bottom: 5px;
     margin-left: 15px;
-    font-size: 11.5px
+    font-size: 11.5px;
     letter-spacing: -0.2px;
 }
 #console-tab .list-item:hover span,

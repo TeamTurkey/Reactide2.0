@@ -104,14 +104,14 @@ export default class App extends React.Component {
     });
     ipcRenderer.on('start simulator', (event, arg) => {
       console.log('ARG in App.jsx', arg);
-      this.setState({url: arg[0], liveServerPID: arg[1]});
+      this.setState({ url: arg[0], liveServerPID: arg[1] });
     });
     ipcRenderer.on('craOut', (event, arg) => {
       console.log('arg in App.jsx', arg);
       this.setState({ craOut: arg, cra: false });
     });
     ipcRenderer.on('closeSim', (event, arg) => {
-      this.setState({url: ' '})
+      this.setState({ url: ' ' })
     })
   }
   /**
@@ -513,7 +513,7 @@ export default class App extends React.Component {
    * Changes state of simulator to true to trigger conditional rendering of Editor and Simulator
    */
   openSimulatorInMain() {
-    this.setState({simulator: true});
+    this.setState({ simulator: true });
     ipcRenderer.send('start simulator', 'helloworld');
   }
   /**
@@ -551,7 +551,7 @@ export default class App extends React.Component {
     this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
   closeSim() {
-    this.setState({simulator: false});
+    this.setState({ simulator: false });
     ipcRenderer.send('closeSim', this.state.liveServerPID);
   }
   /**
@@ -570,19 +570,6 @@ export default class App extends React.Component {
       />);
   }
 
-  renderBottomPanel() {
-    if (this.state.simulator) {
-      return this.renderTextEditorPane();
-    } else {
-      return (
-        <ConsolePane
-          rootDirPath={this.state.rootDirPath}
-          cb_setFileTree={this.setFileTree}
-          cb_cra={this.state.cra}
-          cb_craOut={this.state.craOut}
-        />);
-    }
-  }
   renderSideLayout() {
     return (
       <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
@@ -638,7 +625,51 @@ export default class App extends React.Component {
     );
   }
 
-  renderMainLayout() { }
+  renderMainTopPanel() {
+    let renderer = [];
+
+    if (this.state.simulator) {
+      renderer.push(
+        <React.Fragment>
+          <InWindowSimulator url={this.state.url} />
+          <button className="btn" onClick={this.closeSim}>
+            Close Simulator
+          </button>
+        </React.Fragment>
+      );
+    }
+    else {
+      renderer.push(this.renderTextEditorPane());
+    }
+    return renderer;
+  }
+
+  renderMainBottomPanel() {
+    if (this.state.simulator) {
+      return this.renderTextEditorPane();
+    } else {
+      return (
+        <ConsolePane
+          rootDirPath={this.state.rootDirPath}
+          cb_setFileTree={this.setFileTree}
+          cb_cra={this.state.cra}
+          cb_craOut={this.state.craOut}
+        />);
+    }
+  }
+  
+  renderMainLayout() {
+    return (
+      <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
+        {this.state.rootDirPath &&
+          <React.Fragment>
+            {this.renderMainTopPanel()}
+            {this.renderMainBottomPanel()}
+          </React.Fragment>
+        }
+      </ride-pane>
+    );
+  }
   render() {
     return (
       <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
@@ -646,17 +677,7 @@ export default class App extends React.Component {
         <ride-pane-container>
           <ride-pane-axis className="horizontal">
             {this.renderSideLayout()}
-            <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
-              {this.state.simulator
-                ? <InWindowSimulator url={this.state.url}/>
-                : this.renderTextEditorPane()}
-              {this.state.simulator &&
-                <button className="btn" onClick={this.closeSim}>
-                  Close Simulator
-                </button>
-              }
-              {this.renderBottomPanel()}
-            </ride-pane>
+            {this.renderMainLayout()}
           </ride-pane-axis>
         </ride-pane-container>
       </ride-workspace>
