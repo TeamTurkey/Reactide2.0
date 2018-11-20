@@ -334,7 +334,9 @@ input[type="checkbox"] ~ label {
   float: left;
 }
 #comptree-titlebar-right {
-  float: right;
+  position: absolute;
+  top: 3px;
+  right: 9px;
 }
 .icon-btn {
   background-color: transparent;
