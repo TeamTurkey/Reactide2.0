@@ -19,7 +19,6 @@ class ConsolePane extends Component {
   }
 
   isActiveTab(tabEnum) {
-    console.log(tabEnum === this.state.activeTabEnum);
     return tabEnum === this.state.activeTabEnum;
   }
 
@@ -56,7 +55,6 @@ class ConsolePane extends Component {
   }
 
   render() {
-    console.log(this.props.rootDirPath);
     return (
       <ride-pane id="console-pane" style={{ height: '' }}>
         <div id="console-tab">

@@ -39,8 +39,6 @@ const TabContainer = ({
         closeTab={closeTab}
       />
     );
-    console.log(tabs);
-    console.log('OPENTABS', appState.openTabs);
   }
   return (
     <div id="editor-tabbar-container">
