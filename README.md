@@ -41,6 +41,11 @@ In order to take advantage of the live simulator, please follow the below steps.
 ```
 "dev-server": "webpack-dev-server"
 ```
+
+4. Run this script in your terminal: 
+```
+"npm run electron-packager"
+```
 For any questions, please look at the example project in the example folder for how to set-up webpack and dev-server.
 
 ## Contributors
