@@ -27,9 +27,10 @@ const windowSimulator = () => {
       // }
   //Simulation for react-dev-server
   } else if (projInfo.devServerScript === 'run dev-server') {
-    let child = spawn('npm',  ['run', 'dev-server'], {cwd: projInfo.rootPath, shell: true});
+    let child = spawn('npm',  ['run', 'dev-server'], {cwd: projInfo.rootPath});
       child.stdout.on('data', (data) => {
-      global.mainWindow.webContents.send('start simulator',['http://localhost:8085/index.html', child.pid]);
+        console.log("About to run simluttioe");
+        global.mainWindow.webContents.send('start simulator',['http://localhost:8085', child.pid]);
     })
   } else if (projInfo.htmlPath) {
     global.mainWindow.webContents.send('file://' + projInfo.htmlPath);

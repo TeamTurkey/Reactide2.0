@@ -8,11 +8,13 @@ class InWindowSimulator extends React.Component {
     }
   }
   componentWillReceiveProps(nextProps) {
+    console.log('AFTER RECEIVING PROPS', this.state)
     if(nextProps.url !== this.state.url) {
       this.setState({url: this.props.url});
     }
   }
   render() {
+    console.log('state in render', this.state);
     const style = {
       height: '60%',
       width: '100%',
