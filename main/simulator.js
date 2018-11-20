@@ -11,11 +11,9 @@ const simulator = () => {
   const HEIGHT = 600;
   //Deserialize project info from projInfo file, contains path to index.html and presence of webpack among other things
   const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
-  console.log(projInfo);
 
   //Simulation for CRA
   if (projInfo.devServerScript === 'start') {
-    console.log('RUNNING NPM START');
     let child = exec(
       'npm start',
       {
@@ -29,7 +27,6 @@ const simulator = () => {
         });
         childWindow.loadURL('http://localhost:3000');
         childWindow.openDevTools();
-        console.log(childWindow);
       }
     );
   //Simulation for react-dev-server
@@ -41,7 +38,6 @@ const simulator = () => {
         shell: '/bin/bash'
       },
       (err, stdout, stderr) => {
-        console.log(stdout);
         let child = new BrowserWindow({
           width: WIDTH,
           height: HEIGHT

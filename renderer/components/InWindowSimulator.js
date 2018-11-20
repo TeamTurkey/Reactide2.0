@@ -4,7 +4,7 @@ class InWindowSimulator extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      url : ' '
+      url : 'about:blank'
     }
   }
   componentWillReceiveProps(nextProps) {

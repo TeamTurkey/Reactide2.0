@@ -30,7 +30,7 @@ const menuTemplate = windowObj => [
           const save = dialog.showSaveDialog();
           //Run cra with 'save' variable as destination path
           if(save) {
-            cra(path.join(path.dirname(save) +path.basename(save).toLowerCase()));
+            cra(path.join(path.dirname(save), path.basename(save).toLowerCase()));
             global.mainWindow.webContents.send('newProject');
           }
         },
@@ -44,7 +44,6 @@ const menuTemplate = windowObj => [
           const rootDir = dialog.showOpenDialog(windowObj, {
             properties: ['openDirectory']
           });
-          console.log('Open dir message sending...');
           if (rootDir) {
             global.mainWindow.webContents.send('openDir', rootDir[0]);
           }
@@ -88,8 +87,6 @@ const menuTemplate = windowObj => [
         label: 'Toggle DevTools',
         accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
         click(item, focusedWindow){
-          console.log('THIS IS ITEM',item);
-          console.log('THIS IS THE FOCUSED WINDOW', focusedWindow);
           focusedWindow.toggleDevTools();
         }
       },

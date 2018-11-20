@@ -10,7 +10,8 @@
     "dev-start": "cross-env NODE_ENV=development electron .",
     "dev": "webpack-dev-server --inline --content-base ./renderer",
     "webpack": "webpack --mode development",
-    "webpack-production": "webpack --mode production"
+    "webpack-production": "webpack --mode production",
+    "electron-packager": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=renderer/assets/icons/mac/icon.icns --prune=true --out=release-builds"
   },
   "author": "Mark Cruz, Jin Choi, Bita Djaghouri, Pablo Lee, Ryan Yang, Oscar Chan",
   "license": "ISC",
