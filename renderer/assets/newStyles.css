@@ -516,7 +516,7 @@ CONSOLE PANE
 #console-pane {
   border-top: 1px solid rgb(54, 61, 72);
   box-sizing: border-box;
-  background-color: black;
+  background-color: #090c0f;
   flex: none;
   height: 35%;
 }
@@ -524,7 +524,7 @@ CONSOLE PANE
   list-style-type: none;
   padding: 0;
   margin: 0;
-  background-color: rgba(0,0,0,0.1);/*rgb(25, 27, 30);*/
+  background-color: #090c0f;/* rgba(0,0,0,0.1);*//*rgb(25, 27, 30);*/
   height: 36px;
   padding-left: 5px;
 }
@@ -549,7 +549,7 @@ CONSOLE PANE
 #console-content {
   /*background-color: rgba(0, 0, 0, 0.9);*/
   /*background-color: #1D1E22;*/
-  background-color: rgba(0,0,0,0.1);
+  background-color: #090c0f;/* rgba(0,0,0,0.1);*/
   height: 100%;
   padding: 0 20px;
 }

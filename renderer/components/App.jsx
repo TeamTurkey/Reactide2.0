@@ -660,7 +660,7 @@ export default class App extends React.Component {
   
   renderMainLayout() {
     return (
-      <ride-pane style={{ flexGrow: 0, flexBasis: '1150px' }}>
+      <ride-pane style={{ flexGrow: 0, flexBasis: '100%' }}>
         {this.state.rootDirPath &&
           <React.Fragment>
             {this.renderMainTopPanel()}
