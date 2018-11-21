@@ -4,7 +4,6 @@ require('fix-path')();
 const { exec } = require('child_process');
 
 const closeSim = (pid) => {
-  console.log('CLOSING SIM', pid);
     //Killall Node
     let command = 'killall node'
     let child = exec(

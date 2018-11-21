@@ -13,7 +13,7 @@ const { getTree, getFileExt } = require('../../lib/file-tree');
 const fs = require('fs');
 const path = require('path');
 const { File, Directory } = require('../../lib/item-schema');
-// const {grabChildComponents, constructComponentTree, constructSingleLevel, constructComponentProps, importNamePath, grabAttr, digStateInBlockStatement, digStateInClassBody, grabStateProps, getClassEntry} = require('../../importPath');
+
 const importPathFunctions = require('../../importPath');
 
 export default class App extends React.Component {
@@ -103,11 +103,9 @@ export default class App extends React.Component {
       }
     });
     ipcRenderer.on('start simulator', (event, arg) => {
-      console.log('ARG in App.jsx', arg);
       this.setState({ url: arg[0], liveServerPID: arg[1] });
     });
     ipcRenderer.on('craOut', (event, arg) => {
-      console.log('arg in App.jsx', arg);
       this.setState({ craOut: arg, cra: false });
     });
     ipcRenderer.on('closeSim', (event, arg) => {
@@ -365,7 +363,6 @@ export default class App extends React.Component {
    * click handler for right-click on directories/files, 'opens' new file/dir menu by setting openMenuID state
    */
   openCreateMenu(id, itemPath, type, event) {
-    console.log('OPENING MENU', id, itemPath, type);
     event.stopPropagation();
     this.setState({
       openMenuId: id,
@@ -493,15 +490,6 @@ export default class App extends React.Component {
     }
   }
 
-  //checks if project is already open
-  // isFileOpened(file) {
-  //   for (var i = 0; i < this.state.openTabs.length; i++) {
-  //     if (this.state.openTabs[i].path === file.path) {
-  //       return this.state.openTabs[i].id;
-  //     }
-  //   }
-  //   return -1;
-  // }
   /**
    * Open up the simulator by sending a message to ipcRenderer('openSimulator')
    */
@@ -535,10 +523,6 @@ export default class App extends React.Component {
     });
   }
 
-  // for streatch feature
-  // handleOpenFile(path) {
-  //   this.setState({ currentFile: path });
-  // }
   /**
    * Auto save on change of the editor
    * @param {String} value Contents of the Monaco editor instance
