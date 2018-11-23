@@ -1,6 +1,6 @@
 import React from 'react';
 import ESLintWorker from './../workers/eslint.worker';
-import * as monaco from 'monaco-editor';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
 import PropTypes from 'prop-types';
 //import { StaticServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices'; 
 import light from './../themes/light';
@@ -68,11 +68,10 @@ export default class TextEditor extends React.PureComponent {
   // Return existing model or create a new model if not exists
   _initializeFile(path) {
     const fs = window.require('fs');
-
     const value = fs.readFileSync(path, { encoding: 'utf-8' });
     let model = monaco.editor
       .getModels()
-      .find(model => model.uri.path === path);
+      .find(model => model.uri.path === monaco.Uri.file(path).path);
 
     if (model) {
       // If a model exists, we need to update it's value
@@ -91,7 +90,7 @@ export default class TextEditor extends React.PureComponent {
       model = monaco.editor.createModel(
         value,
         this._getLanguage(this.props.path),
-        new monaco.Uri().with({ path })
+        monaco.Uri.file(path)
       );
       model.updateOptions({
         tabSize: 2,
@@ -129,9 +128,7 @@ export default class TextEditor extends React.PureComponent {
     if (path.includes('.')) {
       switch (path.split('.').pop()) {
         case 'js':
-          return 'javascript';
         case 'jsx':
-          return 'javascript';
         case 'ts':
           return 'typescript';
         case 'json':

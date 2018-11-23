@@ -57,7 +57,9 @@ module.exports = {
     ]
   },
   plugins: [
-    new MonacoWebpackPlugin()
+    new MonacoWebpackPlugin({
+      languages: ['css',  'html', 'javascript', 'json', 'less', 'markdown', 'scss', 'shell', 'typescript', 'xml', 'yaml']
+    })
   ],
   devServer: {
     port: 8081
