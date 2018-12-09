@@ -45,34 +45,19 @@ class ConsolePane extends Component {
   }
 
   renderContent() {
-    // switch (this.state.activeTabEnum) {
-    //   case CONSOLE_TAB_ENUMS[0]:
-    //     return <OutputConsole cb_cra={this.props.cb_cra} cb_craOut={this.props.cb_craOut} />
-    //   case CONSOLE_TAB_ENUMS[1]:
-    //     return (
-    //       <XTerm 
-    //         ref={this.xtermRef}
-    //         rootdir={this.props.rootDirPath}
-    //         cb_setFileTree={this.props.cb_setFileTree}
-    //       />
-    //     );
-    // }
-    // return null;
-    // {this.isActiveTab(CONSOLE_TAB_ENUMS[0]) ? 'active' : 'nonactive'}
     return (
       <React.Fragment>
         <div id="output-console">
           <OutputConsole
             isActive={this.isActiveTab(CONSOLE_TAB_ENUMS[0])}
-            cb_cra={this.props.cb_cra}
-            cb_craOut={this.props.cb_craOut}
+            handleCRA={this.props.handleCRA}
+            handleCRAOut={this.props.handleCRAOut}
           />
         </div>
         <div id="xterm-console" >
           <XTerm
             isActive={this.isActiveTab(CONSOLE_TAB_ENUMS[1])}
             rootdir={this.props.rootDirPath}
-            cb_setFileTree={this.props.cb_setFileTree}
           />
         </div>
       </React.Fragment>

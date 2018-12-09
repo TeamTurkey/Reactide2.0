@@ -13,7 +13,7 @@ const shell = os.platform() === 'win32'? 'powershell.exe' : 'bash';
 let outputConsole = null;
 let shellConsole = null;
 
-const runExec = (cwd, command) => {
+const runExec = (cwd, command, onDataHander, onExitHandler) => {
   const commandArr = command.split(' ');
   let p = pty.spawn(commandArr[0], commandArr.slice(1), {
     name: command[0],
@@ -22,11 +22,14 @@ const runExec = (cwd, command) => {
     cwd: cwd,
     env: process.env
   });
-  if (outputConsole != null) {
-    p.on('data', (data) => {
-      outputConsole.write(data);
-    });    
-  }
+  p.on('data', (data) => {
+    if (onDataHander) 
+      onDataHander(data);
+  });
+  p.on('exit', (exitCode) => {
+    if (onExitHandler)
+      onExitHandler();
+  });
 }
 const runTerminal = (cwd, command,  terminal) => {
   const shell = os.platform() === 'win32'? 'powershell.exe' : 'bash';
@@ -90,4 +93,4 @@ const runTerminal = (cwd, command,  terminal) => {
   //   })
   // }
 }
-module.exports = {runTerminal}
+module.exports = {runTerminal, runExec}

@@ -3,7 +3,7 @@ import TextEditor from './TextEditor';
 import TabContainer from './TabContainer';
 import PropTypes from 'prop-types';
 
-const TextEditorPane = ({ appState, setActiveTab, closeTab, onEditorValueChange, cbOpenSimulator_Main, cbOpenSimulator_Ext }) => {
+const TextEditorPane = ({ appState, setActiveTab, closeTab, onEditorValueChange, handleOpenSimulator_Main, handleOpenSimulator_Ext }) => {
   // const editorArr = [];
   // if (Object.keys(appState.openTabs).length > 0) {
   //   //console.log(appState.previousPaths[appState.previousPaths.length-1]);
@@ -22,8 +22,8 @@ const TextEditorPane = ({ appState, setActiveTab, closeTab, onEditorValueChange,
             appState={appState}
             setActiveTab={setActiveTab}
             closeTab={closeTab}
-            cbOpenSimulator_Main={cbOpenSimulator_Main}
-            cbOpenSimulator_Ext={cbOpenSimulator_Ext}
+            handleOpenSimulator_Main={handleOpenSimulator_Main}
+            handleOpenSimulator_Ext={handleOpenSimulator_Ext}
           />
           <TextEditor
             path={appState.previousPaths[appState.previousPaths.length - 1]}

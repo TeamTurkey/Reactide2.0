@@ -1,11 +1,11 @@
 import React from 'react';
 
-const OutputConsole = ({ isActive, cb_cra, cb_craOut }) => {
+const OutputConsole = ({ isActive, handleCRA, handleCRAOut }) => {
   let output;
-  if (cb_cra) {
+  if (handleCRA) {
     output = <p>Creating new React Project...</p>
   } else {
-    output = <p>{cb_craOut}</p>
+    output = <p>{handleCRAOut}</p>
   }
   return (
     <React.Fragment>

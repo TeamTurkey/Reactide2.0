@@ -23,7 +23,6 @@ export default class App extends React.Component {
     this.state = {
       openTabs: {},
       previousPaths: [],
-      openedProjectPath: '',
       openMenuId: null,
       createMenuInfo: {
         id: null,
@@ -51,7 +50,6 @@ export default class App extends React.Component {
       liveServerPID: null
     };
 
-    this.fileTreeInit();
     this.clickHandler = this.clickHandler.bind(this);
     this.setFileTree = this.setFileTree.bind(this);
     this.dblClickHandler = this.dblClickHandler.bind(this);
@@ -71,14 +69,14 @@ export default class App extends React.Component {
     this.openSim = this.openSim.bind(this);
     this.closeSim = this.closeSim.bind(this);
     this.openSimulatorInMain = this.openSimulatorInMain.bind(this);
-
     //reset tabs, should store state in local storage before doing this though
   }
 
   componentDidMount() {
     ipcRenderer.on('openDir', (event, projPath) => {
-      if (this.state.openedProjectPath !== projPath) {
-        this.setState({ openTabs: {}, openedProjectPath: projPath });
+      if (this.state.rootDirPath !== projPath) {
+        this.setState({ openTabs: {}, rootDirPath: projPath });
+        this.setFileTree();
       }
     });
     ipcRenderer.on('saveFile', (event, arg) => {
@@ -110,7 +108,8 @@ export default class App extends React.Component {
     });
     ipcRenderer.on('closeSim', (event, arg) => {
       this.setState({ url: ' ' })
-    })
+    });
+    this.fileTreeInit();
   }
   /**
    * Creates component Tree object for rendering by calling on methods defined in importPath.js
@@ -141,25 +140,23 @@ export default class App extends React.Component {
    * Registers listeners for opening projects and new projects
    */
   fileTreeInit() {
-    ipcRenderer.on('openDir', (event, dirPath) => {
-      if (dirPath !== this.state.rootDirPath) {
-        this.setFileTree(dirPath);
-      }
-    }),
-      ipcRenderer.on('newProject', (event, arg) => {
-        if (this.state.watch) this.state.watch.close();
-        this.setState({
-          fileTree: null,
-          watch: null,
-          rootDirPath: '',
-          selectedItem: {
-            id: null,
-            path: null,
-            type: null
-          },
-          cra: true
-        });
+    ipcRenderer.on('newProject_pre', (event, arg) => {
+      this.setState({
+        fileTree: null,
+        watch: null,
+        rootDirPath: arg,
+        selectedItem: {
+          id: null,
+          path: null,
+          type: null
+        },
+        cra: true
       });
+    });
+    ipcRenderer.on('newProject', (event) => {
+      //if (this.state.watch) this.state.watch.close();
+      this.setFileTree(this.state.rootDirPath);
+    });
   }
   /**
    * sends old path and new name to main process to rename, closes rename form and sets filechangetype and newName for fswatch
@@ -542,14 +539,14 @@ export default class App extends React.Component {
    * render function for TextEditorPane
    */
   renderTextEditorPane() {
+    console.log(this.state);
     return (
       <TextEditorPane
         appState={this.state}
         setActiveTab={this.setActiveTab}
         closeTab={this.closeTab}
-        cbOpenSimulator_Main={this.openSimulatorInMain}
-        cbOpenSimulator_Ext={this.openSim}
-        // onOpenFile={this.handleOpenFile}
+        handleOpenSimulator_Main={this.openSimulatorInMain}
+        handleOpenSimulator_Ext={this.openSim}
         onEditorValueChange={this.handleEditorValueChange}
       />);
   }
@@ -635,13 +632,12 @@ export default class App extends React.Component {
       return (
         <ConsolePane
           rootDirPath={this.state.rootDirPath}
-          cb_setFileTree={this.setFileTree}
-          cb_cra={this.state.cra}
-          cb_craOut={this.state.craOut}
+          handleCRA={this.state.cra}
+          handleCRAOut={this.state.craOut}
         />);
     }
   }
-  
+
   renderMainLayout() {
     return (
       <ride-pane style={{ flexGrow: 0, flexBasis: '100%' }}>
