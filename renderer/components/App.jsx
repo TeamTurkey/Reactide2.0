@@ -76,7 +76,7 @@ export default class App extends React.Component {
     ipcRenderer.on('openDir', (event, projPath) => {
       if (this.state.rootDirPath !== projPath) {
         this.setState({ openTabs: {}, rootDirPath: projPath });
-        this.setFileTree();
+        this.setFileTree(this.state.rootDirPath);
       }
     });
     ipcRenderer.on('saveFile', (event, arg) => {
