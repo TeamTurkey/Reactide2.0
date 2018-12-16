@@ -326,7 +326,7 @@ export default class App extends React.Component {
    * calls file-tree module and sets state with file tree object representation in callback
    */
   setFileTree(rootPath) {
-    const fileTree = getTree(rootPath, (fileTree) => {
+    getTree(rootPath, (fileTree) => {
       this.setState({
         fileTree
       });
