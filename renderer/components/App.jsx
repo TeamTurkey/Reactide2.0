@@ -3,10 +3,8 @@ import FileTree from './FileTree';
 import TextEditorPane from './TextEditorPane';
 import DeletePrompt from './DeletePrompt';
 import MockComponentTree from './MockComponentTree';
-import MockComponentInspector from './MockComponentInspector';
 import RefreshComponentTreeButton from './RefreshComponentTreeButton';
 import ConsolePane from './ConsolePane';
-import { ipcMain } from 'electron';
 import InWindowSimulator from './InWindowSimulator';
 const { ipcRenderer } = require('electron');
 const { getTree, getFileExt } = require('../../lib/file-tree');
@@ -23,7 +21,6 @@ export default class App extends React.Component {
     this.state = {
       openTabs: {},
       previousPaths: [],
-      openedProjectPath: '',
       openMenuId: null,
       createMenuInfo: {
         id: null,
@@ -51,7 +48,6 @@ export default class App extends React.Component {
       liveServerPID: null
     };
 
-    this.fileTreeInit();
     this.clickHandler = this.clickHandler.bind(this);
     this.setFileTree = this.setFileTree.bind(this);
     this.dblClickHandler = this.dblClickHandler.bind(this);
@@ -71,14 +67,16 @@ export default class App extends React.Component {
     this.openSim = this.openSim.bind(this);
     this.closeSim = this.closeSim.bind(this);
     this.openSimulatorInMain = this.openSimulatorInMain.bind(this);
-
+    this.ipcNewProjectListener = this.ipcNewProjectListener.bind(this);
+    this.onFSWatcherEvent = this.onFSWatcherEvent.bind(this);
     //reset tabs, should store state in local storage before doing this though
   }
 
   componentDidMount() {
     ipcRenderer.on('openDir', (event, projPath) => {
-      if (this.state.openedProjectPath !== projPath) {
-        this.setState({ openTabs: {}, openedProjectPath: projPath });
+      if (this.state.rootDirPath !== projPath) {
+        this.setState({ openTabs: {}, rootDirPath: projPath });
+        this.setFileTree(projPath);
       }
     });
     ipcRenderer.on('saveFile', (event, arg) => {
@@ -110,8 +108,10 @@ export default class App extends React.Component {
     });
     ipcRenderer.on('closeSim', (event, arg) => {
       this.setState({ url: ' ' })
-    })
+    });
+    this.fileTreeInit();
   }
+
   /**
    * Creates component Tree object for rendering by calling on methods defined in importPath.js
    */
@@ -136,30 +136,28 @@ export default class App extends React.Component {
       });
     }
   }
-
+  ipcNewProjectListener(event, arg) {
+    this.setFileTree(arg);
+  }
   /**
    * Registers listeners for opening projects and new projects
    */
   fileTreeInit() {
-    ipcRenderer.on('openDir', (event, dirPath) => {
-      if (dirPath !== this.state.rootDirPath) {
-        this.setFileTree(dirPath);
-      }
-    }),
-      ipcRenderer.on('newProject', (event, arg) => {
-        if (this.state.watch) this.state.watch.close();
-        this.setState({
-          fileTree: null,
-          watch: null,
-          rootDirPath: '',
-          selectedItem: {
-            id: null,
-            path: null,
-            type: null
-          },
-          cra: true
-        });
+    const self = this;
+    ipcRenderer.on('newProject_pre', (event, arg) => {
+      self.setState({
+        fileTree: null,
+        watch: null,
+        rootDirPath: arg,
+        selectedItem: {
+          id: null,
+          path: null,
+          type: null
+        },
+        cra: true
       });
+    });
+    ipcRenderer.on('newProject', this.ipcNewProjectListener);
   }
   /**
    * sends old path and new name to main process to rename, closes rename form and sets filechangetype and newName for fswatch
@@ -245,95 +243,95 @@ export default class App extends React.Component {
       }
     });
   }
+  onFSWatcherEvent(fileOnChange) {
+    console.log('fileOnChange', fileOnChange);
+    const fileTree = this.state.fileTree;
+    const absPath = path.join(this.state.rootDirPath, fileOnChange);
+    const parentDirObj = this.findParentDir(path.dirname(absPath), fileTree);
+    const name = path.basename(absPath);
+    const openTabs = this.state.openTabs;
+    // handling types of fs change
+    switch (this.state.fileChangeType) {
+      case 'delete': {
+        let index;
+        if (this.state.selectedItem.type === 'directory') {
+          index = this.findItemIndex(parentDirObj.subdirectories, name);
+          parentDirObj.subdirectories.splice(index, 1);
+        } else {
+          index = this.findItemIndex(parentDirObj.files, name);
+          parentDirObj.files.splice(index, 1);
+        }
+        for (var i = 0; i < this.state.openTabs.length; i++) {
+          if (openTabs[i].name === name) {
+            openTabs.splice(i, 1);
+            break;
+          }
+        }
+        break;
+      }
+      case 'new': {
+        //new handler
+        if (this.state.createMenuInfo.type === 'directory') {
+          parentDirObj.subdirectories.push(new Directory(absPath, name));
+        } else {
+          parentDirObj.files.push(new File(absPath, name, getFileExt));
+        }
+        break;
+      }
+      case 'rename': {
+        if (!this.state.newName)
+          break;
+        //rename handler
+        //fileName has new name, selectedItem has old name and path
+        let index;
+        if (this.state.selectedItem.type === 'directory') {
+          index = this.findItemIndex(parentDirObj.subdirectories, name);
+          parentDirObj.subdirectories[index].name = this.state.newName;
+          parentDirObj.subdirectories[index].path = path.join(path.dirname(absPath), this.state.newName);
+        } else {
+          index = this.findItemIndex(parentDirObj.files, name);
+          parentDirObj.files[index].name = this.state.newName;
+          parentDirObj.files[index].path = path.join(path.dirname(absPath), this.state.newName);
+        }
+        //renames path of selected renamed file so it has the right info
+        this.setState({
+          selectedItem: {
+            id: this.state.selectedItem.id,
+            type: this.state.selectedItem.type,
+            path: path.join(path.dirname(absPath), this.state.newName)
+          }
+        });
+        //rename the opened tab of the renamed file if it's there
+        for (var i = 0; i < this.state.openTabs.length; i++) {
+          if (openTabs[i].name === name) {
+            openTabs[i].name = this.state.newName;
+            break;
+          }
+        }
+        break;
+      }
+    }
+    this.setState({
+      fileTree,
+      fileChangeType: null,
+      newName: '',
+      createMenuInfo: {
+        id: null,
+        type: null
+      },
+      openTabs
+    });
+  }
   /**
    * calls file-tree module and sets state with file tree object representation in callback
    */
-  setFileTree(dirPath) {
-    getTree(dirPath, fileTree => {
-      //if watcher instance already exists close it as it's for the previously opened project
-      if (this.state.watch) {
-        this.state.watch.close();
-      }
-      //Setting up fs.watch to watch for changes that occur anywhere in the filesystem
-      let watch = fs.watch(dirPath, { recursive: true }, (eventType, fileName) => {
-        if (eventType === 'rename') {
-          const fileTree = this.state.fileTree;
-          const absPath = path.join(this.state.rootDirPath, fileName);
-          const parentDir = this.findParentDir(path.dirname(absPath), fileTree);
-          const name = path.basename(absPath);
-          const openTabs = this.state.openTabs;
-          //Delete handler
-          if (this.state.fileChangeType === 'delete') {
-            let index;
-            if (this.state.selectedItem.type === 'directory') {
-              index = this.findItemIndex(parentDir.subdirectories, name);
-              parentDir.subdirectories.splice(index, 1);
-            } else {
-              index = this.findItemIndex(parentDir.files, name);
-              parentDir.files.splice(index, 1);
-            }
-            for (var i = 0; i < this.state.openTabs.length; i++) {
-              if (openTabs[i].name === name) {
-                openTabs.splice(i, 1);
-                break;
-              }
-            }
-          } else if (this.state.fileChangeType === 'new') {
-            //new handler
-            if (this.state.createMenuInfo.type === 'directory') {
-              parentDir.subdirectories.push(new Directory(absPath, name));
-            } else {
-              parentDir.files.push(new File(absPath, name, getFileExt));
-            }
-          } else if (this.state.fileChangeType === 'rename' && this.state.newName) {
-            //rename handler
-            //fileName has new name, selectedItem has old name and path
-            let index;
-            if (this.state.selectedItem.type === 'directory') {
-              index = this.findItemIndex(parentDir.subdirectories, name);
-              parentDir.subdirectories[index].name = this.state.newName;
-              parentDir.subdirectories[index].path = path.join(path.dirname(absPath), this.state.newName);
-            } else {
-              index = this.findItemIndex(parentDir.files, name);
-              parentDir.files[index].name = this.state.newName;
-              parentDir.files[index].path = path.join(path.dirname(absPath), this.state.newName);
-            }
-            //renames path of selected renamed file so it has the right info
-            this.setState({
-              selectedItem: {
-                id: this.state.selectedItem.id,
-                type: this.state.selectedItem.type,
-                path: path.join(path.dirname(absPath), this.state.newName)
-              }
-            });
-            //rename the opened tab of the renamed file if it's there
-            for (var i = 0; i < this.state.openTabs.length; i++) {
-              if (openTabs[i].name === name) {
-                openTabs[i].name = this.state.newName;
-                break;
-              }
-            }
-          }
-          this.setState({
-            fileTree,
-            fileChangeType: null,
-            newName: '',
-            createMenuInfo: {
-              id: null,
-              type: null
-            },
-            openTabs
-          });
-        }
-      });
-
+  setFileTree(rootPath) {
+    getTree(rootPath, (fileTree) => {
       this.setState({
-        fileTree,
-        rootDirPath: dirPath,
-        watch
+        fileTree
       });
       this.constructComponentTreeObj();
-    });
+    }, this.onFSWatcherEvent);
   }
   /**
    * returns index of file/dir in files or subdirectories array
@@ -547,9 +545,8 @@ export default class App extends React.Component {
         appState={this.state}
         setActiveTab={this.setActiveTab}
         closeTab={this.closeTab}
-        cbOpenSimulator_Main={this.openSimulatorInMain}
-        cbOpenSimulator_Ext={this.openSim}
-        // onOpenFile={this.handleOpenFile}
+        handleOpenSimulator_Main={this.openSimulatorInMain}
+        handleOpenSimulator_Ext={this.openSim}
         onEditorValueChange={this.handleEditorValueChange}
       />);
   }
@@ -635,13 +632,12 @@ export default class App extends React.Component {
       return (
         <ConsolePane
           rootDirPath={this.state.rootDirPath}
-          cb_setFileTree={this.setFileTree}
-          cb_cra={this.state.cra}
-          cb_craOut={this.state.craOut}
+          cra={this.state.cra}
+          craOut={this.state.craOut}
         />);
     }
   }
-  
+
   renderMainLayout() {
     return (
       <ride-pane style={{ flexGrow: 0, flexBasis: '100%' }}>
