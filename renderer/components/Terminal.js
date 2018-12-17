@@ -60,7 +60,7 @@ class XTerm extends React.Component {
     Terminal.applyAddon(fit);
 
     term = new Terminal({
-      theme: { background: '#090c0f' }
+      theme: { background: 'transparant' }
     });
     //Set up some terminal options
     term.setOption('cursorStyle', 'block');
