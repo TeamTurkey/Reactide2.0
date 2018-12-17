@@ -632,8 +632,8 @@ export default class App extends React.Component {
       return (
         <ConsolePane
           rootDirPath={this.state.rootDirPath}
-          handleCRA={this.state.cra}
-          handleCRAOut={this.state.craOut}
+          cra={this.state.cra}
+          craOut={this.state.craOut}
         />);
     }
   }

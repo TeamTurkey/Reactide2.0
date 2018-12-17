@@ -49,14 +49,12 @@ class ConsolePane extends Component {
       <React.Fragment>
         <div id="output-console">
           <OutputConsole
-            isActive={this.isActiveTab(CONSOLE_TAB_ENUMS[0])}
             cra={this.props.cra}
             craOut={this.props.craOut}
           />
         </div>
         <div id="xterm-console" >
           <XTerm
-            isActive={this.isActiveTab(CONSOLE_TAB_ENUMS[1])}
             rootdir={this.props.rootDirPath}
           />
         </div>
