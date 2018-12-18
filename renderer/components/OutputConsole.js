@@ -1,11 +1,6 @@
 import React from 'react';
 import { Terminal } from 'xterm';
 import * as fit from 'xterm/lib/addons/fit/fit';
-import path from 'path';
-
-const { runTerminal } = require('../../nodeTerminal.js');
-const os = require('os');
-const pty = require('node-pty');
 
 let term = null;
 
@@ -21,9 +16,10 @@ class OutputConsole extends React.Component {
     Terminal.applyAddon(fit);
 
     term = new Terminal({
-      theme: { background: 'transparant' }
+      theme: { background: 'transparent' }
     });
     //Set up some terminal options
+    term.setOption('allowTransparency', true);
     term.setOption('cursorStyle', 'block');
     term.setOption('cursorBlink', true);
     term.setOption('fontSize', 14);
