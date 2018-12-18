@@ -87,7 +87,7 @@ export default class TextEditor extends React.PureComponent {
         ]
       );
     } else {
-      console.log(this._getLanguage(this.props.path));
+      //console.log(this._getLanguage(this.props.path));
       model = monaco.editor.createModel(
         value,
         this._getLanguage(this.props.path),

@@ -13,7 +13,7 @@ Reactide is a cross-platform desktop application that offers a simulator, made f
 ## Get right to coding
 Reactide runs an integrated Node server and custom browser simulator, which works best with Webpack and Webpack dev-server. As projects evolve, the developer can continually track changes through live reloading directly in the development environment without the need for constant flipping to the browser. Reactide also offers integration with Create React App for faster project boilerplate configuration. The simulator and component tree are both functioning for Create-React-App made applications.
 
-## State flow visualization.
+## State flow visualization
 Managing state across a complex React application is the biggest pain point of developing React apps. Reactide offers a visual component tree that dynamically loads and changes based on components within the working directory while giving information about props and state at every component. By navigating through a live-representation of the architecture of a project, developers can quickly identify and pinpoint the parent-child relationships of even the most complex applications.
 
 The component tree works by finding the entry point to your React application from the webpack.config.js file. It works out-of-the-box with Create React App.
@@ -52,12 +52,12 @@ In order to take advantage of the live simulator, please follow the below steps.
 ```
 "dev-server": "webpack-dev-server"
 ```
-## Develop
+## How to develop
 ### Building the project
 ```bash
 npm run webpack
 ```
-### To run and test
+### Running and testing
 ```bash
 npm start
 ```

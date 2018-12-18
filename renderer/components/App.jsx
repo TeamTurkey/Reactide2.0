@@ -244,7 +244,7 @@ export default class App extends React.Component {
     });
   }
   onFSWatcherEvent(fileOnChange) {
-    console.log('fileOnChange', fileOnChange);
+    //console.log('fileOnChange', fileOnChange);
     const fileTree = this.state.fileTree;
     const absPath = path.join(this.state.rootDirPath, fileOnChange);
     const parentDirObj = this.findParentDir(path.dirname(absPath), fileTree);
