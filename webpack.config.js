@@ -56,11 +56,8 @@ module.exports = {
       }
     ]
   },
-  externals: (ctx, req, done) => (/^node-pty$/.test(req) ? done(null, `commonjs ${req}`) : done()),
   plugins: [
-    new MonacoWebpackPlugin({
-      languages: ['css',  'html', 'javascript', 'json', 'less', 'markdown', 'scss', 'shell', 'typescript', 'xml', 'yaml']
-    })
+    new MonacoWebpackPlugin()
   ],
   devServer: {
     port: 8081
