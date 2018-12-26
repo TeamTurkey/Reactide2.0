@@ -13,7 +13,7 @@ Reactide is a cross-platform desktop application that offers a simulator, made f
 ## Get right to coding
 Reactide runs an integrated Node server and custom browser simulator, which works best with Webpack and Webpack dev-server. As projects evolve, the developer can continually track changes through live reloading directly in the development environment without the need for constant flipping to the browser. Reactide also offers integration with Create React App for faster project boilerplate configuration. The simulator and component tree are both functioning for Create-React-App made applications.
 
-## State flow visualization.
+## State flow visualization
 Managing state across a complex React application is the biggest pain point of developing React apps. Reactide offers a visual component tree that dynamically loads and changes based on components within the working directory while giving information about props and state at every component. By navigating through a live-representation of the architecture of a project, developers can quickly identify and pinpoint the parent-child relationships of even the most complex applications.
 
 The component tree works by finding the entry point to your React application from the webpack.config.js file. It works out-of-the-box with Create React App.
@@ -21,12 +21,40 @@ The component tree works by finding the entry point to your React application fr
 ## Integrated Terminal for powerful commands and workflows
 The terminal is the life and blood of any IDE, allowing for complex manipulation of the file system, node, and even build-tools. Reactide offers a compatible terminal for running commands in bin/bash for Unix, and cmd for Windows to provide powerful workflows to even seasoned developers.
 
+## Getting Started with Reactide
+
+### Installation
+```bash
+git checkout 2.0-release
+npm install
+npm run prebuild
+```
+### Build Instructions
+
+The Reactide IDE can be set up in two ways, the first is to bundle the electron app and run it as a native desktop App. The instructions are as follows:
+
+1. go to your terminal and type the following:
+```bash
+npm run webpack
+npm run electron-packager
+```
+2. in your Reactide folder, navigate to the release-builds folder and double-click on Reactide (executable).
+
+## To check out Reactide in developer mode follow these instructions:
+1. go to your terminal and type the following:
+```bash
+npm run webpack
+npm start
+```
+
+Beware: the close simulator button works by creating a child node process and executing killall node on close, clicking on the 'close simulator' button in developer mode will cause the electron app to close as well.
+
 ## Setting up Webpack dev-server to work with Simulator
-In order to take advantage of the live simulator, please follow the below steps. We are assuming you have a basic webpack config file, which you can find an example of in our repo under the example folder.
+In order to take advantage of the live simulator, please follow the below steps in your project directory. We are assuming you have a basic webpack config file, which you can find an example of in our repo under the example folder.
 
 1. `npm install webpack dev-server -D`
 2. Go to your webpack.config.js file and add the following lines of code. Make sure you set the port to 8085.
-```
+```js
     devServer: {
        publicPath: path.resolve(__dirname, '/build/'),
        port: 8085,
@@ -38,13 +66,8 @@ In order to take advantage of the live simulator, please follow the below steps.
     mode: 'development',
 ```
 3. Go to your package.json and add the following scripts under the "scripts" object:
-```
+```js
 "dev-server": "webpack-dev-server"
-```
-
-4. Run this script in your terminal: 
-```
-npm run electron-packager
 ```
 For any questions, please look at the example project in the example folder for how to set-up webpack and dev-server.
 

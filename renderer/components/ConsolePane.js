@@ -12,10 +12,15 @@ class ConsolePane extends Component {
     };
     this.handleTabClick = this.handleTabClick.bind(this);
   }
-
+  componentDidMount() {
+    document.getElementById('output-console').className = 'active';
+    document.getElementById('xterm-console').className = 'nonactive';
+  }
   handleTabClick(event, tabEnum) {
     event.stopPropagation();
     this.setState({ activeTabEnum: tabEnum });
+    document.getElementById('output-console').className = (tabEnum === CONSOLE_TAB_ENUMS[0]) ? 'active' : 'nonactive';
+    document.getElementById('xterm-console').className = (tabEnum === CONSOLE_TAB_ENUMS[1]) ? 'active' : 'nonactive';
   }
 
   isActiveTab(tabEnum) {
@@ -40,23 +45,26 @@ class ConsolePane extends Component {
   }
 
   renderContent() {
-    switch (this.state.activeTabEnum) {
-      case CONSOLE_TAB_ENUMS[0]:
-        return <OutputConsole cb_cra={this.props.cb_cra} cb_craOut={this.props.cb_craOut} />
-      case CONSOLE_TAB_ENUMS[1]:
-        return (
+    return (
+      <React.Fragment>
+        <div id="output-console">
+          <OutputConsole
+            cra={this.props.cra}
+            craOut={this.props.craOut}
+          />
+        </div>
+        <div id="xterm-console" >
           <XTerm
             rootdir={this.props.rootDirPath}
-            cb_setFileTree={this.props.cb_setFileTree}
           />
-        );
-    }
-    return null;
+        </div>
+      </React.Fragment>
+    );
   }
 
   render() {
     return (
-      <ride-pane id="console-pane" style={{ height: '' }}>
+      <ride-pane id="console-pane">
         <div id="console-tab">
           {this.renderTab()}
         </div>

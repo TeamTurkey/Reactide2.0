@@ -8236,7 +8236,7 @@ code {
 .tree-view {
   position: relative;
   padding-left: 10px;
-  font-size: 1em;npm
+  font-size: 1em;
 }
 .tree-view .project-root.project-root:first-child {
   padding-top: 0.5em;
