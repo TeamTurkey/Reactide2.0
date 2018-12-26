@@ -14,9 +14,9 @@ module.exports = () => {
     simulator();
   });
 
-  // ipcMain.on('openInWindow', () => {
-  //   InWindowSimulator();
-  // })
+  ipcMain.on('openInWindow', () => {
+    InWindowSimulator();
+  })
   ipcMain.on('createItem', (event, dirPath, name, type) => {
     if (type === 'file') {
       fs.writeFile(path.join(dirPath, name), '', err => {

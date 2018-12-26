@@ -4,6 +4,8 @@ const React = require('react');
 const sinon = require('sinon');
 const chaiEnzyme = require('chai-enzyme');
 const chai = require('chai');
+const Application = require('spectron').Application;
+const path = require('path');
 
 chai.use(chaiEnzyme());
 

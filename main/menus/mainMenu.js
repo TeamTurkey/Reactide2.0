@@ -30,9 +30,8 @@ const menuTemplate = windowObj => [
           const save = dialog.showSaveDialog();
           //Run cra with 'save' variable as destination path
           if(save) {
-            let dest = path.join(path.dirname(save), path.basename(save).toLowerCase());
-            global.mainWindow.webContents.send('newProject_pre', dest);
-            cra(dest);       
+            cra(path.join(path.dirname(save), path.basename(save).toLowerCase()));
+            global.mainWindow.webContents.send('newProject');
           }
         },
         accelerator: 'CommandOrControl+N'
@@ -55,6 +54,7 @@ const menuTemplate = windowObj => [
       {
         label: 'Save',
         click: () => {
+          
           global.mainWindow.webContents.send('saveFile');
         },
         accelerator: 'CommandOrControl+S'
