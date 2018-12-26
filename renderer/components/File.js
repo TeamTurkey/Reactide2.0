@@ -3,7 +3,7 @@ import RenameForm from './RenameForm';
 import PropTypes from 'prop-types';
 import CreateMenu from './CreateMenu';
 
-const { getCssClassByFileExt } = require('../../lib/file-tree');
+const { getCssClassByFileExt } = require('../../lib/common');
 
 const File = ({ file, dblClickHandler, selectedItem, id, clickHandler, renameFlag, renameHandler, openCreateMenu, openMenuId, createMenuHandler}) => {
   return (
@@ -20,7 +20,6 @@ const File = ({ file, dblClickHandler, selectedItem, id, clickHandler, renameFla
     </li>
   );
 };
-
 
 File.propTypes = {
   file: PropTypes.object.isRequired,

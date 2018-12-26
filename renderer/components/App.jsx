@@ -1,22 +1,25 @@
-import React from 'react';
-import FileTree from './FileTree';
-import TextEditorPane from './TextEditorPane';
-import DeletePrompt from './DeletePrompt';
-import MockComponentTree from './MockComponentTree';
-import RefreshComponentTreeButton from './RefreshComponentTreeButton';
-import ConsolePane from './ConsolePane';
-import InWindowSimulator from './InWindowSimulator';
-const { ipcRenderer } = require('electron');
-const { getTree, getFileExt } = require('../../lib/file-tree');
-const fs = require('fs');
-const path = require('path');
-const { File, Directory } = require('../../lib/item-schema');
+import React from "react";
+import FileTree from "./FileTree";
+import TextEditorPane from "./TextEditorPane";
+import DeletePrompt from "./DeletePrompt";
+import MockComponentTree from "./MockComponentTree";
+import RefreshComponentTreeButton from "./RefreshComponentTreeButton";
+import ConsolePane from "./ConsolePane";
+import InWindowSimulator from "./InWindowSimulator";
 
-const importPathFunctions = require('../../importPath');
+const { ipcRenderer } = require("electron");
+const fs = require("fs");
+const path = require("path");
+const { File, Directory } = require("../../lib/item-schema");
+const importPathFunctions = require("../../importPath");
+
+// electron remotes
+const remote = require("electron").remote;
+const {getTree} = remote.require("./remote/file-tree.js");
+const cra = remote.require("./remote/create-react-app.js");
 
 export default class App extends React.Component {
   constructor() {
-
     super();
     this.state = {
       openTabs: {},
@@ -28,28 +31,29 @@ export default class App extends React.Component {
       },
       fileTree: null,
       watch: null,
-      rootDirPath: '',
+      rootDirPath: "",
+      projLoaded: false,
       selectedItem: {
         id: null,
-        path: '',
+        path: "",
         type: null,
         focused: false
       },
       renameFlag: false,
       fileChangeType: null,
       deletePromptOpen: false,
-      newName: '',
+      newName: "",
       componentTreeObj: null,
       simulator: false,
-      url: '',
+      url: "",
       cra: false,
-      craOut: '',
-      outputOrTerminal: 'output',
+      termOut: "",
+      outputOrTerminal: "output",
       liveServerPID: null
     };
 
     this.clickHandler = this.clickHandler.bind(this);
-    this.setFileTree = this.setFileTree.bind(this);
+    // this.setFileTree = this.setFileTree.bind(this);
     this.dblClickHandler = this.dblClickHandler.bind(this);
     this.setActiveTab = this.setActiveTab.bind(this);
     //this.isFileOpened = this.isFileOpened.bind(this);
@@ -67,32 +71,33 @@ export default class App extends React.Component {
     this.openSim = this.openSim.bind(this);
     this.closeSim = this.closeSim.bind(this);
     this.openSimulatorInMain = this.openSimulatorInMain.bind(this);
-    this.ipcNewProjectListener = this.ipcNewProjectListener.bind(this);
     this.onFSWatcherEvent = this.onFSWatcherEvent.bind(this);
     //reset tabs, should store state in local storage before doing this though
   }
 
   componentDidMount() {
-    ipcRenderer.on('openDir', (event, projPath) => {
-      if (this.state.rootDirPath !== projPath) {
-        this.setState({ openTabs: {}, rootDirPath: projPath });
-        this.setFileTree(projPath);
-      }
-    });
-    ipcRenderer.on('saveFile', (event, arg) => {
-      if (this.state.previousPaths[this.state.previousPaths.length - 1] !== null) {
+    // ipcRenderer.on("openDir", (event, projPath) => {
+    //   if (this.state.rootDirPath !== projPath) {
+    //     this.setState({ openTabs: {}, rootDirPath: projPath });
+    //     //this.setFileTree(projPath);
+    //   }
+    // });
+    ipcRenderer.on("saveFile", (event, arg) => {
+      if (
+        this.state.previousPaths[this.state.previousPaths.length - 1] !== null
+      ) {
         this.saveTab();
       }
     });
-    ipcRenderer.on('delete', (event, arg) => {
+    ipcRenderer.on("delete", (event, arg) => {
       if (this.state.selectedItem.id) {
         this.setState({
           deletePromptOpen: true,
-          fileChangeType: 'delete'
+          fileChangeType: "delete"
         });
       }
     });
-    ipcRenderer.on('enter', (event, arg) => {
+    ipcRenderer.on("enter", (event, arg) => {
       if (this.state.selectedItem.focused) {
         //rename property just true or false i guess
         this.setState({
@@ -100,14 +105,12 @@ export default class App extends React.Component {
         });
       }
     });
-    ipcRenderer.on('start simulator', (event, arg) => {
+    ipcRenderer.on("start simulator", (event, arg) => {
       this.setState({ url: arg[0], liveServerPID: arg[1] });
     });
-    ipcRenderer.on('craOut', (event, arg) => {
-      this.setState({ craOut: arg, cra: false });
-    });
-    ipcRenderer.on('closeSim', (event, arg) => {
-      this.setState({ url: ' ' })
+
+    ipcRenderer.on("closeSim", (event, arg) => {
+      this.setState({ url: " " });
     });
     this.fileTreeInit();
   }
@@ -116,17 +119,26 @@ export default class App extends React.Component {
    * Creates component Tree object for rendering by calling on methods defined in importPath.js
    */
   constructComponentTreeObj() {
-    const projInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../lib/projInfo.js')));
-    if (projInfo.reactEntry !== '') {
+    console.log("construct component");
+    const projInfo = JSON.parse(
+      fs.readFileSync(path.join(__dirname, "../lib/projInfo.js"))
+    );
+    if (projInfo.reactEntry !== "") {
       let rootPath = path.dirname(projInfo.reactEntry);
       let fileName = path.basename(projInfo.reactEntry);
-      const componentObj = importPathFunctions.constructComponentTree(fileName, rootPath);
+      const componentObj = importPathFunctions.constructComponentTree(
+        fileName,
+        rootPath
+      );
       this.setState({
         componentTreeObj: componentObj
       });
     } else if (projInfo.CRA === true) {
-      let rootPath = path.join(projInfo.rootPath, 'src');
-      const componentObj = importPathFunctions.constructComponentTree('App.js', rootPath);
+      let rootPath = path.join(projInfo.rootPath, "src");
+      const componentObj = importPathFunctions.constructComponentTree(
+        "App.js",
+        rootPath
+      );
       this.setState({
         componentTreeObj: componentObj
       });
@@ -136,19 +148,19 @@ export default class App extends React.Component {
       });
     }
   }
-  ipcNewProjectListener(event, arg) {
-    this.setFileTree(arg);
-  }
+
   /**
    * Registers listeners for opening projects and new projects
    */
   fileTreeInit() {
     const self = this;
-    ipcRenderer.on('newProject_pre', (event, arg) => {
+
+    ipcRenderer.on("newProject_pre", (event, dest) => {
       self.setState({
         fileTree: null,
         watch: null,
-        rootDirPath: arg,
+        rootDirPath: dest,
+        projLoaded: false,
         selectedItem: {
           id: null,
           path: null,
@@ -156,22 +168,38 @@ export default class App extends React.Component {
         },
         cra: true
       });
+      cra(dest);
+
+      //ipcRenderer.send("start-cra", dest);
     });
-    ipcRenderer.on('newProject', this.ipcNewProjectListener);
+    ipcRenderer.on("openProject", (event, arg) => {
+      self.setState({ openTabs: {}, rootDirPath: arg, projLoaded: false });
+      ipcRenderer.once('fileTree', (event, fileTree) => {
+        self.setState({ fileTree, projLoaded: true });
+        console.time('constructComponent');
+        self.constructComponentTreeObj();
+        console.timeEnd('constructComponent');
+      });
+      getTree(arg);
+    });
   }
   /**
    * sends old path and new name to main process to rename, closes rename form and sets filechangetype and newName for fswatch
-   * @param {Javascript event Object} event 
+   * @param {Javascript event Object} event
    */
   renameHandler(event) {
-    if (event.key === 'Enter' && event.target.value) {
-      ipcRenderer.send('rename', this.state.selectedItem.path, event.target.value);
+    if (event.key === "Enter" && event.target.value) {
+      ipcRenderer.send(
+        "rename",
+        this.state.selectedItem.path,
+        event.target.value
+      );
       this.setState({
         renameFlag: false,
-        fileChangeType: 'rename',
+        fileChangeType: "rename",
         newName: event.target.value
       });
-    } else if (event.key === 'Enter' && !event.target.value) {
+    } else if (event.key === "Enter" && !event.target.value) {
       this.setState({
         renameFlag: false
       });
@@ -181,13 +209,13 @@ export default class App extends React.Component {
         id: null,
         type: null
       }
-    }
+    };
     this.setState({ createMenuInfo: copyObj, openMenuId: null });
   }
   //handles click event from delete prompt
   deletePromptHandler(answer) {
     if (answer) {
-      ipcRenderer.send('delete', this.state.selectedItem.path);
+      ipcRenderer.send("delete", this.state.selectedItem.path);
     } else {
       this.setState({
         fileChangeType: null
@@ -202,16 +230,16 @@ export default class App extends React.Component {
    */
   clickHandler(id, filePath, type, event) {
     const temp = this.state.fileTree;
-    // when clicked on '+'  
+    // when clicked on '+'
     document.body.onkeydown = event => {
-      if (event.key === 'Enter') {
+      if (event.key === "Enter") {
         this.setState({
           renameFlag: true
         });
-        document.body.onkeydown = () => { };
+        document.body.onkeydown = () => {};
       }
     };
-    if (type === 'directory') {
+    if (type === "directory") {
       function toggleClicked(dir) {
         if (dir.path === filePath) {
           dir.opened = !dir.opened;
@@ -252,9 +280,9 @@ export default class App extends React.Component {
     const openTabs = this.state.openTabs;
     // handling types of fs change
     switch (this.state.fileChangeType) {
-      case 'delete': {
+      case "delete": {
         let index;
-        if (this.state.selectedItem.type === 'directory') {
+        if (this.state.selectedItem.type === "directory") {
           index = this.findItemIndex(parentDirObj.subdirectories, name);
           parentDirObj.subdirectories.splice(index, 1);
         } else {
@@ -269,29 +297,34 @@ export default class App extends React.Component {
         }
         break;
       }
-      case 'new': {
+      case "new": {
         //new handler
-        if (this.state.createMenuInfo.type === 'directory') {
+        if (this.state.createMenuInfo.type === "directory") {
           parentDirObj.subdirectories.push(new Directory(absPath, name));
         } else {
           parentDirObj.files.push(new File(absPath, name, getFileExt));
         }
         break;
       }
-      case 'rename': {
-        if (!this.state.newName)
-          break;
+      case "rename": {
+        if (!this.state.newName) break;
         //rename handler
         //fileName has new name, selectedItem has old name and path
         let index;
-        if (this.state.selectedItem.type === 'directory') {
+        if (this.state.selectedItem.type === "directory") {
           index = this.findItemIndex(parentDirObj.subdirectories, name);
           parentDirObj.subdirectories[index].name = this.state.newName;
-          parentDirObj.subdirectories[index].path = path.join(path.dirname(absPath), this.state.newName);
+          parentDirObj.subdirectories[index].path = path.join(
+            path.dirname(absPath),
+            this.state.newName
+          );
         } else {
           index = this.findItemIndex(parentDirObj.files, name);
           parentDirObj.files[index].name = this.state.newName;
-          parentDirObj.files[index].path = path.join(path.dirname(absPath), this.state.newName);
+          parentDirObj.files[index].path = path.join(
+            path.dirname(absPath),
+            this.state.newName
+          );
         }
         //renames path of selected renamed file so it has the right info
         this.setState({
@@ -314,7 +347,7 @@ export default class App extends React.Component {
     this.setState({
       fileTree,
       fileChangeType: null,
-      newName: '',
+      newName: "",
       createMenuInfo: {
         id: null,
         type: null
@@ -325,14 +358,9 @@ export default class App extends React.Component {
   /**
    * calls file-tree module and sets state with file tree object representation in callback
    */
-  setFileTree(rootPath) {
-    getTree(rootPath, (fileTree) => {
-      this.setState({
-        fileTree
-      });
-      this.constructComponentTreeObj();
-    }, this.onFSWatcherEvent);
-  }
+  // setFileTree(rootPath) {
+  //   getTree(rootPath, this.onFileTreeEvent, this.onFSWatcherEvent);
+  // }
   /**
    * returns index of file/dir in files or subdirectories array
    */
@@ -381,17 +409,16 @@ export default class App extends React.Component {
    */
   createMenuHandler(id, type, event, actionType, path) {
     //unhook keypress listeners
-    document.body.onkeydown = () => { };
+    document.body.onkeydown = () => {};
     event.stopPropagation();
-    if (actionType === 'rename') {
+    if (actionType === "rename") {
       this.setState({
         renameFlag: true
       });
-    } else if (actionType === 'delete') {
-
-      ipcRenderer.send('delete', path);
+    } else if (actionType === "delete") {
+      ipcRenderer.send("delete", path);
       this.setState({
-        fileChangeType: 'delete'
+        fileChangeType: "delete"
       });
     } else {
       this.setState({
@@ -409,18 +436,18 @@ export default class App extends React.Component {
    */
 
   createItem(event) {
-    if (event.key === 'Enter') {
+    if (event.key === "Enter") {
       //send path and file type to main process to actually create file/dir only if there is value
       if (event.target.value)
         ipcRenderer.send(
-          'createItem',
+          "createItem",
           this.state.selectedItem.path,
           event.target.value,
           this.state.createMenuInfo.type
         );
       //set type of file change so watch handler knows which type
       this.setState({
-        fileChangeType: 'new'
+        fileChangeType: "new"
       });
     }
   }
@@ -432,7 +459,7 @@ export default class App extends React.Component {
    */
   closeTab(path, event) {
     const copyOpenTabs = Object.assign({}, this.state.openTabs);
-    const history = this.state.previousPaths.slice().filter((elem) => {
+    const history = this.state.previousPaths.slice().filter(elem => {
       return elem !== path;
     });
     for (let key in copyOpenTabs) {
@@ -448,7 +475,13 @@ export default class App extends React.Component {
    * Save tab handler --> Writes to filesystem of whichever path is being changed
    */
   saveTab() {
-    fs.writeFileSync(this.state.previousPaths[this.state.previousPaths.length - 1], this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length - 1]].editorValue, { encoding: 'utf8' });
+    fs.writeFileSync(
+      this.state.previousPaths[this.state.previousPaths.length - 1],
+      this.state.openTabs[
+        this.state.previousPaths[this.state.previousPaths.length - 1]
+      ].editorValue,
+      { encoding: "utf8" }
+    );
   }
   /**
    * Sets active tab to change highlighting, and to determine which Monaco model is open
@@ -456,9 +489,9 @@ export default class App extends React.Component {
    */
   setActiveTab(path) {
     let copyPreviousPaths = this.updateHistory(path);
-    this.setState({ previousPaths: copyPreviousPaths })
+    this.setState({ previousPaths: copyPreviousPaths });
   }
-  /** 
+  /**
    * Add a path to the previousPaths, in order to determine which path to pop back to on tab close
    * @param {String} path Path of tab that needs to be put into the history arr
    */
@@ -474,17 +507,17 @@ export default class App extends React.Component {
    */
   dblClickHandler(file) {
     const history = this.updateHistory(file.path);
-    if (!(Object.keys(this.state.openTabs).includes(file.path))) {
+    if (!Object.keys(this.state.openTabs).includes(file.path)) {
       const openTabs = Object.assign({}, this.state.openTabs);
       openTabs[file.path] = {
         path: file.path,
         name: file.name,
         modified: false,
-        editorValue: ''
+        editorValue: ""
       };
       this.setState({ openTabs: openTabs, previousPaths: history });
     } else {
-      this.setState({ previousPaths: history })
+      this.setState({ previousPaths: history });
     }
   }
 
@@ -492,7 +525,7 @@ export default class App extends React.Component {
    * Open up the simulator by sending a message to ipcRenderer('openSimulator')
    */
   openSim() {
-    ipcRenderer.send('openSimulator', 'helloworld');
+    ipcRenderer.send("openSimulator", "helloworld");
   }
   /**
    * Opens up simulator within IDE window by sending a message to ipcRenderer('start simulator')
@@ -500,7 +533,7 @@ export default class App extends React.Component {
    */
   openSimulatorInMain() {
     this.setState({ simulator: true });
-    ipcRenderer.send('start simulator', 'helloworld');
+    ipcRenderer.send("start simulator", "helloworld");
   }
   /**
    * closes any open dialogs, handles clicks on anywhere besides the active open menu/form
@@ -509,7 +542,7 @@ export default class App extends React.Component {
     const selectedItem = this.state.selectedItem;
     selectedItem.focused = false;
 
-    document.body.onkeydown = () => { };
+    document.body.onkeydown = () => {};
     this.setState({
       openMenuId: null,
       createMenuInfo: {
@@ -526,15 +559,22 @@ export default class App extends React.Component {
    * @param {String} value Contents of the Monaco editor instance
    */
   handleEditorValueChange(value) {
-    const copyOpenTabs = Object.assign({}, this.state.openTabs)
-    const copyTabObject = Object.assign({}, this.state.openTabs[this.state.previousPaths[this.state.previousPaths.length - 1]]);
+    const copyOpenTabs = Object.assign({}, this.state.openTabs);
+    const copyTabObject = Object.assign(
+      {},
+      this.state.openTabs[
+        this.state.previousPaths[this.state.previousPaths.length - 1]
+      ]
+    );
     copyTabObject.editorValue = value;
-    copyOpenTabs[this.state.previousPaths[this.state.previousPaths.length - 1]] = copyTabObject;
+    copyOpenTabs[
+      this.state.previousPaths[this.state.previousPaths.length - 1]
+    ] = copyTabObject;
     this.setState({ openTabs: copyOpenTabs }, () => this.saveTab());
   }
   closeSim() {
     this.setState({ simulator: false });
-    ipcRenderer.send('closeSim', this.state.liveServerPID);
+    ipcRenderer.send("closeSim", this.state.liveServerPID);
   }
   /**
    * render function for TextEditorPane
@@ -548,19 +588,20 @@ export default class App extends React.Component {
         handleOpenSimulator_Main={this.openSimulatorInMain}
         handleOpenSimulator_Ext={this.openSim}
         onEditorValueChange={this.handleEditorValueChange}
-      />);
+      />
+    );
   }
 
   renderSideLayout() {
     return (
-      <ride-pane style={{ flexGrow: 0, flexBasis: '300px' }}>
+      <ride-pane style={{ flexGrow: 0, flexBasis: "300px" }}>
         <div className="item-views">
           <div className="styleguide pane-item">
             <header className="styleguide-header">
               <h5>File Directory</h5>
             </header>
             <main className="styleguide-sections">
-              {this.state.fileTree &&
+              {this.state.fileTree && (
                 <FileTree
                   dblClickHandler={this.dblClickHandler}
                   openCreateMenu={this.openCreateMenu}
@@ -574,16 +615,18 @@ export default class App extends React.Component {
                   renameFlag={this.state.renameFlag}
                   renameHandler={this.renameHandler}
                 />
-              }
+              )}
             </main>
           </div>
         </div>
-        {this.state.deletePromptOpen
-          ? <DeletePrompt
+        {this.state.deletePromptOpen ? (
+          <DeletePrompt
             deletePromptHandler={this.deletePromptHandler}
             name={path.basename(this.state.selectedItem.path)}
           />
-          : <span />}
+        ) : (
+          <span />
+        )}
         <div className="item-views">
           <div className="styleguide pane-item">
             <header className="styleguide-header">
@@ -591,14 +634,19 @@ export default class App extends React.Component {
                 <h5>Component Tree</h5>
               </div>
               <div id="comptree-titlebar-right">
-                {this.state.componentTreeObj &&
-                  <RefreshComponentTreeButton constructComponentTreeObj={this.constructComponentTreeObj} />}
+                {this.state.componentTreeObj && (
+                  <RefreshComponentTreeButton
+                    constructComponentTreeObj={this.constructComponentTreeObj}
+                  />
+                )}
               </div>
             </header>
             <main className="styleguide-sections">
-              {this.state.componentTreeObj &&
-                <MockComponentTree componentTreeObj={this.state.componentTreeObj} />
-              }
+              {this.state.componentTreeObj && (
+                <MockComponentTree
+                  componentTreeObj={this.state.componentTreeObj}
+                />
+              )}
             </main>
           </div>
         </div>
@@ -618,8 +666,7 @@ export default class App extends React.Component {
           </button>
         </React.Fragment>
       );
-    }
-    else {
+    } else {
       renderer.push(this.renderTextEditorPane());
     }
     return renderer;
@@ -632,27 +679,31 @@ export default class App extends React.Component {
       return (
         <ConsolePane
           rootDirPath={this.state.rootDirPath}
-          cra={this.state.cra}
-          craOut={this.state.craOut}
-        />);
+          projLoaded={this.state.projLoaded}
+          fileTree={this.state.fileTree}
+        />
+      );
     }
   }
 
   renderMainLayout() {
     return (
-      <ride-pane style={{ flexGrow: 0, flexBasis: '100%' }}>
-        {this.state.rootDirPath &&
+      <ride-pane style={{ flexGrow: 0, flexBasis: "100%" }}>
+        {this.state.rootDirPath && (
           <React.Fragment>
             {this.renderMainTopPanel()}
             {this.renderMainBottomPanel()}
           </React.Fragment>
-        }
+        )}
       </ride-pane>
     );
   }
   render() {
     return (
-      <ride-workspace className="scrollbars-visible-always" onClick={this.closeOpenDialogs}>
+      <ride-workspace
+        className="scrollbars-visible-always"
+        onClick={this.closeOpenDialogs}
+      >
         <ride-panel-container className="header" />
         <ride-pane-container>
           <ride-pane-axis className="horizontal">

@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const { getFileExt, getCssClassByFileExt } = require('../../lib/file-tree.js');
+const { getFileExt, getCssClassByFileExt } = require('../../lib/common');
 
 const Tab = ({ name, isActive, setActiveTab, path, closeTab }) => {
   return (

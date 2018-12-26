@@ -1,38 +1,52 @@
-const {exec, spawn, fork} = require('child_process');
-const os = require('os');
-const pty = require('node-pty');
+const os = require("os");
+const pty = require("node-pty");
 
-require('fix-path')();
 /**
  * Takes in a command and current working directory from Terminal.js then runs and executes command using Node child process
  * @param {String} cwd Current working directory of the terminal
  * @param {String} command Command entered by the user
  * @param {Terminal} terminal Terminal instance to write messages to the pseudo terminal GUI
  */
-const shell = os.platform() === 'win32'? 'powershell.exe' : 'bash';
-let outputConsole = null;
-let shellConsole = null;
 
-const runExec = (cwd, command, onDataHander, onExitHandler) => {
-  const commandArr = command.split(' ');
-  let p = pty.spawn(commandArr[0], commandArr.slice(1), {
-    name: command[0],
-    col: 80,
+const runShell = (cwd, terminal) => {
+  const shell = os.platform() === "win32" ? "powershell.exe" : "bash";
+  let p = pty.spawn(shell, [], {
+    name: "xterm-color",
+    cols: 114,
     rows: 30,
     cwd: cwd,
     env: process.env
   });
-  p.on('data', (data) => {
-    if (onDataHander) 
-      onDataHander(data);
+  if (process.platform !== "win32") p.write('PS1="\\u:\\w\\$ "\r');
+
+  p.on("data", function(data) {
+    terminal.write(data);
   });
-  p.on('exit', (exitCode) => {
-    if (onExitHandler)
-      onExitHandler();
+  terminal.on("data", function(data) {
+    p.write(data);
   });
-}
-const runTerminal = (cwd, command,  terminal) => {
-  const shell = os.platform() === 'win32'? 'powershell.exe' : 'bash';
+  return p;
+};
+
+const runExec = (cwd, command, onDataHander, onExitHandler) => {
+  const commandArr = command.split(" ");
+  let p = pty.spawn(commandArr[0], commandArr.slice(1), {
+    name: command[0],
+    cols: 114,
+    cwd: cwd,
+    env: process.env
+  });
+  p.on("data", data => {
+    onDataHander(data);
+  });
+  p.on("exit", exitCode => {
+    if (onExitHandler) onExitHandler();
+  });
+  return p;
+};
+
+const runTerminal = (cwd, command, terminal) => {
+  const shell = os.platform() === "win32" ? "powershell.exe" : "bash";
   let p = pty.spawn(shell, command.slice, {
     name: command[0],
     col: 80,
@@ -40,10 +54,10 @@ const runTerminal = (cwd, command,  terminal) => {
     cwd: cwd,
     env: process.env
   });
-  p.on('data', function(data) {
+  p.on("data", function(data) {
     terminal.write(data);
   });
-  terminal.on('data', function(data){
+  terminal.on("data", function(data) {
     p.write(data);
   });
   //Clear weird case where command includes \r
@@ -54,7 +68,7 @@ const runTerminal = (cwd, command,  terminal) => {
   // //If not npm, just run an exec because its faster output
   // if(command.split(' ')[0] !== 'npm' || basicCommands.includes(command.split(' ')[0])){
   //   return new Promise((resolve, reject) => {
-  //     let child = exec(command, 
+  //     let child = exec(command,
   //       {
   //         cwd: cwd
   //       });
@@ -92,5 +106,5 @@ const runTerminal = (cwd, command,  terminal) => {
   //     terminal.write('$');
   //   })
   // }
-}
-module.exports = {runTerminal, runExec}
+};
+module.exports = { runTerminal, runExec, runShell };

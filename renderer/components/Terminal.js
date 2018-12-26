@@ -1,25 +1,18 @@
 import React from 'react';
+const { ipcRenderer }  = require('electron');
 import { Terminal } from 'xterm';
 import * as fit from 'xterm/lib/addons/fit/fit';
-
-const os = require('os');
-const pty = require('node-pty');
+const { runShell } = require('../../nodeTerminal');
 
 let term = null;
+let proc = null;
 
 //Declare terminal for use throughout the component lifecycle
 class XTerm extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {
-      currCommand: '',
-      cwd: this.props.rootdir,
-      pastCommands: [],
-      commandIndex: 0,
-      cursorIndex: -1,
-      rootDir: this.props.rootdir
-    }
+    this.state = {projLoaded: false};
     // this.focusXTerm = this.focusXTerm.bind(this);
   }
   //Compare rootdir being passed to determine whether or not we need to render a new terminal
@@ -35,41 +28,68 @@ class XTerm extends React.Component {
   //   }
   // }
 
-  runShell(cwd, terminal) {
-    const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-    let p = pty.spawn(shell, [], {
-      name: 'xterm-color',
-      col: 131,
-      rows: 30,
-      cwd: cwd,
-      env: process.env
-    });
-    p.on('data', function (data) {
-      terminal.write(data);
-    });
-    terminal.on('data', function (data) {
-      p.write(data);
-    });
-    p.write('PS1=\"\\u:\\w\\$\ "\r');
+  // runShell(cwd, terminal) {
+  //   const shell = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
+  //   let p = pty.spawn(shell, [], {
+  //     name: 'xterm-color',
+  //     col: 131,
+  //     rows: 30,
+  //     cwd: cwd,
+  //     env: process.env
+  //   });
+  //   p.on('data', function (data) {
+  //     terminal.write(data);
+  //   });
+  //   terminal.on('data', function (data) {
+  //     p.write(data);
+  //   });
+  //   p.write('PS1=\"\\u:\\w\\$\ "\r');
+  // }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.projLoaded != this.state.projLoaded ) {
+      if (nextProps.projLoaded) {
+      console.log('pre runShell', this.props.rootPath);
+      proc = runShell(this.props.rootPath, term);
+      console.log('post runShell', proc);
+      }
+      else {
+        proc.kill();
+        term.clear();
+      }
+      this.setState({projLoaded: nextProps.projLoaded});
+    }
   }
 
   componentDidMount() {
     // apply 'fit' addon
     Terminal.applyAddon(fit);
-
     term = new Terminal({
+      cols: 131,
       theme: { background: 'transparent' }
     });
+    
     //Set up some terminal options
     term.setOption('allowTransparency', true);
     term.setOption('cursorStyle', 'block');
     term.setOption('cursorBlink', true);
     term.setOption('fontSize', 14);
+    
     //Grab div from the DOM to render terminal
     term.open(document.getElementById('terminal'));
     // let greeting = '';
     term.fit();
-    this.runShell(this.state.cwd, term);
+    term.focus();
+    // ipcRenderer.on("termOut", (event, arg) => {
+    //   term.write(arg);
+    // });
+
+    /*
+    term.on('data', (data) => {
+      console.log('sending data via ipc', data);
+      ipcRenderer.send('term-stdin', data);
+    });
+    */
+    //this.runShell(this.state.cwd, term);
 
     //On keypress, execute. Switch case to handle the enter, lft, rght, up, down arrow and normal keys
     // term.on('key', (key, ev) => {
@@ -133,6 +153,7 @@ class XTerm extends React.Component {
   }
 
   componentWillUnmount() {
+    //ipcRenderer.send('unbind-runShell');
     term.destroy();
   }
   render() {

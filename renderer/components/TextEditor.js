@@ -1,9 +1,8 @@
 import React from 'react';
 import ESLintWorker from './../workers/eslint.worker';
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js'
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import PropTypes from 'prop-types';
 //import { StaticServices } from 'monaco-editor/esm/vs/editor/standalone/browser/standaloneServices'; 
-import light from './../themes/light';
 import dark from './../themes/dark';
 
 //const codeEditorService = StaticServices.codeEditorService.get();
@@ -32,7 +31,6 @@ const compilerOptions = {
 monaco.languages.typescript.typescriptDefaults.setCompilerOptions(compilerOptions);
 monaco.languages.typescript.javascriptDefaults.setCompilerOptions(compilerOptions);
 
-monaco.editor.defineTheme('ayu-light', light);
 monaco.editor.defineTheme('ayu-dark', dark);
 
 export default class TextEditor extends React.PureComponent {
