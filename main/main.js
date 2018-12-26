@@ -6,8 +6,13 @@ const fs = require('fs');
 const menuTemplate = require('./menus/mainMenu');
 const registerShortcuts = require('./localShortcuts');
 const registerIpcListeners = require('./ipcMainListeners');
-const devtron = require('devtron');
-require('electron-debug')();
+
+if (
+  process.env.NODE_ENV === 'development' ||
+  process.env.DEBUG_PROD === 'true'
+) {
+  require('electron-debug')();
+}
 
 const projInfoPath = path.join(__dirname, '../lib/projInfo.js');
 const projInfo = {
@@ -21,7 +26,7 @@ const projInfo = {
   reactEntry: ''
 };
 const installExtensions = async () => {
-  devtron.install();
+  require('devtron').install();
   const installer = require('electron-devtools-installer');
   const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -49,7 +54,6 @@ app.on('ready', async () => {
     // icon: '', // pending
     show: false
   });
-
   // load index.html to main window
   win.loadURL('file://' + path.join(__dirname, '../renderer/index.html'));
 
@@ -58,7 +62,12 @@ app.on('ready', async () => {
   Menu.setApplicationMenu(menu);
 
   // toggle devtools only if development
-  await installExtensions();
+  if (
+    process.env.NODE_ENV === 'development' ||
+    process.env.DEBUG_PROD === 'true'
+  ) {
+    await installExtensions();
+  }
   
   // put Main window instance in global variable for use in other modules
   global.mainWindow = win;
@@ -66,10 +75,14 @@ app.on('ready', async () => {
   // Register listeners and shortcuts
   registerIpcListeners();
   registerShortcuts(win);
+  
   //Register listener to close entire window + simulator window when mainWindow closes
   win.on('closed', function(){
     fs.writeFileSync(projInfoPath, JSON.stringify(projInfo));
-    app.quit();
+    if (process.platform !== 'darwin') {
+      app.quit();
+    }
+    win = null;
   });
   // Wait for window to be ready before showing to avoid white loading screen
   win.once('ready-to-show', () => {
