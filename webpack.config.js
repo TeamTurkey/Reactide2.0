@@ -38,7 +38,6 @@ module.exports = {
       {
         test: /\.scss$/,
         use: [
-          "style-loader", // creates style nodes from JS strings
           "css-loader", // translates CSS into CommonJS
           "sass-loader" // compiles Sass to CSS, using Node Sass by default
         ]
@@ -46,7 +45,7 @@ module.exports = {
       {
         test: /\.jsx?$/,
         loader: 'babel-loader',
-        exclude: /(node_modules|(vendor\/.+.bundle\.js))/,
+        exclude: /(node_modules|eslint\.bundle\.js)/,
         query: {
           "presets": [
             "@babel/preset-env",
