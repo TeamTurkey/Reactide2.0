@@ -15,7 +15,7 @@ const importPathFunctions = require("../../importPath");
 
 // electron remotes
 const remote = require("electron").remote;
-const {getTree} = remote.require("./remote/file-tree.js");
+const { getTree } = remote.require("./remote/file-tree.js");
 const cra = remote.require("./remote/create-react-app.js");
 
 export default class App extends React.Component {
@@ -173,13 +173,15 @@ export default class App extends React.Component {
       //ipcRenderer.send("start-cra", dest);
     });
     ipcRenderer.on("openProject", (event, arg) => {
+      
       self.setState({ openTabs: {}, rootDirPath: arg, projLoaded: false });
       ipcRenderer.once('fileTree', (event, fileTree) => {
         self.setState({ fileTree, projLoaded: true });
-        console.time('constructComponent');
+        // console.time('constructComponent');
         self.constructComponentTreeObj();
-        console.timeEnd('constructComponent');
+        // console.timeEnd('constructComponent');
       });
+      console.log(arg);
       getTree(arg);
     });
   }
@@ -236,7 +238,7 @@ export default class App extends React.Component {
         this.setState({
           renameFlag: true
         });
-        document.body.onkeydown = () => {};
+        document.body.onkeydown = () => { };
       }
     };
     if (type === "directory") {
@@ -409,7 +411,7 @@ export default class App extends React.Component {
    */
   createMenuHandler(id, type, event, actionType, path) {
     //unhook keypress listeners
-    document.body.onkeydown = () => {};
+    document.body.onkeydown = () => { };
     event.stopPropagation();
     if (actionType === "rename") {
       this.setState({
@@ -542,7 +544,7 @@ export default class App extends React.Component {
     const selectedItem = this.state.selectedItem;
     selectedItem.focused = false;
 
-    document.body.onkeydown = () => {};
+    document.body.onkeydown = () => { };
     this.setState({
       openMenuId: null,
       createMenuInfo: {
@@ -563,7 +565,7 @@ export default class App extends React.Component {
     const copyTabObject = Object.assign(
       {},
       this.state.openTabs[
-        this.state.previousPaths[this.state.previousPaths.length - 1]
+      this.state.previousPaths[this.state.previousPaths.length - 1]
       ]
     );
     copyTabObject.editorValue = value;
@@ -625,8 +627,8 @@ export default class App extends React.Component {
             name={path.basename(this.state.selectedItem.path)}
           />
         ) : (
-          <span />
-        )}
+            <span />
+          )}
         <div className="item-views">
           <div className="styleguide pane-item">
             <header className="styleguide-header">

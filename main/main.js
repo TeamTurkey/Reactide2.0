@@ -52,7 +52,10 @@ app.on('ready', async () => {
     title: 'Reactide',
     // titleBarStyle: hidden-inset, // pending
     // icon: '', // pending
-    show: false
+    show: false,
+    webPreferences: {
+      nodeIntegration: true
+    }
   });
   // load index.html to main window
   win.loadURL('file://' + path.join(__dirname, '../renderer/index.html'));

@@ -27,7 +27,7 @@ const menuTemplate = windowObj => [
         click: () => {
           // warn user of unsaved changes before below
           global.newProj = true;
-          const save = dialog.showSaveDialog();
+          const save = dialog.showSaveDialogSync();
           //Run cra with 'save' variable as destination path
           if(save) {
             let dest = path.join(path.dirname(save), path.basename(save).toLowerCase());
@@ -42,7 +42,7 @@ const menuTemplate = windowObj => [
         label: 'Open…',
         click: () => {
           global.newProj = false;
-          const rootDir = dialog.showOpenDialog(windowObj, {
+          const rootDir = dialog.showOpenDialogSync(windowObj, {
             properties: ['openDirectory']
           });
           if (rootDir) {
