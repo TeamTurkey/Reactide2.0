@@ -4,7 +4,7 @@ const { dialog } = require('electron');
 const path = require('path');
 const copy = require('../../lib/copy-directory');
 const deleteDirectory = require('../../lib/delete-directory');
-const cra = require('../../lib/create-react-app');
+const cra = require('../remote/create-react-app');
 
 const menuTemplate = windowObj => [
   {
@@ -27,12 +27,12 @@ const menuTemplate = windowObj => [
         click: () => {
           // warn user of unsaved changes before below
           global.newProj = true;
-          const save = dialog.showSaveDialog();
+          const save = dialog.showSaveDialogSync();
           //Run cra with 'save' variable as destination path
           if(save) {
             let dest = path.join(path.dirname(save), path.basename(save).toLowerCase());
-            global.mainWindow.webContents.send('newProject_pre', dest);
-            cra(dest);       
+            mainWindow.webContents.send('newProject_pre', dest);
+            //cra(dest);       
           }
         },
         accelerator: 'CommandOrControl+N'
@@ -42,11 +42,12 @@ const menuTemplate = windowObj => [
         label: 'Open…',
         click: () => {
           global.newProj = false;
-          const rootDir = dialog.showOpenDialog(windowObj, {
+          const rootDir = dialog.showOpenDialogSync(windowObj, {
             properties: ['openDirectory']
           });
           if (rootDir) {
-            global.mainWindow.webContents.send('openDir', rootDir[0]);
+            global.mainWindow.webContents.send("craOut", 'Opening project: ' + rootDir[0] + '\r\n');
+            global.mainWindow.webContents.send('openProject', rootDir[0]);
           }
         },
         accelerator: 'CommandOrControl+O'
