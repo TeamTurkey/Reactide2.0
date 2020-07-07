@@ -61,6 +61,6 @@
     "xterm": "^3.8.0"
   },
   "devDependencies": {
-    "electron": "^3.0.9"
+    "electron": "^9.1.0"
   }
 }
